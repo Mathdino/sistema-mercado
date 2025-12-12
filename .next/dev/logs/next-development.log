@@ -1,11 +1,122 @@
-[00:00:02.462] Server  LOG      ✓ Ready in 1639ms
-[00:00:05.572] Server  LOG      ○ Compiling /login ...
-[00:00:08.180] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:08.180] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
-[00:00:08.180] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765556579681}
-[01:07:19.478] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[01:07:19.478] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
-[01:07:19.479] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765560611341}
-[01:07:34.460] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765560626318}
-[01:07:35.211] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin color: rgb(120, 120, 120) color: inherit {"dp":"/admin","o":"http://localhost:3000/admin","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765560627072}
-[01:07:39.698] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765560631516}
+[00:00:02.013] Server  LOG      ✓ Ready in 1378ms
+[00:00:05.086] Server  LOG      ○ Compiling /login ...
+[00:00:06.703] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:06.703] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
+[00:00:06.703] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565495292}
+[00:03:10.827] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565679408}
+[00:03:11.863] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin color: rgb(120, 120, 120) color: inherit {"dp":"/admin","o":"http://localhost:3000/admin","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565680460}
+[00:03:16.294] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565684886}
+[00:03:23.794] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/products color: rgb(120, 120, 120) color: inherit {"dp":"/admin/products","o":"http://localhost:3000/admin/products","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565692385}
+[00:03:25.547] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565694132}
+[00:03:35.397] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.399] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\[root-of-the-server]__642ceb6e._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.425] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\node_modules__pnpm_1af0a762._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.432] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\base-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.437] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\next-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.440] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\dev\next-dev-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.441] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\trace\trace.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.442] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\lib\router-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.444] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\lib\start-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.447] Server  WARN    Error: Route "/api/orders/[id]/status" used `params.id`. `params` is a Promise and must be unwrapped with `await` or `React.use()` before accessing its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+[00:03:35.459] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\[root-of-the-server]__642ceb6e._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.480] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\@prisma+client@7.1.0_prisma_a0886acc89372f6f581245297505cbe3\node_modules\@prisma\client\runtime\client.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.481] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.481] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\node_modules__pnpm_1af0a762._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.482] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\base-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.483] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\next-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.484] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\dev\next-dev-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.484] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\trace\trace.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.485] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\lib\router-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.485] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\lib\start-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:35.487] Server  ERROR   Error updating order status: PrismaClientValidationError: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].order.update()` invocation in
+C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\[root-of-the-server]__642ceb6e._.js:265:165
+
+  262     });
+  263 }
+  264 // Update the order status
+→ 265 const updatedOrder = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].order.update({
+        where: {
+          id: undefined
+        },
+        data: {
+          status: "cancelled"
+                  ~~~~~~~~~~~
+        }
+      })
+
+Invalid value for argument `status`. Expected OrderStatus.
+[00:03:36.229] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.230] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\[root-of-the-server]__642ceb6e._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.230] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\node_modules__pnpm_1af0a762._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.231] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\base-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.232] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\next-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.232] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\dev\next-dev-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.233] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\trace\trace.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.234] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\lib\router-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.235] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\lib\start-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.236] Server  WARN    Error: Route "/api/orders/[id]/status" used `params.id`. `params` is a Promise and must be unwrapped with `await` or `React.use()` before accessing its properties. Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+[00:03:36.240] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\[root-of-the-server]__642ceb6e._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.242] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\@prisma+client@7.1.0_prisma_a0886acc89372f6f581245297505cbe3\node_modules\@prisma\client\runtime\client.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.244] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.245] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\node_modules__pnpm_1af0a762._.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.245] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\base-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.247] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\next-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.248] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\dev\next-dev-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.249] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\trace\trace.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.250] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\lib\router-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.251] Server  ERROR   C:\Users\User\Desktop\outros\market-delivery-app\node_modules\.pnpm\next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0\node_modules\next\dist\server\lib\start-server.js: Invalid source map. Only conformant source maps can be used to find the original code. Cause: Error: sourceMapURL could not be parsed
+[00:03:36.252] Server  ERROR   Error updating order status: PrismaClientValidationError: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].order.update()` invocation in
+C:\Users\User\Desktop\outros\market-delivery-app\.next\dev\server\chunks\[root-of-the-server]__642ceb6e._.js:265:165
+
+  262     });
+  263 }
+  264 // Update the order status
+→ 265 const updatedOrder = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].order.update({
+        where: {
+          id: undefined
+        },
+        data: {
+          status: "cancelled"
+                  ~~~~~~~~~~~
+        }
+      })
+
+Invalid value for argument `status`. Expected OrderStatus.
+[00:03:53.116] Server  LOG      ✓ Compiled in 342ms
+[00:03:54.878] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:03:54.878] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/orders","route":"/admin/orders"}
+[00:03:54.878] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565723403}
+[00:03:54.878] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565723472}
+[00:04:01.877] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565730463}
+[00:04:02.031] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin color: rgb(120, 120, 120) color: inherit {"dp":"/admin","o":"http://localhost:3000/admin","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565730621}
+[00:04:04.665] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565733224}
+[00:04:42.211] Server  LOG      ✓ Compiled in 138ms
+[00:05:03.871] Server  LOG      ✓ Compiled in 116ms
+[00:05:06.353] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:05:06.353] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/admin/orders","route":"/admin/orders"}
+[00:05:06.353] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565794936}
+[00:05:06.353] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565794949}
+[00:05:18.797] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565807381}
+[00:05:18.902] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin color: rgb(120, 120, 120) color: inherit {"dp":"/admin","o":"http://localhost:3000/admin","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565807498}
+[00:05:21.456] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565810013}
+[00:05:58.217] Server  LOG      ✓ Compiled in 166ms
+[00:06:04.708] Server  LOG      ✓ Compiled in 155ms
+[00:06:06.528] Server  LOG      ✓ Compiled in 128ms
+[00:06:17.304] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/products color: rgb(120, 120, 120) color: inherit {"dp":"/admin/products","o":"http://localhost:3000/admin/products","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565865899}
+[00:06:18.108] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765565866665}
+[00:06:34.913] Server  LOG      ✓ Compiled in 118ms
+[00:06:43.759] Server  LOG      ✓ Compiled in 116ms
+[00:08:15.397] Server  LOG      ✓ Compiled in 345ms
+[00:08:40.345] Server  LOG      ✓ Compiled in 151ms
+[00:09:12.521] Server  LOG      ✓ Compiled in 144ms
+[00:09:20.853] Server  LOG      ✓ Compiled in 128ms
+[00:09:30.599] Server  LOG      ✓ Compiled in 285ms
+[00:09:53.802] Server  LOG      ✓ Compiled in 118ms
+[00:10:06.768] Server  LOG      ✓ Compiled in 141ms
+[00:10:17.057] Server  LOG      ✓ Compiled in 159ms
+[00:10:19.208] Server  LOG      ✓ Compiled in 130ms
+[00:10:26.364] Server  LOG      ✓ Compiled in 163ms
+[00:10:42.448] Server  LOG      ✓ Compiled in 106ms
+[00:10:50.867] Server  LOG      ✓ Compiled in 176ms
