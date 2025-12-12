@@ -283,31 +283,30 @@ const useCartStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
 const useAuthStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zustand$40$5$2e$0$2e$9_$40$types$2b$react$40$_abef80168be8267936275a0417dbfe6a$2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["create"])()((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zustand$40$5$2e$0$2e$9_$40$types$2b$react$40$_abef80168be8267936275a0417dbfe6a$2f$node_modules$2f$zustand$2f$esm$2f$middleware$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["persist"])((set, get)=>({
         user: null,
         isAuthenticated: false,
-        login: async (email, password)=>{
-            // Mock authentication - in production, this would call an API
-            if (email === "admin@email.com" && password === "admin") {
-                set({
-                    user: {
-                        ...__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mock$2d$data$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["mockUser"],
-                        email,
-                        role: "admin",
-                        name: "Administrador"
+        login: async (identifier, password)=>{
+            try {
+                const res = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
-                    isAuthenticated: true
+                    body: JSON.stringify({
+                        identifier,
+                        password
+                    })
                 });
-                return true;
+                const data = await res.json();
+                if (res.ok && data.user) {
+                    set({
+                        user: data.user,
+                        isAuthenticated: true
+                    });
+                    return true;
+                }
+                return false;
+            } catch  {
+                return false;
             }
-            if (password === "senha123") {
-                set({
-                    user: {
-                        ...__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$mock$2d$data$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["mockUser"],
-                        email
-                    },
-                    isAuthenticated: true
-                });
-                return true;
-            }
-            return false;
         },
         loginWithOAuth: (oauthUser)=>{
             set({

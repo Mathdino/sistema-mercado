@@ -12,7 +12,7 @@ import { useOrderStore } from "@/lib/store"
 import { mockOrders } from "@/lib/mock-data"
 import { formatCurrency, formatDate } from "@/lib/currency"
 import type { Order } from "@/lib/types"
-import { Eye } from "lucide-react"
+import { Eye, Download } from "lucide-react"
 
 export default function AdminOrdersPage() {
   const { orders, updateOrderStatus } = useOrderStore()
@@ -35,14 +35,140 @@ export default function AdminOrdersPage() {
     }
   }
 
-  const statusColors = {
-    pending: "secondary",
-    confirmed: "default",
-    preparing: "default",
-    delivering: "default",
-    delivered: "outline",
-    cancelled: "destructive",
-  } as const
+  const getStatusLabel = (status: Order["status"]) => {
+    switch (status) {
+      case "pending": return "Pendente"
+      case "confirmed": return "Confirmado"
+      case "preparing": return "Preparando"
+      case "delivering": return "Em entrega"
+      case "delivered": return "Entregue"
+      case "cancelled": return "Cancelado"
+      default: return status
+    }
+  }
+
+  const getStatusColor = (status: Order["status"]) => {
+    switch (status) {
+      case "pending": return "bg-orange-500"
+      case "delivered": return "bg-green-500"
+      case "cancelled": return "bg-red-500"
+      default: return "bg-blue-500"
+    }
+  }
+
+  const generateOrderPDF = async (order: Order) => {
+    try {
+      // Dynamically import jsPDF
+      const jsPDF = (await import("jspdf")).default
+      
+      // Create jsPDF instance
+      const doc = new jsPDF()
+      
+      // Header with logo (using text as placeholder for logo)
+      doc.setFontSize(24)
+      doc.setFont("helvetica", "bold")
+      doc.text("MERCADO SÃO JORGE", 105, 20, { align: "center" } as any)
+      
+      doc.setFontSize(12)
+      doc.setFont("helvetica", "normal")
+      doc.text("Av. dos Automóveis, 1696", 105, 30, { align: "center" } as any)
+      doc.text("(11) 3456-7890", 105, 37, { align: "center" } as any)
+      
+      // Horizontal line separator
+      doc.line(20, 45, 190, 45)
+      
+      // Order title
+      doc.setFontSize(16)
+      doc.setFont("helvetica", "bold")
+      doc.text(`PEDIDO #${order.id}`, 20, 55)
+      
+      // Order date
+      doc.setFontSize(12)
+      doc.setFont("helvetica", "normal")
+      doc.text(`Data: ${formatDate(order.createdAt)}`, 150, 55)
+      
+      // Status
+      doc.text(`Status: ${getStatusLabel(order.status)}`, 150, 62)
+      
+      // Customer info
+      doc.setFontSize(14)
+      doc.setFont("helvetica", "bold")
+      doc.text("Informações do Cliente", 20, 72)
+      
+      // Customer name and phone (in a real implementation, this would come from the user data)
+      doc.setFontSize(12)
+      doc.setFont("helvetica", "normal")
+      // TODO: Fetch actual user data based on order.userId
+      // For now, using placeholder data - in a real app, you would look up the user by order.userId
+      doc.text(`Nome: João Silva`, 20, 82)
+      doc.text(`Telefone: (11) 98765-4321`, 20, 89)
+      
+      // Full address in one line (moved to be after phone number)
+      const fullAddress = `Endereço: ${order.deliveryAddress.street}, ${order.deliveryAddress.number}${order.deliveryAddress.complement ? `, ${order.deliveryAddress.complement}` : ''} - ${order.deliveryAddress.neighborhood}, ${order.deliveryAddress.city} - ${order.deliveryAddress.state}, ${order.deliveryAddress.zipCode}`
+      doc.text(fullAddress, 20, 96)
+      
+      // Horizontal line separator after customer info (moved to be below address)
+      doc.line(20, 102, 190, 102)
+       
+      // Items table - manually create table structure
+      let yPosition = 115
+       
+      // Table header
+      doc.setFont("helvetica", "bold")
+      doc.text('Produto', 20, yPosition)
+      doc.text('Qtde', 110, yPosition)  // Further reduced space for product name
+      doc.text('Preço Unit.', 130, yPosition)
+      doc.text('Subtotal', 170, yPosition)
+      yPosition += 10
+       
+      // Table rows
+      doc.setFont("helvetica", "normal")
+      order.items.forEach(item => {
+        // Product name (with wrapping if needed) - reduced width to prevent cutting
+        const productNameLines = doc.splitTextToSize(item.productName, 80)
+        doc.text(productNameLines, 20, yPosition)
+        
+        // Adjust yPosition based on number of lines
+        const lineHeight = 7
+        const linesHeight = productNameLines.length * lineHeight
+        doc.text(`${item.quantity}x`, 110, yPosition)
+        doc.text(formatCurrency(item.price), 130, yPosition)
+        doc.text(formatCurrency(item.subtotal), 170, yPosition)
+        
+        yPosition += linesHeight
+      })
+       
+      // Totals
+      yPosition += 10
+      doc.setFont("helvetica", "bold")
+      doc.text(`Subtotal:`, 130, yPosition)
+      doc.text(formatCurrency(order.subtotal), 170, yPosition)
+      yPosition += 10
+      
+      doc.text(`Taxa de entrega:`, 130, yPosition)
+      doc.text(formatCurrency(order.deliveryFee), 170, yPosition)
+      yPosition += 10
+      
+      doc.setFontSize(14)
+      doc.text(`TOTAL:`, 130, yPosition)
+      doc.text(formatCurrency(order.totalAmount), 170, yPosition)
+      
+      // Thank you message
+      yPosition += 90
+      doc.setFontSize(12)
+      doc.setFont("helvetica", "normal")
+      doc.text("Obrigado pela sua compra!", 105, yPosition, { align: "center" } as any)
+      yPosition += 7
+      doc.text("Volte sempre!", 105, yPosition, { align: "center" } as any)
+       
+      // Save the PDF
+      doc.save(`pedido-${order.id}.pdf`)
+    } catch (error) {
+      console.error("Error generating PDF:", error)
+      // Fallback: show alert to user
+      alert("Erro ao gerar o PDF. Por favor, tente novamente.")
+    }
+  }
 
   return (
     <AuthGuard requireRole="admin">
@@ -79,7 +205,10 @@ export default function AdminOrdersPage() {
                       <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={statusColors[order.status]}>{order.status}</Badge>
+                      <Badge className={`${getStatusColor(order.status)} text-white`}>{getStatusLabel(order.status)}</Badge>
+                      <Button variant="outline" size="icon" onClick={() => generateOrderPDF(order)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
                       <Button variant="outline" size="icon" onClick={() => setSelectedOrder(order)}>
                         <Eye className="h-4 w-4" />
                       </Button>
