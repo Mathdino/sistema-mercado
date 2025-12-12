@@ -1,0 +1,6 @@
+{
+  "/client/checkout/page": "app/client/checkout/page.js",
+  "/client/market/page": "app/client/market/page.js",
+  "/client/orders/page": "app/client/orders/page.js",
+  "/client/profile/page": "app/client/profile/page.js"
+}

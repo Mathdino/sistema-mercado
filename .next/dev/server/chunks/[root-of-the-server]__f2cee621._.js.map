@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 40, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/User/Desktop/outros/market-delivery-app/auth.ts"],"sourcesContent":["import NextAuth from \"next-auth\"\nimport Google from \"next-auth/providers/google\"\n\nexport const { handlers, auth, signIn, signOut } = NextAuth({\n  providers: [Google],\n})\n\nexport const nextAuthWithCallbacks = NextAuth({\n  callbacks: {\n    async signIn({ account, profile }: any) {\n      if (account.provider === \"google\") {\n        return profile.email_verified && profile.email.endsWith(\"@example.com\")\n      }\n      return true\n    },\n  },\n})\n"],"names":[],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;AAGO,MAAM,EAAE,QAAQ,EAAE,IAAI,EAAE,MAAM,EAAE,OAAO,EAAE,GAAG,SAAS;IAC1D,WAAW;QAAC;KAAO;AACrB;AAEO,MAAM,wBAAwB,SAAS;IAC5C,WAAW;QACT,MAAM,QAAO,EAAE,OAAO,EAAE,OAAO,EAAO;YACpC,IAAI,QAAQ,QAAQ,KAAK,UAAU;gBACjC,OAAO,QAAQ,cAAc,IAAI,QAAQ,KAAK,CAAC,QAAQ,CAAC;YAC1D;YACA,OAAO;QACT;IACF;AACF"}},
+    {"offset": {"line": 83, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/User/Desktop/outros/market-delivery-app/app/api/auth/%5B...nextauth%5D/route.ts"],"sourcesContent":["export { handlers as GET, handlers as POST } from \"@/auth\"\n"],"names":[],"mappings":";AAAA"}}]
+}
