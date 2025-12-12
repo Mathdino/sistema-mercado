@@ -68,7 +68,7 @@ export const useCartStore = create<CartStore>()(
 interface AuthStore {
   user: User | null
   isAuthenticated: boolean
-  login: (cpf: string, password: string) => Promise<boolean>
+  login: (identifier: string, password: string) => Promise<boolean>
   loginWithOAuth: (user: User) => void
   logout: () => void
   updateUser: (user: Partial<User>) => void
@@ -80,12 +80,12 @@ export const useAuthStore = create<AuthStore>()(
     (set, get) => ({
       user: null,
       isAuthenticated: false,
-      login: async (cpf, password) => {
+      login: async (identifier, password) => {
         try {
           const res = await fetch("/api/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ cpf, password }),
+            body: JSON.stringify({ identifier, password }),
           })
           const data = await res.json()
           if (res.ok && data.user) {

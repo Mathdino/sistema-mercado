@@ -1,6 +1,7 @@
 {
-  "/client/checkout/page": "app/client/checkout/page.js",
-  "/client/market/page": "app/client/market/page.js",
-  "/client/orders/page": "app/client/orders/page.js",
-  "/client/profile/page": "app/client/profile/page.js"
+  "/admin/orders/page": "app/admin/orders/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
 }

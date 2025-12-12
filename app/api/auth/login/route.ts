@@ -6,30 +6,47 @@ import { signJwt } from "@/lib/jwt"
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { cpf, password } = body || {}
-    if (!cpf || !password) {
+    const { identifier, password } = body || {}
+    if (!identifier || !password) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 })
     }
-    const cpfDigits = String(cpf).replace(/\D/g, "")
-    if (cpfDigits.length !== 11) {
-      return NextResponse.json({ error: "invalid_cpf" }, { status: 400 })
+
+    let user = null;
+    
+    // Check if identifier is an email (for admin login)
+    if (identifier.includes("@")) {
+      // Admin login with email
+      user = await prisma.user.findUnique({
+        where: { email: identifier },
+        include: { addresses: true },
+      })
+    } else {
+      // Client login with CPF
+      const cpfDigits = String(identifier).replace(/\D/g, "")
+      if (cpfDigits.length !== 11) {
+        return NextResponse.json({ error: "invalid_identifier" }, { status: 400 })
+      }
+      user = await prisma.user.findUnique({
+        where: { cpf: cpfDigits },
+        include: { addresses: true },
+      })
     }
-    const user = await prisma.user.findUnique({
-      where: { cpf: cpfDigits },
-      include: { addresses: true },
-    })
+
     if (!user) {
       return NextResponse.json({ error: "user_not_found" }, { status: 404 })
     }
+
     const ok = verifyPassword(password, user.passwordHash)
     if (!ok) {
       return NextResponse.json({ error: "invalid_credentials" }, { status: 401 })
     }
-    const token = await signJwt({ sub: user.id, cpf: user.cpf, name: user.name })
+
+    const token = await signJwt({ sub: user.id, cpf: user.cpf, email: user.email, name: user.name })
     const res = NextResponse.json({
       user: {
         id: user.id,
         cpf: user.cpf,
+        email: user.email,
         name: user.name,
         phone: user.phone,
         role: user.role.toLowerCase(),

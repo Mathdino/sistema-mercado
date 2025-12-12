@@ -234,30 +234,45 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 async function POST(req) {
     try {
         const body = await req.json();
-        const { cpf, password } = body || {};
-        if (!cpf || !password) {
+        const { identifier, password } = body || {};
+        if (!identifier || !password) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "missing_fields"
             }, {
                 status: 400
             });
         }
-        const cpfDigits = String(cpf).replace(/\D/g, "");
-        if (cpfDigits.length !== 11) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "invalid_cpf"
-            }, {
-                status: 400
+        let user = null;
+        // Check if identifier is an email (for admin login)
+        if (identifier.includes("@")) {
+            // Admin login with email
+            user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].user.findUnique({
+                where: {
+                    email: identifier
+                },
+                include: {
+                    addresses: true
+                }
+            });
+        } else {
+            // Client login with CPF
+            const cpfDigits = String(identifier).replace(/\D/g, "");
+            if (cpfDigits.length !== 11) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: "invalid_identifier"
+                }, {
+                    status: 400
+                });
+            }
+            user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].user.findUnique({
+                where: {
+                    cpf: cpfDigits
+                },
+                include: {
+                    addresses: true
+                }
             });
         }
-        const user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].user.findUnique({
-            where: {
-                cpf: cpfDigits
-            },
-            include: {
-                addresses: true
-            }
-        });
         if (!user) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "user_not_found"
@@ -276,12 +291,14 @@ async function POST(req) {
         const token = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$jwt$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["signJwt"])({
             sub: user.id,
             cpf: user.cpf,
+            email: user.email,
             name: user.name
         });
         const res = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             user: {
                 id: user.id,
                 cpf: user.cpf,
+                email: user.email,
                 name: user.name,
                 phone: user.phone,
                 role: user.role.toLowerCase(),

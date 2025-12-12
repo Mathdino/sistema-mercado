@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import dotenv from 'dotenv'
+import { hashPassword } from '../lib/password'
 
 // Load environment variables
 dotenv.config()
@@ -161,6 +162,26 @@ async function main() {
   })
 
   console.log(`Created/updated market: ${market.name}`)
+
+  // Create admin user
+  const adminEmail = 'admin@email.com'
+  const adminPassword = 'admin'
+  const adminPasswordHash = hashPassword(adminPassword)
+  
+  const adminUser = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {},
+    create: {
+      email: adminEmail,
+      cpf: '00000000000', // Placeholder CPF for admin
+      passwordHash: adminPasswordHash,
+      name: 'Administrador',
+      phone: '(11) 99999-9999',
+      role: 'ADMIN',
+    },
+  })
+
+  console.log(`Created/updated admin user: ${adminUser.email}`)
 
   console.log('Seeding completed!')
 }
