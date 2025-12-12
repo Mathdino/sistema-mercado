@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User model
+model User {
+  id           String     @id @default(uuid())
+  email        String?    @unique
+  cpf          String     @unique
+  passwordHash String
+  name         String
+  phone        String
+  role         Role       @default(CLIENT)
+  addresses    Address[]
+  orders       Order[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// Role enum
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+// Address model
+model Address {
+  id           String   @id @default(uuid())
+  street       String
+  number       String
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
+  zipCode      String
+  isDefault    Boolean  @default(false)
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  orders       Order[]  @relation("DeliveryAddress")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Category model
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  icon      String
+  image     String
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Product model
+model Product {
+  id            String     @id @default(uuid())
+  name          String
+  description   String
+  price         Float
+  originalPrice Float?
+  image         String
+  categoryId    String
+  category      Category   @relation(fields: [categoryId], references: [id])
+  unit          String
+  stock         Int
+  featured      Boolean    @default(false)
+  orderItems    OrderItem[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+// Order model
+model Order {
+  id                 String      @id @default(uuid())
+  userId             String
+  user               User        @relation(fields: [userId], references: [id])
+  items              OrderItem[]
+  totalAmount        Float
+  deliveryFee        Float
+  subtotal           Float
+  status             OrderStatus @default(PENDING)
+  paymentMethod      PaymentMethod
+  deliveryAddress    Address     @relation("DeliveryAddress", fields: [deliveryAddressId], references: [id])
+  deliveryAddressId  String
+  estimatedDelivery  DateTime?
+  notes              String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+// Order status enum
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  DELIVERING
+  DELIVERED
+  CANCELLED
+}
+
+// Payment method enum
+enum PaymentMethod {
+  CREDIT
+  DEBIT
+  PIX
+  CASH
+}
+
+// Order item model (junction table)
+model OrderItem {
+  id            String  @id @default(uuid())
+  orderId       String
+  order         Order   @relation(fields: [orderId], references: [id])
+  productId     String
+  product       Product @relation(fields: [productId], references: [id])
+  productName   String
+  productImage  String
+  quantity      Int
+  price         Float
+  subtotal      Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Market model
+model Market {
+  id                    String   @id @default(uuid())
+  name                  String
+  address               String
+  phone                 String
+  openingHours          String
+  deliveryFee           Float
+  minOrderValue         Float
+  estimatedDeliveryTime String
+  rating                Float
+  logo                  String
+  banner                String
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
