@@ -16,33 +16,23 @@ import {
 } from "@/components/ui/card";
 import { useAuthStore } from "@/lib/store";
 import { useToast } from "@/hooks/use-toast";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
   const { toast } = useToast();
-  const [cpfDigits, setCpfDigits] = useState("");
-  const [cpfMasked, setCpfMasked] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const formatCpf = (v: string) => {
-    const d = v.replace(/\D/g, "").slice(0, 11);
-    const p1 = d.slice(0, 3);
-    const p2 = d.slice(3, 6);
-    const p3 = d.slice(6, 9);
-    const p4 = d.slice(9, 11);
-    return [p1, p2 && `.${p2}`, p3 && `.${p3}`, p4 && `-${p4}`]
-      .filter(Boolean)
-      .join("");
-  };
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const success = await login(cpfDigits, password);
+    // Call the login function with identifier (CPF or email) and password
+    const success = await login(identifier, password);
 
     if (success) {
       toast({
@@ -53,7 +43,7 @@ export default function LoginPage() {
     } else {
       toast({
         title: "Erro ao fazer login",
-        description: "CPF ou senha incorretos",
+        description: "Credenciais incorretas",
         variant: "destructive",
       });
     }
@@ -74,17 +64,13 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="cpf">CPF</Label>
+              <Label htmlFor="identifier">CPF ou E-mail</Label>
               <Input
-                id="cpf"
+                id="identifier"
                 type="text"
-                placeholder="000.000.000-00"
-                value={cpfMasked}
-                onChange={(e) => {
-                  const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
-                  setCpfDigits(digits);
-                  setCpfMasked(formatCpf(digits));
-                }}
+                placeholder="Digite seu CPF ou e-mail"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
               />
             </div>
@@ -105,7 +91,7 @@ export default function LoginPage() {
                   size="icon"
                   onClick={() => setShowPassword((v) => !v)}
                 >
-                  {showPassword ? "Ocultar" : "Mostrar"}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
             </div>
@@ -114,7 +100,6 @@ export default function LoginPage() {
             </Button>
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
-            <p>Demo: cliente@email.com / senha123</p>
             <p>Admin: admin@email.com / admin</p>
           </div>
         </CardContent>

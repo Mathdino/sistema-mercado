@@ -283,7 +283,7 @@ const useCartStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
 const useAuthStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zustand$40$5$2e$0$2e$9_$40$types$2b$react$40$_abef80168be8267936275a0417dbfe6a$2f$node_modules$2f$zustand$2f$esm$2f$react$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["create"])()((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$zustand$40$5$2e$0$2e$9_$40$types$2b$react$40$_abef80168be8267936275a0417dbfe6a$2f$node_modules$2f$zustand$2f$esm$2f$middleware$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["persist"])((set, get)=>({
         user: null,
         isAuthenticated: false,
-        login: async (cpf, password)=>{
+        login: async (identifier, password)=>{
             try {
                 const res = await fetch("/api/auth/login", {
                     method: "POST",
@@ -291,7 +291,7 @@ const useAuthStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_mo
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        cpf,
+                        identifier,
                         password
                     })
                 });

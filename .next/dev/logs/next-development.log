@@ -1,32 +1,11 @@
-[00:00:01.683] Server  LOG      ✓ Ready in 996ms
-[00:00:04.710] Server  LOG      ○ Compiling /client/checkout ...
-[00:00:06.954] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:06.954] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/client/checkout","route":"/client/checkout"}
-[00:00:06.954] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/checkout color: rgb(120, 120, 120) color: inherit {"dp":"/client/checkout","o":"http://localhost:3000/client/checkout","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554197853}
-[00:00:23.345] Server  LOG      ✓ Compiled in 155ms
-[00:00:34.620] Server  LOG      ✓ Compiled in 228ms
-[00:00:34.746] Browser ERROR   uncaughtError: ReferenceError: User is not defined
-[00:00:44.347] Server  WARN     ⚠ Fast Refresh had to perform a full reload due to a runtime error.
-[00:00:44.358] Server  LOG      ✓ Compiled in 124ms
-[00:00:44.710] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/checkout color: rgb(120, 120, 120) color: inherit {"dp":"/client/checkout","o":"http://localhost:3000/client/checkout","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554235399}
-[00:00:45.247] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:00:45.247] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/client/checkout","route":"/client/checkout"}
-[00:00:45.247] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/checkout color: rgb(120, 120, 120) color: inherit {"dp":"/client/checkout","o":"http://localhost:3000/client/checkout","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554236152}
-[00:00:55.922] Server  LOG      ✓ Compiled in 152ms
-[00:01:02.575] Server  LOG      ✓ Compiled in 109ms
-[00:01:10.159] Server  LOG      ✓ Compiled in 109ms
-[00:01:13.395] Server  LOG      ✓ Compiled in 108ms
-[00:01:29.492] Server  LOG      ✓ Compiled in 116ms
-[00:01:34.811] Server  LOG      ✓ Compiled in 107ms
-[00:01:41.551] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/orders color: rgb(120, 120, 120) color: inherit {"dp":"/client/orders","o":"http://localhost:3000/client/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554292397}
-[00:01:58.497] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/market color: rgb(120, 120, 120) color: inherit {"dp":"/client/market","o":"http://localhost:3000/client/market","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554309400}
-[00:01:59.851] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/orders color: rgb(120, 120, 120) color: inherit {"dp":"/client/orders","o":"http://localhost:3000/client/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554310722}
-[00:02:01.743] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/profile color: rgb(120, 120, 120) color: inherit {"dp":"/client/profile","o":"http://localhost:3000/client/profile","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554312605}
-[00:03:08.974] Server  LOG      ✓ Compiled in 152ms
-[00:03:09.139] Browser ERROR   uncaughtError: ReferenceError: FileSearch is not defined
-[00:03:10.963] Server  WARN     ⚠ Fast Refresh had to perform a full reload due to a runtime error.
-[00:03:10.968] Server  LOG      ✓ Compiled in 218ms
-[00:03:12.203] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
-[00:03:12.203] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/client/profile","route":"/client/profile"}
-[00:03:12.203] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/profile color: rgb(120, 120, 120) color: inherit {"dp":"/client/profile","o":"http://localhost:3000/client/profile","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554383112}
-[00:03:30.844] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/client/orders color: rgb(120, 120, 120) color: inherit {"dp":"/client/orders","o":"http://localhost:3000/client/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765554401719}
+[00:00:02.462] Server  LOG      ✓ Ready in 1639ms
+[00:00:05.572] Server  LOG      ○ Compiling /login ...
+[00:00:08.180] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[00:00:08.180] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
+[00:00:08.180] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765556579681}
+[01:07:19.478] Browser LOG     %c[Vercel Web Analytics]%c Debug mode is enabled by default in development. No requests will be sent to the server. color: rgb(120, 120, 120) color: inherit
+[01:07:19.478] Browser LOG     %c[Vercel Web Analytics]%c Running queued event color: rgb(120, 120, 120) color: inherit pageview {"path":"/login","route":"/login"}
+[01:07:19.479] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/login color: rgb(120, 120, 120) color: inherit {"dp":"/login","o":"http://localhost:3000/login","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765560611341}
+[01:07:34.460] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/ color: rgb(120, 120, 120) color: inherit {"dp":"/","o":"http://localhost:3000/","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765560626318}
+[01:07:35.211] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin color: rgb(120, 120, 120) color: inherit {"dp":"/admin","o":"http://localhost:3000/admin","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765560627072}
+[01:07:39.698] Browser LOG     %c[Vercel Web Analytics]%c [pageview] http://localhost:3000/admin/orders color: rgb(120, 120, 120) color: inherit {"dp":"/admin/orders","o":"http://localhost:3000/admin/orders","sdkn":"@vercel/analytics/next","sdkv":"1.6.1","sv":"0.1.3","ts":1765560631516}
