@@ -266,7 +266,7 @@ export default function CheckoutPage() {
               <Separator />
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Total</span>
-                <span className="text-xl font-bold text-primary">{formatCurrency(total)}</span>
+                <span className="text-xl font-bold text-green-600">{formatCurrency(total)}</span>
               </div>
             </CardContent>
           </Card>

@@ -269,7 +269,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               </div>
               <div className="flex items-center justify-between text-lg font-semibold">
                 <span>Total</span>
-                <span className="text-primary">{formatCurrency(order.totalAmount)}</span>
+                <span className="text-green-600">{formatCurrency(order.totalAmount)}</span>
               </div>
             </div>
             

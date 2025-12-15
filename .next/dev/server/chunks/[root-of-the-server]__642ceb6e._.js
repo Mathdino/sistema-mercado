@@ -252,9 +252,6 @@ async function PUT(req, { params } // Updated type to reflect that params is a P
         const validStatuses = [
             "PENDING",
             "CONFIRMED",
-            "PREPARING",
-            "DELIVERING",
-            "DELIVERED",
             "CANCELLED"
         ];
         if (!normalized || !validStatuses.includes(normalized)) {
