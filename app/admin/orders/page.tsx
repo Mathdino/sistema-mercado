@@ -22,7 +22,7 @@ export default function AdminOrdersPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("/api/orders")
+        const response = await fetch("/api/orders", { credentials: "include" })
         if (response.ok) {
           const ordersData = await response.json()
           // Transform the API response to match our frontend Order type
@@ -89,6 +89,7 @@ export default function AdminOrdersPage() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ status: newStatus.toUpperCase() }), // Convert to uppercase for Prisma enum
       })
 

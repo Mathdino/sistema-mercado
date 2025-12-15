@@ -78,10 +78,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 const prismaClientSingleton = ()=>{
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) {
-        throw new Error("DATABASE_URL environment variable is not set");
-    }
+    const connectionString = process.env.DATABASE_URL || "";
     const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
         connectionString
     });
@@ -191,7 +188,6 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/prisma.ts [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$jwt$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/jwt.ts [app-route] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/@prisma/client [external] (@prisma/client, cjs)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
 ]);
@@ -199,19 +195,18 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 ;
-;
-async function PUT(req, { params }) {
+async function PUT(req, { params } // Updated type to reflect that params is a Promise
+) {
     try {
-        // Get token from Authorization header or cookies
+        // Await params to get the actual values
+        const { id } = await params;
         let token = null;
         const authHeader = req.headers.get("authorization");
         if (authHeader && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
         } else {
-            // If not in header, try to get from cookies
             const cookieHeader = req.headers.get("cookie");
             if (cookieHeader) {
-                // Split cookies by semicolon and trim whitespace
                 const cookies = cookieHeader.split(";").reduce((acc, cookie)=>{
                     const [name, value] = cookie.trim().split("=");
                     if (name && value) {
@@ -229,7 +224,6 @@ async function PUT(req, { params }) {
                 status: 401
             });
         }
-        // Verify the JWT token
         let decoded;
         try {
             decoded = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$jwt$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["verifyJwt"])(token);
@@ -240,7 +234,6 @@ async function PUT(req, { params }) {
                 status: 401
             });
         }
-        // Check if user is admin
         const user = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].user.findUnique({
             where: {
                 id: decoded.sub
@@ -253,26 +246,30 @@ async function PUT(req, { params }) {
                 status: 403
             });
         }
-        // Get the order ID from params
-        const orderId = params.id;
-        // Get the new status from request body
         const body = await req.json();
         const { status } = body;
-        // Validate status
-        if (!status || !Object.values(__TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["OrderStatus"]).includes(status)) {
+        const normalized = typeof status === "string" ? status.toUpperCase() : "";
+        const validStatuses = [
+            "PENDING",
+            "CONFIRMED",
+            "PREPARING",
+            "DELIVERING",
+            "DELIVERED",
+            "CANCELLED"
+        ];
+        if (!normalized || !validStatuses.includes(normalized)) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "invalid_status"
             }, {
                 status: 400
             });
         }
-        // Update the order status
         const updatedOrder = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].order.update({
             where: {
-                id: orderId
+                id
             },
             data: {
-                status: status
+                status: normalized
             },
             include: {
                 user: {
@@ -290,7 +287,6 @@ async function PUT(req, { params }) {
         });
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(updatedOrder);
     } catch (error) {
-        console.error("Error updating order status:", error);
         if (error.code === "P2025") {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "order_not_found"
@@ -298,8 +294,9 @@ async function PUT(req, { params }) {
                 status: 404
             });
         }
+        const code = typeof error.code === "string" ? error.code : "internal_server_error";
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            error: "internal_server_error"
+            error: code
         }, {
             status: 500
         });
