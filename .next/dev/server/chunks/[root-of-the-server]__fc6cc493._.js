@@ -252,7 +252,13 @@ async function GET(req) {
                 status: 403
             });
         }
-        // Fetch all orders with user data
+        // Get pagination parameters from query string
+        const url = new URL(req.url);
+        const page = parseInt(url.searchParams.get("page") || "1");
+        const limit = parseInt(url.searchParams.get("limit") || "10");
+        // Calculate skip value for pagination
+        const skip = (page - 1) * limit;
+        // Fetch orders with pagination
         const orders = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].order.findMany({
             include: {
                 user: {
@@ -269,13 +275,75 @@ async function GET(req) {
             },
             orderBy: {
                 createdAt: "desc"
+            },
+            skip,
+            take: limit
+        });
+        // Normalize orders to handle legacy status values
+        const normalizedOrders = orders.map((order)=>{
+            // Normalize the status to one of our valid statuses
+            let normalizedStatus = "PENDING"; // default fallback
+            // Since we've changed the enum, we need to handle string comparison
+            // We need to convert the enum value to string first
+            const statusString = String(order.status);
+            switch(statusString){
+                case "PENDING":
+                    normalizedStatus = "PENDING";
+                    break;
+                case "CONFIRMED":
+                case "PREPARING":
+                case "DELIVERING":
+                case "DELIVERED":
+                    normalizedStatus = "CONFIRMED";
+                    break;
+                case "CANCELLED":
+                case "CANCELED":
+                    normalizedStatus = "CANCELLED";
+                    break;
+                default:
+                    normalizedStatus = "PENDING"; // fallback for any unexpected statuses
+            }
+            return {
+                ...order,
+                status: normalizedStatus
+            };
+        });
+        // Get total count for pagination
+        const totalOrders = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].order.count();
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            orders: normalizedOrders,
+            pagination: {
+                currentPage: page,
+                totalPages: Math.ceil(totalOrders / limit),
+                totalOrders,
+                hasNextPage: page < Math.ceil(totalOrders / limit),
+                hasPrevPage: page > 1
             }
         });
-        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(orders);
     } catch (error) {
         console.error("Error fetching orders:", error);
+        // Log more detailed error information
+        if (error.code) {
+            console.error("Error code:", error.code);
+        }
+        if (error.message) {
+            console.error("Error message:", error.message);
+        }
+        if (error.stack) {
+            console.error("Error stack:", error.stack);
+        }
+        // Try to fetch orders with raw query to bypass Prisma validation
+        try {
+            console.log("Attempting to fetch orders with raw query...");
+            const rawOrders = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].$queryRaw`SELECT id, status FROM "Order" ORDER BY "createdAt" DESC LIMIT 5`;
+            console.log("Raw orders:", rawOrders);
+        } catch (rawError) {
+            console.error("Error with raw query:", rawError);
+        }
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            error: "internal_server_error"
+            error: "internal_server_error",
+            details: error.message,
+            code: error.code
         }, {
             status: 500
         });

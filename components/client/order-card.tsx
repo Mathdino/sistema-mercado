@@ -76,7 +76,10 @@ export function OrderCard({ order }: OrderCardProps) {
             <p className="text-sm text-muted-foreground">Pedido #{shortenOrderId(order.id)}</p>
             <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
           </div>
-          <Badge variant={config.variant} className="flex items-center gap-1">
+          <Badge 
+            variant={config.variant} 
+            className={`flex items-center gap-1 ${order.status === 'pending' ? 'bg-orange-500 hover:bg-orange-600 text-white' : order.status === 'confirmed' ? 'bg-green-500 hover:bg-green-600 text-white' : order.status === 'cancelled' ? 'bg-red-500 hover:bg-red-600 text-white' : ''}`}
+          >
             <StatusIcon className="h-3 w-3" />
             {config.label}
           </Badge>
@@ -106,7 +109,7 @@ export function OrderCard({ order }: OrderCardProps) {
 
         <div className="flex items-center justify-between border-t pt-3">
           <span className="text-sm font-medium">Total</span>
-          <span className="text-lg font-bold text-primary">{formatCurrency(order.totalAmount)}</span>
+          <span className="text-lg font-bold text-green-600">{formatCurrency(order.totalAmount)}</span>
         </div>
 
         <Separator />
@@ -163,7 +166,7 @@ export function OrderCard({ order }: OrderCardProps) {
                 </div>
                 <div className="flex items-center justify-between text-sm font-semibold">
                   <span>Total</span>
-                  <span className="text-primary">{formatCurrency(order.totalAmount)}</span>
+                  <span className="text-green-600">{formatCurrency(order.totalAmount)}</span>
                 </div>
               </div>
             </div>

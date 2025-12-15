@@ -51,9 +51,6 @@ export async function PUT(
     const validStatuses = [
       "PENDING",
       "CONFIRMED",
-      "PREPARING",
-      "DELIVERING",
-      "DELIVERED",
       "CANCELLED",
     ];
     if (!normalized || !validStatuses.includes(normalized)) {

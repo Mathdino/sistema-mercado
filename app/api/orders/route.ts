@@ -49,7 +49,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "forbidden" }, { status: 403 })
     }
     
-    // Fetch all orders with user data
+    // Get pagination parameters from query string
+    const url = new URL(req.url);
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = parseInt(url.searchParams.get("limit") || "10");
+    
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+    
+    // Fetch orders with pagination
     const orders = await prisma.order.findMany({
       include: {
         user: {
@@ -67,12 +75,83 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-    })
+      skip,
+      take: limit,
+    });
     
-    return NextResponse.json(orders)
-  } catch (error) {
-    console.error("Error fetching orders:", error)
-    return NextResponse.json({ error: "internal_server_error" }, { status: 500 })
+    // Normalize orders to handle legacy status values
+    const normalizedOrders = orders.map(order => {
+      // Normalize the status to one of our valid statuses
+      let normalizedStatus: any = "PENDING"; // default fallback
+      
+      // Since we've changed the enum, we need to handle string comparison
+      // We need to convert the enum value to string first
+      const statusString = String(order.status);
+      
+      switch (statusString) {
+        case "PENDING":
+          normalizedStatus = "PENDING";
+          break;
+        case "CONFIRMED":
+        case "PREPARING":
+        case "DELIVERING":
+        case "DELIVERED":
+          normalizedStatus = "CONFIRMED";
+          break;
+        case "CANCELLED":
+        case "CANCELED": // Handle potential variation
+          normalizedStatus = "CANCELLED";
+          break;
+        default:
+          normalizedStatus = "PENDING"; // fallback for any unexpected statuses
+      }
+      
+      return {
+        ...order,
+        status: normalizedStatus
+      };
+    });
+
+    // Get total count for pagination
+    const totalOrders = await prisma.order.count();
+
+    return NextResponse.json({
+      orders: normalizedOrders,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalOrders / limit),
+        totalOrders,
+        hasNextPage: page < Math.ceil(totalOrders / limit),
+        hasPrevPage: page > 1,
+      }
+    });
+  } catch (error: any) {
+    console.error("Error fetching orders:", error);
+    // Log more detailed error information
+    if (error.code) {
+      console.error("Error code:", error.code);
+    }
+    if (error.message) {
+      console.error("Error message:", error.message);
+    }
+    if (error.stack) {
+      console.error("Error stack:", error.stack);
+    }
+    
+    // Try to fetch orders with raw query to bypass Prisma validation
+    try {
+      console.log("Attempting to fetch orders with raw query...");
+      const rawOrders: any[] = await prisma.$queryRaw`SELECT id, status FROM "Order" ORDER BY "createdAt" DESC LIMIT 5`;
+      console.log("Raw orders:", rawOrders);
+    } catch (rawError: any) {
+      console.error("Error with raw query:", rawError);
+    }
+    
+    return NextResponse.json({ 
+      error: "internal_server_error", 
+      details: error.message,
+      code: error.code
+    }, { status: 500 });
   }
 }
 
