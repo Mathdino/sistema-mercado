@@ -40,6 +40,7 @@ export interface Product {
   size?: string
   stock: number
   featured: boolean
+  category?: Category
 }
 
 export interface CartItem {
