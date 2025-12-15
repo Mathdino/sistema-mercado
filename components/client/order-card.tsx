@@ -11,46 +11,58 @@ import type { Order } from "@/lib/types"
 import { Package, Clock, CheckCircle2, XCircle, Truck, ChevronDown, ChevronUp } from "lucide-react"
 
 interface OrderCardProps {
-  order: Order
+  order: any // Updated to accept the new order structure from the API
 }
 
-const statusConfig = {
+interface StatusConfig {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  variant: "secondary" | "default" | "outline" | "destructive";
+}
+
+const statusConfig: Record<string, StatusConfig> = {
   pending: {
     label: "Pendente",
     icon: Clock,
-    variant: "secondary" as const,
+    variant: "secondary",
   },
   confirmed: {
     label: "Confirmado",
     icon: CheckCircle2,
-    variant: "default" as const,
+    variant: "default",
   },
   preparing: {
     label: "Preparando",
     icon: Package,
-    variant: "default" as const,
+    variant: "default",
   },
   delivering: {
     label: "Em entrega",
     icon: Truck,
-    variant: "default" as const,
+    variant: "default",
   },
   delivered: {
     label: "Entregue",
     icon: CheckCircle2,
-    variant: "outline" as const,
+    variant: "outline",
   },
   cancelled: {
     label: "Cancelado",
     icon: XCircle,
-    variant: "destructive" as const,
+    variant: "destructive",
   },
 }
 
 export function OrderCard({ order }: OrderCardProps) {
   const [isExpanded, setIsExpanded] = useState(false)
-  const config = statusConfig[order.status]
+  const config = statusConfig[order.status] || statusConfig.pending
   const StatusIcon = config.icon
+
+  // Function to shorten the order ID for display
+  const shortenOrderId = (orderId: string) => {
+    // Take first 8 characters and remove hyphens
+    return orderId.replace(/-/g, '').substring(0, 8);
+  }
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded)
@@ -61,7 +73,7 @@ export function OrderCard({ order }: OrderCardProps) {
       <CardContent className="space-y-4 p-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm text-muted-foreground">Pedido #{order.id}</p>
+            <p className="text-sm text-muted-foreground">Pedido #{shortenOrderId(order.id)}</p>
             <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
           </div>
           <Badge variant={config.variant} className="flex items-center gap-1">
@@ -71,7 +83,7 @@ export function OrderCard({ order }: OrderCardProps) {
         </div>
 
         <div className="space-y-2">
-          {order.items.slice(0, 2).map((item) => (
+          {order.items.slice(0, 2).map((item: any) => (
             <div key={item.productId} className="flex gap-3">
               <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded bg-muted">
                 <Image
@@ -113,7 +125,7 @@ export function OrderCard({ order }: OrderCardProps) {
             <div className="space-y-3 pl-2">
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Itens do Pedido</h4>
-                {order.items.map((item) => (
+                {order.items.map((item: any) => (
                   <div key={item.productId} className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <div className="relative h-8 w-8 flex-shrink-0 overflow-hidden rounded bg-muted">

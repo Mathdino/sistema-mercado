@@ -6,15 +6,15 @@ import { ClientHeader } from "@/components/client/client-header"
 import { BottomNav } from "@/components/client/bottom-nav"
 import { LoginModal } from "@/components/client/login-modal"
 import { OrderCard } from "@/components/client/order-card"
-import { useOrderStore, useAuthStore } from "@/lib/store"
-import { mockOrders } from "@/lib/mock-data"
+import { useAuthStore } from "@/lib/store"
 import { Clock } from "lucide-react"
 
 export default function OrdersPage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const router = useRouter()
-  const { orders } = useOrderStore()
   const { user, isAuthenticated } = useAuthStore()
 
   useEffect(() => {
@@ -28,12 +28,44 @@ export default function OrdersPage() {
     }
   }, [isHydrated, isAuthenticated])
 
+  // Fetch orders from API
+  const fetchOrders = async () => {
+    if (!isAuthenticated || !user?.id) return
+    
+    try {
+      const response = await fetch("/api/orders/me")
+      if (response.ok) {
+        const ordersData = await response.json()
+        setOrders(ordersData)
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error)
+    } finally {
+      if (loading) {
+        setLoading(false)
+      }
+    }
+  }
+
+  // Initial fetch
+  useEffect(() => {
+    fetchOrders()
+  }, [isAuthenticated, user?.id])
+
+  // Poll for updates every 30 seconds
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) return
+
+    const interval = setInterval(() => {
+      fetchOrders()
+    }, 30000) // 30 seconds
+
+    return () => clearInterval(interval)
+  }, [isAuthenticated, user?.id])
+
   const userOrders = useMemo(() => {
-    if (!user?.id) return []
-    return orders
-      .filter((order) => order.userId === user.id)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  }, [orders, user?.id])
+    return orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  }, [orders])
 
   const handleLoginSuccess = () => {
     // User successfully logged in, page will re-render with authenticated state
@@ -46,6 +78,23 @@ export default function OrdersPage() {
 
   if (!isAuthenticated && !isLoginModalOpen) {
     return null
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background pb-24">
+        <ClientHeader />
+        <main className="flex flex-col items-center justify-center px-4 py-16">
+          <p>Carregando pedidos...</p>
+        </main>
+        <BottomNav />
+        <LoginModal 
+          isOpen={isLoginModalOpen} 
+          onClose={() => setIsLoginModalOpen(false)}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      </div>
+    )
   }
 
   if (userOrders.length === 0) {

@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 46, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/User/Desktop/outros/market-delivery-app/app/api/test/route.ts"],"sourcesContent":["import { NextResponse } from \"next/server\"\r\n\r\nexport async function GET() {\r\n  return NextResponse.json({ message: \"Test endpoint working\" })\r\n}"],"names":[],"mappings":";;;;AAAA;;AAEO,eAAe;IACpB,OAAO,+QAAY,CAAC,IAAI,CAAC;QAAE,SAAS;IAAwB;AAC9D"}}]
+}

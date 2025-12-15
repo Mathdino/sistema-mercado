@@ -55,9 +55,20 @@ export default function CheckoutPage() {
     setIsProcessing(true)
 
     try {
-      // Create order object
-      const order: Omit<Order, "id" | "createdAt"> = {
-        userId: user!.id,
+      // Get the default address
+      const defaultAddress = user!.addresses.find((addr) => addr.isDefault)
+      
+      if (!defaultAddress) {
+        toast({
+          title: "Erro ao realizar pedido",
+          description: "Você precisa ter um endereço padrão configurado.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Prepare order data for API
+      const orderData = {
         items: cartProducts.map((item) => ({
           productId: item.productId,
           productName: item.product.name,
@@ -69,15 +80,55 @@ export default function CheckoutPage() {
         totalAmount: total,
         deliveryFee,
         subtotal,
-        status: "pending",
-        paymentMethod,
-        deliveryAddress: user!.addresses.find((addr) => addr.isDefault)!,
-        estimatedDelivery: new Date(Date.now() + 30 * 60000).toISOString(), // 30 minutes from now
+        paymentMethod: paymentMethod.toUpperCase(), // Convert to uppercase to match Prisma enum
+        deliveryAddressId: defaultAddress.id,
         notes: notes || undefined,
       }
 
-      // Add order to store
-      addOrder(order)
+      // Send order to API
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to create order")
+      }
+
+      const createdOrder = await response.json()
+
+      // Add order to local store for immediate UI update
+      // We need to map the API response to match our frontend Order type
+      const orderToAdd: Order = {
+        id: createdOrder.id,
+        userId: createdOrder.userId,
+        items: createdOrder.items,
+        totalAmount: createdOrder.totalAmount,
+        deliveryFee: createdOrder.deliveryFee,
+        subtotal: createdOrder.subtotal,
+        status: createdOrder.status.toLowerCase() as Order["status"],
+        paymentMethod: createdOrder.paymentMethod.toLowerCase() as Order["paymentMethod"],
+        deliveryAddress: {
+          id: createdOrder.deliveryAddress.id,
+          street: createdOrder.deliveryAddress.street,
+          number: createdOrder.deliveryAddress.number,
+          complement: createdOrder.deliveryAddress.complement || undefined,
+          neighborhood: createdOrder.deliveryAddress.neighborhood,
+          city: createdOrder.deliveryAddress.city,
+          state: createdOrder.deliveryAddress.state,
+          zipCode: createdOrder.deliveryAddress.zipCode,
+          isDefault: createdOrder.deliveryAddress.isDefault,
+        },
+        createdAt: createdOrder.createdAt,
+        estimatedDelivery: createdOrder.estimatedDelivery,
+        notes: createdOrder.notes,
+      }
+
+      addOrder(orderToAdd)
 
       // Clear cart
       clearCart()
@@ -91,6 +142,7 @@ export default function CheckoutPage() {
       // Navigate to orders page
       router.push("/client/orders")
     } catch (error) {
+      console.error("Error creating order:", error)
       toast({
         title: "Erro ao realizar pedido",
         description: "Ocorreu um erro ao processar seu pedido. Tente novamente.",
@@ -220,7 +272,7 @@ export default function CheckoutPage() {
           </Card>
 
           <Button type="submit" className="w-full" size="lg" disabled={isProcessing}>
-            {isProcessing ? "Processando..." : `Pagar ${formatCurrency(total)}`}
+            {isProcessing ? "Processando..." : "Confirmar"}
           </Button>
         </form>
       </main>
