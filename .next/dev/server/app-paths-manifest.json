@@ -2,17 +2,9 @@
   "/admin/orders/page": "app/admin/orders/page.js",
   "/admin/page": "app/admin/page.js",
   "/admin/products/page": "app/admin/products/page.js",
-  "/admin/users/page": "app/admin/users/page.js",
   "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/api/auth/register/route": "app/api/auth/register/route.js",
   "/api/orders/[id]/status/route": "app/api/orders/[id]/status/route.js",
-  "/api/orders/me/route": "app/api/orders/me/route.js",
   "/api/orders/route": "app/api/orders/route.js",
-  "/client/cart/page": "app/client/cart/page.js",
-  "/client/checkout/page": "app/client/checkout/page.js",
-  "/client/market/page": "app/client/market/page.js",
-  "/client/orders/page": "app/client/orders/page.js",
-  "/client/page": "app/client/page.js",
   "/login/page": "app/login/page.js",
   "/page": "app/page.js"
 }
