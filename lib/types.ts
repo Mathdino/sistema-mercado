@@ -61,6 +61,13 @@ export interface Order {
   createdAt: string
   estimatedDelivery?: string
   notes?: string
+  user?: {
+    id: string
+    name: string
+    phone: string
+    email?: string
+    cpf?: string
+  }
 }
 
 export interface OrderItem {

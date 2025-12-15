@@ -78,10 +78,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 const prismaClientSingleton = ()=>{
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) {
-        throw new Error("DATABASE_URL environment variable is not set");
-    }
+    const connectionString = process.env.DATABASE_URL || "";
     const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
         connectionString
     });
@@ -186,15 +183,19 @@ return __turbopack_context__.a(async (__turbopack_handle_async_dependencies__, _
 
 __turbopack_context__.s([
     "GET",
-    ()=>GET
+    ()=>GET,
+    "POST",
+    ()=>POST
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/.pnpm/next@16.0.7_react-dom@19.2.0_react@19.2.0__react@19.2.0/node_modules/next/server.js [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/prisma.ts [app-route] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$jwt$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/jwt.ts [app-route] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/@prisma/client [external] (@prisma/client, cjs)");
 var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
     __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__
 ]);
 [__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
+;
 ;
 ;
 ;
@@ -275,6 +276,159 @@ async function GET(req) {
         console.error("Error fetching orders:", error);
         return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             error: "internal_server_error"
+        }, {
+            status: 500
+        });
+    }
+}
+async function POST(req) {
+    try {
+        // Get token from Authorization header or cookies
+        let token = null;
+        const authHeader = req.headers.get("authorization");
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        } else {
+            // If not in header, try to get from cookies
+            const cookieHeader = req.headers.get("cookie");
+            if (cookieHeader) {
+                // Split cookies by semicolon and trim whitespace
+                const cookies = cookieHeader.split(";").reduce((acc, cookie)=>{
+                    const [name, value] = cookie.trim().split("=");
+                    if (name && value) {
+                        acc[name] = value;
+                    }
+                    return acc;
+                }, {});
+                token = cookies.token || null;
+            }
+        }
+        if (!token) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "unauthorized"
+            }, {
+                status: 401
+            });
+        }
+        // Verify the JWT token
+        let decoded;
+        try {
+            decoded = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$jwt$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["verifyJwt"])(token);
+        } catch  {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "invalid_token"
+            }, {
+                status: 401
+            });
+        }
+        const body = await req.json();
+        const { items, totalAmount, deliveryFee, subtotal, paymentMethod, deliveryAddressId, notes } = body;
+        // Validate required fields
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Items are required"
+            }, {
+                status: 400
+            });
+        }
+        if (!totalAmount || !deliveryFee || !subtotal) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Amount fields are required"
+            }, {
+                status: 400
+            });
+        }
+        if (!paymentMethod) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Payment method is required"
+            }, {
+                status: 400
+            });
+        }
+        if (!deliveryAddressId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Delivery address is required"
+            }, {
+                status: 400
+            });
+        }
+        // Validate payment method
+        if (!Object.values(__TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["PaymentMethod"]).includes(paymentMethod)) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Invalid payment method"
+            }, {
+                status: 400
+            });
+        }
+        // Validate delivery address belongs to user
+        const address = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].address.findUnique({
+            where: {
+                id: deliveryAddressId,
+                userId: decoded.sub
+            }
+        });
+        if (!address) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                error: "Invalid delivery address"
+            }, {
+                status: 400
+            });
+        }
+        // Validate all products exist
+        const productIds = items.map((item)=>item.productId);
+        const products = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].product.findMany({
+            where: {
+                id: {
+                    in: productIds
+                }
+            }
+        });
+        const productMap = new Map(products.map((product)=>[
+                product.id,
+                product
+            ]));
+        for (const item of items){
+            if (!productMap.has(item.productId)) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: `Product ${item.productId} not found`
+                }, {
+                    status: 400
+                });
+            }
+        }
+        // Create the order
+        const order = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].order.create({
+            data: {
+                userId: decoded.sub,
+                totalAmount,
+                deliveryFee,
+                subtotal,
+                paymentMethod,
+                deliveryAddressId,
+                notes,
+                status: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$29$__["OrderStatus"].PENDING,
+                items: {
+                    create: items.map((item)=>({
+                            productId: item.productId,
+                            productName: productMap.get(item.productId).name,
+                            productImage: productMap.get(item.productId).image,
+                            quantity: item.quantity,
+                            price: item.price,
+                            subtotal: item.subtotal
+                        }))
+                }
+            },
+            include: {
+                items: true,
+                deliveryAddress: true,
+                user: true
+            }
+        });
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(order);
+    } catch (error) {
+        console.error("Error creating order:", error);
+        return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+            error: "Internal server error"
         }, {
             status: 500
         });

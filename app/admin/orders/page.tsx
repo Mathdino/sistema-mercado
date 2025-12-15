@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { AuthGuard } from "@/components/auth-guard"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,19 +8,71 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { useOrderStore } from "@/lib/store"
-import { mockOrders } from "@/lib/mock-data"
 import { formatCurrency, formatDate } from "@/lib/currency"
 import type { Order } from "@/lib/types"
 import { Eye, Download } from "lucide-react"
+import { toast } from "sonner"
 
 export default function AdminOrdersPage() {
-  const { orders, updateOrderStatus } = useOrderStore()
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [statusFilter, setStatusFilter] = useState<string>("all")
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("/api/orders")
+        if (response.ok) {
+          const ordersData = await response.json()
+          // Transform the API response to match our frontend Order type
+          const transformedOrders: Order[] = ordersData.map((order: any) => ({
+            id: order.id,
+            userId: order.userId,
+            items: order.items,
+            totalAmount: order.totalAmount,
+            deliveryFee: order.deliveryFee,
+            subtotal: order.subtotal,
+            status: order.status.toLowerCase() as Order["status"],
+            paymentMethod: order.paymentMethod.toLowerCase() as Order["paymentMethod"],
+            deliveryAddress: {
+              id: order.deliveryAddress.id,
+              street: order.deliveryAddress.street,
+              number: order.deliveryAddress.number,
+              complement: order.deliveryAddress.complement || undefined,
+              neighborhood: order.deliveryAddress.neighborhood,
+              city: order.deliveryAddress.city,
+              state: order.deliveryAddress.state,
+              zipCode: order.deliveryAddress.zipCode,
+              isDefault: order.deliveryAddress.isDefault,
+            },
+            createdAt: order.createdAt,
+            estimatedDelivery: order.estimatedDelivery,
+            notes: order.notes,
+            // Add user information
+            user: order.user ? {
+              id: order.user.id,
+              name: order.user.name,
+              phone: order.user.phone,
+              email: order.user.email,
+              cpf: order.user.cpf,
+            } : undefined
+          }))
+          setOrders(transformedOrders)
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error)
+        toast.error("Erro ao carregar pedidos")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchOrders()
+  }, [])
+
   const allOrders = useMemo(() => {
-    return [...orders, ...mockOrders].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    return orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   }, [orders])
 
   const filteredOrders = useMemo(() => {
@@ -28,10 +80,46 @@ export default function AdminOrdersPage() {
     return allOrders.filter((order) => order.status === statusFilter)
   }, [allOrders, statusFilter])
 
-  const handleStatusChange = (orderId: string, newStatus: Order["status"]) => {
-    updateOrderStatus(orderId, newStatus)
-    if (selectedOrder?.id === orderId) {
-      setSelectedOrder({ ...selectedOrder, status: newStatus })
+  const handleStatusChange = async (orderId: string, newStatus: Order["status"]) => {
+    try {
+      console.log(`Updating order ${orderId} to status ${newStatus.toUpperCase()}`)
+      
+      const response = await fetch(`/api/orders/${orderId}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus.toUpperCase() }), // Convert to uppercase for Prisma enum
+      })
+
+      console.log(`Response status: ${response.status}`)
+      
+      if (response.ok) {
+        const updatedOrder = await response.json()
+        // Update the order in the local state
+        setOrders(orders.map(order => 
+          order.id === orderId ? { 
+            ...order, 
+            status: updatedOrder.status.toLowerCase() as Order["status"]
+          } : order
+        ))
+        if (selectedOrder?.id === orderId) {
+          setSelectedOrder({ 
+            ...selectedOrder, 
+            status: updatedOrder.status.toLowerCase() as Order["status"]
+          })
+        }
+        toast.success("Status do pedido atualizado com sucesso!")
+      } else {
+        const errorText = await response.text()
+        console.error("Failed to update order status:", response.status, errorText)
+        // Show error to user
+        toast.error(`Falha ao atualizar status do pedido: ${response.status}`)
+      }
+    } catch (error) {
+      console.error("Network error updating order status:", error)
+      // Show error to user
+      toast.error("Erro de rede ao atualizar status do pedido")
     }
   }
 
@@ -56,6 +144,12 @@ export default function AdminOrdersPage() {
     }
   }
 
+  // Function to shorten the order ID
+  const shortenOrderId = (orderId: string) => {
+    // Take first 8 characters and remove hyphens
+    return orderId.replace(/-/g, '').substring(0, 8);
+  }
+
   const generateOrderPDF = async (order: Order) => {
     try {
       // Dynamically import jsPDF
@@ -77,10 +171,10 @@ export default function AdminOrdersPage() {
       // Horizontal line separator
       doc.line(20, 45, 190, 45)
       
-      // Order title
+      // Order title with shortened ID
       doc.setFontSize(16)
       doc.setFont("helvetica", "bold")
-      doc.text(`PEDIDO #${order.id}`, 20, 55)
+      doc.text(`PEDIDO #${shortenOrderId(order.id)}`, 20, 55)
       
       // Order date
       doc.setFontSize(12)
@@ -95,13 +189,11 @@ export default function AdminOrdersPage() {
       doc.setFont("helvetica", "bold")
       doc.text("Informações do Cliente", 20, 72)
       
-      // Customer name and phone (in a real implementation, this would come from the user data)
+      // Customer name and phone (now using actual user data)
       doc.setFontSize(12)
       doc.setFont("helvetica", "normal")
-      // TODO: Fetch actual user data based on order.userId
-      // For now, using placeholder data - in a real app, you would look up the user by order.userId
-      doc.text(`Nome: João Silva`, 20, 82)
-      doc.text(`Telefone: (11) 98765-4321`, 20, 89)
+      doc.text(`Nome: ${order.user?.name || 'Não disponível'}`, 20, 82)
+      doc.text(`Telefone: ${order.user?.phone || 'Não disponível'}`, 20, 89)
       
       // Full address in one line (moved to be after phone number)
       const fullAddress = `Endereço: ${order.deliveryAddress.street}, ${order.deliveryAddress.number}${order.deliveryAddress.complement ? `, ${order.deliveryAddress.complement}` : ''} - ${order.deliveryAddress.neighborhood}, ${order.deliveryAddress.city} - ${order.deliveryAddress.state}, ${order.deliveryAddress.zipCode}`
@@ -162,12 +254,24 @@ export default function AdminOrdersPage() {
       doc.text("Volte sempre!", 105, yPosition, { align: "center" } as any)
        
       // Save the PDF
-      doc.save(`pedido-${order.id}.pdf`)
+      doc.save(`pedido-${shortenOrderId(order.id)}.pdf`)
     } catch (error) {
       console.error("Error generating PDF:", error)
       // Fallback: show alert to user
-      alert("Erro ao gerar o PDF. Por favor, tente novamente.")
+      toast.error("Erro ao gerar o PDF. Por favor, tente novamente.")
     }
+  }
+
+  if (loading) {
+    return (
+      <AuthGuard requireRole="admin">
+        <AdminLayout>
+          <div className="flex items-center justify-center h-64">
+            <p>Carregando pedidos...</p>
+          </div>
+        </AdminLayout>
+      </AuthGuard>
+    )
   }
 
   return (
@@ -201,7 +305,8 @@ export default function AdminOrdersPage() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
-                      <CardTitle className="text-base">Pedido #{order.id}</CardTitle>
+                      {/* Shortened order ID in the list view */}
+                      <CardTitle className="text-base">Pedido #{shortenOrderId(order.id)}</CardTitle>
                       <p className="text-sm text-muted-foreground">{formatDate(order.createdAt)}</p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -220,7 +325,10 @@ export default function AdminOrdersPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Cliente</p>
                       <p className="font-medium">
-                        {order.deliveryAddress.street}, {order.deliveryAddress.number}
+                        {order.user?.name || 'Não disponível'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.user?.phone || 'Telefone não disponível'}
                       </p>
                     </div>
                     <div>
@@ -232,7 +340,7 @@ export default function AdminOrdersPage() {
                       <p className="text-lg font-bold text-primary">{formatCurrency(order.totalAmount)}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {order.status === "pending" && (
                       <Button size="sm" onClick={() => handleStatusChange(order.id, "confirmed")}>
                         Confirmar
@@ -268,11 +376,18 @@ export default function AdminOrdersPage() {
         <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Detalhes do Pedido #{selectedOrder?.id}</DialogTitle>
+              {/* Shortened order ID in the dialog header */}
+              <DialogTitle>Detalhes do Pedido #{shortenOrderId(selectedOrder?.id || '')}</DialogTitle>
               <DialogDescription>{selectedOrder && formatDate(selectedOrder.createdAt)}</DialogDescription>
             </DialogHeader>
             {selectedOrder && (
               <div className="space-y-6">
+                <div>
+                  <h3 className="mb-2 font-semibold">Informações do Cliente</h3>
+                  <p className="text-sm font-medium">{selectedOrder.user?.name || 'Não disponível'}</p>
+                  <p className="text-sm">{selectedOrder.user?.phone || 'Telefone não disponível'}</p>
+                </div>
+
                 <div>
                   <h3 className="mb-2 font-semibold">Endereço de Entrega</h3>
                   <p className="text-sm">
@@ -314,6 +429,66 @@ export default function AdminOrdersPage() {
                   <div className="flex justify-between font-bold">
                     <span>Total</span>
                     <span className="text-primary">{formatCurrency(selectedOrder.totalAmount)}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 border-t pt-4">
+                  <h3 className="mb-2 font-semibold">Atualizar Status</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedOrder.status !== "pending" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleStatusChange(selectedOrder.id, "pending")}
+                      >
+                        Pendente
+                      </Button>
+                    )}
+                    {selectedOrder.status !== "confirmed" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleStatusChange(selectedOrder.id, "confirmed")}
+                      >
+                        Confirmar
+                      </Button>
+                    )}
+                    {selectedOrder.status !== "preparing" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleStatusChange(selectedOrder.id, "preparing")}
+                      >
+                        Preparar
+                      </Button>
+                    )}
+                    {selectedOrder.status !== "delivering" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleStatusChange(selectedOrder.id, "delivering")}
+                      >
+                        Enviar
+                      </Button>
+                    )}
+                    {selectedOrder.status !== "delivered" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => handleStatusChange(selectedOrder.id, "delivered")}
+                      >
+                        Entregar
+                      </Button>
+                    )}
+                    {selectedOrder.status !== "cancelled" && (
+                      <Button 
+                        size="sm" 
+                        variant="destructive" 
+                        onClick={() => handleStatusChange(selectedOrder.id, "cancelled")}
+                      >
+                        Cancelar
+                      </Button>
+                    )}
                   </div>
                 </div>
 
