@@ -1,10 +1,20 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { mockCategories } from "@/lib/mock-data"
 import { Button } from "@/components/ui/button"
 
-export function CategoryGrid() {
+interface Category {
+  id: string
+  name: string
+  icon: string
+  image: string
+}
+
+interface CategoryGridProps {
+  categories: Category[]
+}
+
+export function CategoryGrid({ categories }: CategoryGridProps) {
   const router = useRouter()
 
   return (
@@ -16,7 +26,7 @@ export function CategoryGrid() {
         </Button>
       </div>
       <div className="grid grid-cols-4 gap-4">
-        {mockCategories.slice(0, 8).map((category) => (
+        {categories.slice(0, 8).map((category) => (
           <button
             key={category.id}
             onClick={() => router.push(`/client/market?category=${category.id}`)}

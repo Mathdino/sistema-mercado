@@ -1,13 +1,36 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { mockProducts } from "@/lib/mock-data"
 import { ProductCard } from "./product-card"
 import { Button } from "@/components/ui/button"
 
-export function FeaturedProducts() {
+interface Category {
+  id: string
+  name: string
+  icon: string
+  image: string
+}
+
+interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  originalPrice?: number
+  image: string
+  categoryId: string
+  unit: string
+  stock: number
+  featured: boolean
+  category?: Category
+}
+
+interface FeaturedProductsProps {
+  products: Product[]
+}
+
+export function FeaturedProducts({ products }: FeaturedProductsProps) {
   const router = useRouter()
-  const featuredProducts = mockProducts.filter((p) => p.featured)
 
   return (
     <section>
@@ -18,7 +41,7 @@ export function FeaturedProducts() {
         </Button>
       </div>
       <div className="grid grid-cols-2 gap-4">
-        {featuredProducts.map((product) => (
+        {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>

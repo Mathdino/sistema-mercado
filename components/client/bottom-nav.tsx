@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ShoppingBag, ShoppingCart, Clock, User } from "lucide-react";
+import { Home, ShoppingBag, ShoppingCart, Clock, User, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/lib/store";
 import { useCartStore } from "@/lib/store";

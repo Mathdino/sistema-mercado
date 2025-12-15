@@ -427,7 +427,7 @@ export default function AdminOrdersPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold">Pedidos</h1>
-              <p className="text-muted-foreground">Gerencie todos os pedidos ({totalOrders} no total)</p>
+              <p className="text-muted-foreground">Gerencie todos os pedidos</p>
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[180px]">
