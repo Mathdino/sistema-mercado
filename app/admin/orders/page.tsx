@@ -668,7 +668,7 @@ export default function AdminOrdersPage() {
           open={!!selectedOrder}
           onOpenChange={() => setSelectedOrder(null)}
         >
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="sm:!max-w-5xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               {/* Shortened order ID in the dialog header */}
               <DialogTitle>
