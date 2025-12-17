@@ -278,6 +278,7 @@ async function DELETE(req, { params }) {
             data: {
                 price: product.originalPrice,
                 originalPrice: null,
+                promotionEndsAt: null,
                 updatedAt: new Date()
             }
         });

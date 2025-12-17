@@ -223,7 +223,43 @@ export default function AdminProductsPage() {
                       </div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="space-y-1">
-                          <h3 className="font-semibold leading-tight">{product.name}</h3>
+                          <div className="flex justify-between items-start gap-2">
+                            <h3 className="font-semibold leading-tight line-clamp-2">{product.name}</h3>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 -mt-1 shrink-0">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => router.push(`/admin/products/edit/${product.id}`)}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDeleteProduct(product.id)}>
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Excluir
+                                </DropdownMenuItem>
+                                {product.featured ? (
+                                  <DropdownMenuItem onClick={() => handleToggleFeatured(product.id, false)}>
+                                    <EyeOff className="mr-2 h-4 w-4" />
+                                    Remover destaque
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => handleToggleFeatured(product.id, true)}>
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    Destacar
+                                  </DropdownMenuItem>
+                                )}
+                                {product.originalPrice ? (
+                                  <DropdownMenuItem onClick={() => handleRemovePromotion(product.id)}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Remover promoção
+                                  </DropdownMenuItem>
+                                ) : null}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                           <p className="text-xs text-muted-foreground">{category?.name}</p>
                           <div className="flex items-center gap-2">
                             <p className="text-lg font-bold text-primary">{formatCurrency(product.price)}</p>
@@ -234,51 +270,15 @@ export default function AdminProductsPage() {
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {product.stock} em estoque
+                        <div className="flex items-center gap-2 flex-wrap mt-2">
+                          <Badge variant="outline" className="text-xs">
+                            {product.stock} em estoque
+                          </Badge>
+                          {product.featured && (
+                            <Badge variant="default" className="text-xs">
+                              Destaque
                             </Badge>
-                            {product.featured && (
-                              <Badge variant="default" className="text-xs">
-                                Destaque
-                              </Badge>
-                            )}
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => router.push(`/admin/products/edit/${product.id}`)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDeleteProduct(product.id)}>
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Excluir
-                              </DropdownMenuItem>
-                              {product.featured ? (
-                                <DropdownMenuItem onClick={() => handleToggleFeatured(product.id, false)}>
-                                  <EyeOff className="mr-2 h-4 w-4" />
-                                  Remover destaque
-                                </DropdownMenuItem>
-                              ) : (
-                                <DropdownMenuItem onClick={() => handleToggleFeatured(product.id, true)}>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  Destacar
-                                </DropdownMenuItem>
-                              )}
-                              {product.originalPrice ? (
-                                <DropdownMenuItem onClick={() => handleRemovePromotion(product.id)}>
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Remover promoção
-                                </DropdownMenuItem>
-                              ) : null}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          )}
                         </div>
                       </div>
                     </div>
