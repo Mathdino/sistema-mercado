@@ -122,7 +122,10 @@
     opacity: 1;
   }
   100% {
-    transform: translate(var(--cart-x, 100vw), var(--cart-y, 100vh)) scale(0);
+    transform: translate(
+      calc(var(--cart-x, 100vw) - 50%), 
+      calc(var(--cart-y, 100vh) - 50%)
+    ) scale(0);
     opacity: 0;
   }
 }
@@ -131,6 +134,16 @@
   --cart-x: calc(100vw - 50px);
   --cart-y: calc(100vh - 50px);
   animation: floatToCart 0.5s ease-out forwards;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Better cart animation that calculates actual cart position */
+.animate-cart-item {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  animation: floatToCart 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 @layer base {

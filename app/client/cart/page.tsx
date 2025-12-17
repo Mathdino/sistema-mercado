@@ -13,10 +13,12 @@ import { useCartStore, useAuthStore } from "@/lib/store"
 import { mockProducts, mockMarket } from "@/lib/mock-data"
 import { formatCurrency } from "@/lib/currency"
 import { ShoppingBag } from "lucide-react"
+import type { CartItem, Product } from "@/lib/types"
 
 export default function CartPage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
+  const [cartProducts, setCartProducts] = useState<Array<CartItem & { product: Product }>>([])
   const router = useRouter()
   const { items, getTotal } = useCartStore()
   const { isAuthenticated } = useAuthStore()
@@ -32,10 +34,67 @@ export default function CartPage() {
     }
   }, [isHydrated, isAuthenticated])
 
-  const cartProducts = items.map((item) => ({
-    ...item,
-    product: mockProducts.find((p) => p.id === item.productId)!,
-  }))
+  // Fetch real product data for cart items
+  useEffect(() => {
+    const fetchCartProducts = async () => {
+      if (items.length === 0) {
+        setCartProducts([])
+        return
+      }
+
+      try {
+        // First try to find in mock data
+        const mockCartProducts = items.map((item) => {
+          const product = mockProducts.find((p) => p.id === item.productId)
+          if (product) {
+            return { ...item, product }
+          }
+          return null
+        }).filter(Boolean) as Array<CartItem & { product: Product }>
+
+        // If all items are found in mock data, use them
+        if (mockCartProducts.length === items.length) {
+          setCartProducts(mockCartProducts)
+          return
+        }
+
+        // Otherwise fetch from API
+        const response = await fetch(`/api/products`)
+        if (response.ok) {
+          const data = await response.json()
+          const apiCartProducts = items.map((item) => {
+            const product = data.products.find((p: any) => p.id === item.productId)
+            if (product) {
+              return { ...item, product }
+            }
+            // Fallback to mock data if not found in API
+            const mockProduct = mockProducts.find((p) => p.id === item.productId)
+            return mockProduct ? { ...item, product: mockProduct } : null
+          }).filter(Boolean) as Array<CartItem & { product: Product }>
+          
+          setCartProducts(apiCartProducts)
+        } else {
+          // Fallback to mock data if API fails
+          setCartProducts(mockCartProducts)
+        }
+      } catch (error) {
+        console.error("Error fetching cart products:", error)
+        // Fallback to mock data if there's an error
+        const mockCartProducts = items.map((item) => {
+          const product = mockProducts.find((p) => p.id === item.productId)
+          return product ? { ...item, product } : null
+        }).filter(Boolean) as Array<CartItem & { product: Product }>
+        
+        setCartProducts(mockCartProducts)
+      }
+    }
+
+    if (isHydrated && isAuthenticated && items.length > 0) {
+      fetchCartProducts()
+    } else if (items.length === 0) {
+      setCartProducts([])
+    }
+  }, [items, isHydrated, isAuthenticated])
 
   const subtotal = getTotal()
   const deliveryFee = subtotal >= mockMarket.minOrderValue ? mockMarket.deliveryFee : 0
@@ -87,8 +146,8 @@ export default function CartPage() {
         <h1 className="text-2xl font-bold">Carrinho</h1>
 
         <div className="space-y-3">
-          {cartProducts.map((item) => (
-            <CartItemCard key={item.productId} item={item} />
+          {cartProducts.map((item, index) => (
+            <CartItemCard key={`${item.productId}-${index}`} item={item} />
           ))}
         </div>
 

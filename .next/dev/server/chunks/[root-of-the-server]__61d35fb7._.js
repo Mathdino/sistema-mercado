@@ -333,21 +333,22 @@ async function POST(req) {
         const body = await req.json();
         const { name, description, price, originalPrice, image, categoryId, unit, stock, featured } = body;
         // Validate required fields
-        console.log('Validating product data:', {
+        console.log("Validating product data:", {
             name,
             description,
             price,
-            image,
+            image: image ? "present" : "missing",
             categoryId,
             unit,
             stock
         });
-        if (!name || !description || price === undefined || !image || !categoryId || !unit || stock === undefined) {
-            console.log('Validation failed:', {
+        // We allow description to be empty string, but other fields must be present
+        if (!name || price === undefined || !image || !categoryId || !unit || stock === undefined) {
+            console.log("Validation failed:", {
                 name,
                 description,
                 price,
-                image,
+                image: image ? "present" : "missing",
                 categoryId,
                 unit,
                 stock
@@ -358,7 +359,7 @@ async function POST(req) {
                     name,
                     description,
                     price,
-                    image,
+                    image: image ? "present" : "missing",
                     categoryId,
                     unit,
                     stock
@@ -369,7 +370,7 @@ async function POST(req) {
         }
         // Validate price
         const parsedPrice = parseFloat(price);
-        console.log('Parsed price:', parsedPrice);
+        console.log("Parsed price:", parsedPrice);
         if (isNaN(parsedPrice) || parsedPrice <= 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "invalid_price",
@@ -380,7 +381,7 @@ async function POST(req) {
         }
         // Validate stock
         const parsedStock = parseInt(stock);
-        console.log('Parsed stock:', parsedStock);
+        console.log("Parsed stock:", parsedStock);
         if (isNaN(parsedStock) || parsedStock < 0) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "invalid_stock",
@@ -390,7 +391,7 @@ async function POST(req) {
             });
         }
         // Validate category exists
-        console.log('Checking category:', categoryId);
+        console.log("Checking category:", categoryId);
         const category = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].category.findUnique({
             where: {
                 id: categoryId
@@ -404,7 +405,7 @@ async function POST(req) {
                     name: true
                 }
             });
-            console.log('Available categories:', allCategories);
+            console.log("Available categories:", allCategories);
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "category_not_found",
                 categoryId,
@@ -413,18 +414,18 @@ async function POST(req) {
                 status: 400
             });
         }
-        console.log('Category found:', category);
+        console.log("Category found:", category);
         // Create the product
         const product = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].product.create({
             data: {
                 name,
-                description,
-                price: parseFloat(price),
+                description: description || "",
+                price: parsedPrice,
                 originalPrice: originalPrice ? parseFloat(originalPrice) : undefined,
                 image,
                 categoryId,
                 unit,
-                stock: parseInt(stock),
+                stock: parsedStock,
                 featured: !!featured
             },
             include: {
