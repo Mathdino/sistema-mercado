@@ -518,9 +518,44 @@ var _s = __turbopack_context__.k.signature();
 function AuthGuard({ children, requireAuth = true, requireRole }) {
     _s();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
-    const { user, isAuthenticated } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"])();
+    const { user, isAuthenticated, loginWithOAuth } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"])();
+    const [hydrated, setHydrated] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AuthGuard.useEffect": ()=>{
+            setHydrated(true);
+        }
+    }["AuthGuard.useEffect"], []);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "AuthGuard.useEffect": ()=>{
+            const tryRestoreFromCookie = {
+                "AuthGuard.useEffect.tryRestoreFromCookie": async ()=>{
+                    try {
+                        const res = await fetch("/api/users/me", {
+                            method: "PUT"
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data?.user) {
+                                loginWithOAuth(data.user);
+                            }
+                        }
+                    } catch  {}
+                }
+            }["AuthGuard.useEffect.tryRestoreFromCookie"];
+            if (hydrated && !isAuthenticated) {
+                tryRestoreFromCookie();
+            }
+        }
+    }["AuthGuard.useEffect"], [
+        hydrated,
+        isAuthenticated,
+        loginWithOAuth
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "AuthGuard.useEffect": ()=>{
+            if (!hydrated) {
+                return;
+            }
             if (requireAuth && !isAuthenticated) {
                 router.push("/login");
                 return;
@@ -530,12 +565,16 @@ function AuthGuard({ children, requireAuth = true, requireRole }) {
             }
         }
     }["AuthGuard.useEffect"], [
+        hydrated,
         isAuthenticated,
         user,
         requireAuth,
         requireRole,
         router
     ]);
+    if (!hydrated) {
+        return null;
+    }
     if (requireAuth && !isAuthenticated) {
         return null;
     }
@@ -546,7 +585,7 @@ function AuthGuard({ children, requireAuth = true, requireRole }) {
         children: children
     }, void 0, false);
 }
-_s(AuthGuard, "hruLzN1c/xxNFHGHm3lKECexqRU=", false, function() {
+_s(AuthGuard, "RGl8tAYAzP9VUqye2D5N9fIQ93k=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
         __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$store$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAuthStore"]

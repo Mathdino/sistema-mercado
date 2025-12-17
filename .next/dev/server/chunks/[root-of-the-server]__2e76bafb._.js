@@ -78,10 +78,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 ;
 const prismaClientSingleton = ()=>{
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) {
-        throw new Error("DATABASE_URL environment variable is not set");
-    }
+    const connectionString = process.env.DATABASE_URL || "";
     const pool = new __TURBOPACK__imported__module__$5b$externals$5d2f$pg__$5b$external$5d$__$28$pg$2c$__esm_import$29$__["Pool"]({
         connectionString
     });
