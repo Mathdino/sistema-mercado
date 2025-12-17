@@ -166,7 +166,9 @@ export default function AdminFinancialPage() {
                 <div className="text-2xl font-bold">
                   {loading ? "..." : financialData.totalProductsSold}
                 </div>
-                <p className="text-xs text-muted-foreground">Total de itens</p>
+                <p className="text-xs text-muted-foreground">
+                  Total de produtos
+                </p>
               </CardContent>
             </Card>
           </div>

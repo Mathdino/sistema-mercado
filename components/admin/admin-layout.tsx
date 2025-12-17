@@ -61,7 +61,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
     { icon: ShoppingBag, label: "Pedidos", path: "/admin/orders" },
     { icon: Package, label: "Produtos", path: "/admin/products" },
-    { icon: Users, label: "Usuários", path: "/admin/users" },
+    { icon: Users, label: "Clientes", path: "/admin/users" },
     { icon: DollarSign, label: "Financeiro", path: "/admin/financial" },
   ];
 
