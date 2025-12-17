@@ -372,6 +372,7 @@ async function POST(req) {
             data: {
                 originalPrice: product.price,
                 price: parseFloat(originalPrice),
+                promotionEndsAt: endDate,
                 updatedAt: new Date()
             }
         });

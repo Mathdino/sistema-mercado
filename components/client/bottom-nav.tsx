@@ -6,12 +6,34 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/lib/store";
 import { useCartStore } from "@/lib/store";
 import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 
 export function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
   const { isAuthenticated } = useAuthStore();
-  const itemCount = useCartStore((state) => state.getItemCount());
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [itemCount, setItemCount] = useState(0);
+
+  // Properly handle hydration to prevent mismatches
+  useEffect(() => {
+    setIsHydrated(true);
+    // Set initial item count after hydration
+    setItemCount(useCartStore.getState().getItemCount());
+  }, []);
+
+  // Subscribe to cart changes after hydration
+  useEffect(() => {
+    if (!isHydrated) return;
+    
+    const unsubscribe = useCartStore.subscribe(
+      (state) => {
+        setItemCount(state.getItemCount());
+      }
+    );
+    
+    return unsubscribe;
+  }, [isHydrated]);
 
   const navItems = [
     { icon: Home, label: "Início", path: "/client" },
@@ -30,11 +52,33 @@ export function BottomNav() {
     router.push(path);
   };
 
+  // Don't render until hydrated to prevent SSR mismatch
+  if (!isHydrated) {
+    return (
+      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t bg-background">
+        <div className="relative flex items-center justify-around py-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.path} className="flex flex-col items-center gap-1 px-4 py-2">
+                <div className="h-5 w-5" /> {/* Placeholder for icon */}
+                <span className="text-xs font-medium invisible">{item.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <>
       <nav className="fixed bottom-0 left-0 right-0 z-20 border-t bg-background">
         <div className="relative flex items-center justify-around py-2">
           {navItems.map((item) => {
+            // Skip auth-required items if not authenticated
+            if (item.requireAuth && !isAuthenticated) return null;
+            
             const Icon = item.icon;
             const isActive = pathname === item.path;
             const isCart = item.path === "/client/cart";
@@ -51,6 +95,7 @@ export function BottomNav() {
                       "relative flex h-12 w-12 items-center justify-center rounded-full bg-primary shadow-lg transition-all",
                       isActive ? "ring-2 ring-primary" : ""
                     )}
+                    data-cart-icon
                   >
                     <Icon className="h-6 w-6 text-primary-foreground" />
                     {itemCount > 0 && (

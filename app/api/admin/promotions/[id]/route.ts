@@ -73,6 +73,7 @@ export async function DELETE(
       data: {
         price: product.originalPrice, // Restore original price
         originalPrice: null, // Clear the original price field
+        promotionEndsAt: null,
         updatedAt: new Date()
       }
     })

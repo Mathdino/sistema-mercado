@@ -10,6 +10,32 @@ export async function GET(req: NextRequest) {
     const featuredOnly = url.searchParams.get("featured") === "true"
     const onPromotion = url.searchParams.get("promotion") === "true"
 
+    // Cleanup expired promotions
+    const now = new Date();
+    const expiredProducts = await prisma.product.findMany({
+      where: {
+        originalPrice: { not: null },
+        promotionEndsAt: { lt: now }
+      }
+    });
+
+    if (expiredProducts.length > 0) {
+      console.log(`Found ${expiredProducts.length} expired promotions. Cleaning up...`);
+      for (const product of expiredProducts) {
+        if (product.originalPrice) {
+          await prisma.product.update({
+            where: { id: product.id },
+            data: {
+              price: product.originalPrice,
+              originalPrice: null,
+              promotionEndsAt: null,
+              updatedAt: new Date()
+            }
+          });
+        }
+      }
+    }
+
     // Build where clause for products
     const whereClause: any = {}
     

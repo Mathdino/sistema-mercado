@@ -147,6 +147,7 @@ export async function POST(req: NextRequest) {
       data: {
         originalPrice: product.price, // Store current price as original
         price: parseFloat(originalPrice), // Set new promotional price
+        promotionEndsAt: endDate,
         updatedAt: new Date()
       }
     })
