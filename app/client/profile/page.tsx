@@ -1,24 +1,33 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { ClientHeader } from "@/components/client/client-header"
-import { BottomNav } from "@/components/client/bottom-nav"
-import { LoginModal } from "@/components/client/login-modal"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useAuthStore } from "@/lib/store"
-import { useToast } from "@/hooks/use-toast"
-import { User, MapPin, Phone, Mail, LogOut, ChevronRight, Edit, FileSearch } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ClientHeader } from "@/components/client/client-header";
+import { BottomNav } from "@/components/client/bottom-nav";
+import { LoginModal } from "@/components/client/login-modal";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuthStore } from "@/lib/store";
+import { useToast } from "@/hooks/use-toast";
+import {
+  User,
+  MapPin,
+  Phone,
+  Mail,
+  LogOut,
+  ChevronRight,
+  Edit,
+  FileSearch,
+} from "lucide-react";
 
 export default function ProfilePage() {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isHydrated, setIsHydrated] = useState(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     cpf: "",
@@ -31,23 +40,24 @@ export default function ProfilePage() {
       city: "",
       state: "",
       zipCode: "",
-    }
-  })
-  const router = useRouter()
-  const { toast } = useToast()
-  const { user, logout, isAuthenticated, updateUser } = useAuthStore()
+    },
+  });
+  const router = useRouter();
+  const { toast } = useToast();
+  const { user, logout, isAuthenticated, updateUser } = useAuthStore();
 
   useEffect(() => {
     // Mark the component as hydrated after mount
-    setIsHydrated(true)
-  }, [])
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
-      setIsLoginModalOpen(true)
+      setIsLoginModalOpen(true);
     } else if (isHydrated && user) {
       // Initialize form data with user information
-      const defaultAddress = user.addresses.find((addr) => addr.isDefault) || user.addresses[0]
+      const defaultAddress =
+        user.addresses.find((addr) => addr.isDefault) || user.addresses[0];
       setFormData({
         name: user.name || "",
         cpf: user.cpf ? formatCPF(user.cpf) : "", // Apply CPF mask when loading data
@@ -59,31 +69,33 @@ export default function ProfilePage() {
           neighborhood: defaultAddress?.neighborhood || "",
           city: defaultAddress?.city || "",
           state: defaultAddress?.state || "",
-          zipCode: defaultAddress?.zipCode ? formatZipCode(defaultAddress.zipCode) : "", // Apply ZIP code mask when loading data
-        }
-      })
+          zipCode: defaultAddress?.zipCode
+            ? formatZipCode(defaultAddress.zipCode)
+            : "", // Apply ZIP code mask when loading data
+        },
+      });
     }
-  }, [isHydrated, isAuthenticated, user])
+  }, [isHydrated, isAuthenticated, user]);
 
   const handleLogout = () => {
-    logout()
+    logout();
     toast({
       title: "Logout realizado",
       description: "Até logo!",
-    })
-    router.push("/client")
-  }
+    });
+    router.push("/client");
+  };
 
   const handleLoginSuccess = () => {
     // User successfully logged in, page will re-render with authenticated state
-  }
+  };
 
   const handleSave = async () => {
-    if (!user) return
-    
-    console.log("Updating user with ID:", user.id)
-    
-    setIsLoading(true)
+    if (!user) return;
+
+    console.log("Updating user with ID:", user.id);
+
+    setIsLoading(true);
     try {
       // Make API call to update user data (token will be sent automatically via cookies)
       const res = await fetch(`/api/users/me`, {
@@ -96,95 +108,97 @@ export default function ProfilePage() {
           phone: formData.phone,
           address: formData.address,
         }),
-      })
-      
-      const data = await res.json()
-      console.log("API response:", data)
-      
+      });
+
+      const data = await res.json();
+      console.log("API response:", data);
+
       if (res.ok && data.user) {
         // Update local store with new data
-        updateUser(data.user)
-        
+        updateUser(data.user);
+
         toast({
           title: "Perfil atualizado",
           description: "Suas informações foram salvas com sucesso.",
-        })
-        
-        setIsEditing(false)
+        });
+
+        setIsEditing(false);
       } else {
-        throw new Error(data.error || "Failed to update profile")
+        throw new Error(data.error || "Failed to update profile");
       }
     } catch (error) {
-      console.error("Error updating profile:", error)
+      console.error("Error updating profile:", error);
       toast({
         title: "Erro ao atualizar",
         description: "Não foi possível salvar as alterações. Tente novamente.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Format CPF with mask (xxx.xxx.xxx-xx)
   const formatCPF = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 11)
+    const digits = value.replace(/\D/g, "").slice(0, 11);
     return digits
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d)/, '$1.$2')
-      .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
-  }
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  };
 
   // Format phone with mask (xx) xxxxx-xxxx
   const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 11)
+    const digits = value.replace(/\D/g, "").slice(0, 11);
     return digits
-      .replace(/(\d{2})(\d)/, '($1) $2')
-      .replace(/(\d{5})(\d)/, '$1-$2')
-  }
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{5})(\d)/, "$1-$2");
+  };
 
   // Format ZIP code with mask (xxxxx-xxx)
   const formatZipCode = (value: string) => {
-    const digits = value.replace(/\D/g, '').slice(0, 8)
-    return digits.replace(/(\d{5})(\d)/, '$1-$2')
-  }
+    const digits = value.replace(/\D/g, "").slice(0, 8);
+    return digits.replace(/(\d{5})(\d)/, "$1-$2");
+  };
 
   // Handle phone input change
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedValue = formatPhone(e.target.value)
-    setFormData({...formData, phone: formattedValue})
-  }
+    const formattedValue = formatPhone(e.target.value);
+    setFormData({ ...formData, phone: formattedValue });
+  };
 
   // Handle ZIP code input change
   const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedValue = formatZipCode(e.target.value)
+    const formattedValue = formatZipCode(e.target.value);
     setFormData({
       ...formData,
-      address: {...formData.address, zipCode: formattedValue}
-    })
-  }
+      address: { ...formData.address, zipCode: formattedValue },
+    });
+  };
 
   // Get user initials for avatar
   const getUserInitials = (name: string) => {
-    if (!name) return "UN"
-    const names = name.trim().split(" ")
-    if (names.length === 1) return names[0].charAt(0).toUpperCase()
-    return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase()
-  }
+    if (!name) return "UN";
+    const names = name.trim().split(" ");
+    if (names.length === 1) return names[0].charAt(0).toUpperCase();
+    return `${names[0].charAt(0)}${names[names.length - 1].charAt(
+      0
+    )}`.toUpperCase();
+  };
 
   // Format CPF for display
   const displayCPF = (cpf: string) => {
-    return formatCPF(cpf)
-  }
+    return formatCPF(cpf);
+  };
 
   // Don't render anything until hydration is complete
   if (!isHydrated) {
-    return null
+    return null;
   }
 
   // Don't show the page content if user is not authenticated and modal isn't open
   if (!isAuthenticated && !isLoginModalOpen) {
-    return null
+    return null;
   }
 
   return (
@@ -201,15 +215,16 @@ export default function ProfilePage() {
             <div>
               <h2 className="font-semibold">{user?.name}</h2>
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="ml-auto"
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              Editar Conta<Edit className="h-4 w-4" />
-            </Button>
           </CardContent>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            onClick={() => setIsEditing(!isEditing)}
+          >
+            Editar Conta
+            <Edit className="h-4 w-4" />
+          </Button>
         </Card>
 
         {isEditing ? (
@@ -223,10 +238,12 @@ export default function ProfilePage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="cpf">CPF</Label>
                 <Input
@@ -236,7 +253,7 @@ export default function ProfilePage() {
                   className="bg-muted"
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="phone">Telefone</Label>
                 <Input
@@ -245,9 +262,9 @@ export default function ProfilePage() {
                   onChange={handlePhoneChange}
                 />
               </div>
-              
+
               <Separator />
-              
+
               <div className="space-y-2">
                 <Label>Endereço padrão</Label>
                 <div className="grid grid-cols-2 gap-2">
@@ -256,10 +273,15 @@ export default function ProfilePage() {
                     <Input
                       id="street"
                       value={formData.address.street}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        address: {...formData.address, street: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          address: {
+                            ...formData.address,
+                            street: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -267,36 +289,51 @@ export default function ProfilePage() {
                     <Input
                       id="number"
                       value={formData.address.number}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        address: {...formData.address, number: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          address: {
+                            ...formData.address,
+                            number: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="complement">Complemento</Label>
                   <Input
                     id="complement"
                     value={formData.address.complement}
-                    onChange={(e) => setFormData({
-                        ...formData, 
-                        address: {...formData.address, complement: e.target.value}
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        address: {
+                          ...formData.address,
+                          complement: e.target.value,
+                        },
+                      })
+                    }
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="neighborhood">Bairro</Label>
                     <Input
                       id="neighborhood"
                       value={formData.address.neighborhood}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        address: {...formData.address, neighborhood: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          address: {
+                            ...formData.address,
+                            neighborhood: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -308,17 +345,22 @@ export default function ProfilePage() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-2">
                     <Label htmlFor="city">Cidade</Label>
                     <Input
                       id="city"
                       value={formData.address.city}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        address: {...formData.address, city: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          address: {
+                            ...formData.address,
+                            city: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -326,26 +368,31 @@ export default function ProfilePage() {
                     <Input
                       id="state"
                       value={formData.address.state}
-                      onChange={(e) => setFormData({
-                        ...formData, 
-                        address: {...formData.address, state: e.target.value}
-                      })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          address: {
+                            ...formData.address,
+                            state: e.target.value,
+                          },
+                        })
+                      }
                     />
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
-                  className="flex-1" 
+                <Button
+                  variant="outline"
+                  className="flex-1"
                   onClick={() => setIsEditing(false)}
                   disabled={isLoading}
                 >
                   Cancelar
                 </Button>
-                <Button 
-                  className="flex-1" 
+                <Button
+                  className="flex-1"
                   onClick={handleSave}
                   disabled={isLoading}
                 >
@@ -373,7 +420,9 @@ export default function ProfilePage() {
                   <FileSearch className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="text-sm text-muted-foreground">CPF</p>
-                    <p className="font-medium">{user?.cpf ? displayCPF(user.cpf) : ""}</p>
+                    <p className="font-medium">
+                      {user?.cpf ? displayCPF(user.cpf) : ""}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -389,16 +438,29 @@ export default function ProfilePage() {
                     <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">
-                        {user.addresses.find((addr) => addr.isDefault)?.street}, {user.addresses.find((addr) => addr.isDefault)?.number}
-                        {user.addresses.find((addr) => addr.isDefault)?.complement && 
-                          `, ${user.addresses.find((addr) => addr.isDefault)?.complement}`} - 
-                        {user.addresses.find((addr) => addr.isDefault)?.neighborhood}, {user.addresses.find((addr) => addr.isDefault)?.city} - 
-                        {user.addresses.find((addr) => addr.isDefault)?.state}, {user.addresses.find((addr) => addr.isDefault)?.zipCode}
+                        {user.addresses.find((addr) => addr.isDefault)?.street},{" "}
+                        {user.addresses.find((addr) => addr.isDefault)?.number}
+                        {user.addresses.find((addr) => addr.isDefault)
+                          ?.complement &&
+                          `, ${
+                            user.addresses.find((addr) => addr.isDefault)
+                              ?.complement
+                          }`}{" "}
+                        -
+                        {
+                          user.addresses.find((addr) => addr.isDefault)
+                            ?.neighborhood
+                        }
+                        , {user.addresses.find((addr) => addr.isDefault)?.city}{" "}
+                        -{user.addresses.find((addr) => addr.isDefault)?.state},{" "}
+                        {user.addresses.find((addr) => addr.isDefault)?.zipCode}
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-muted-foreground">Nenhum endereço cadastrado</p>
+                  <p className="text-muted-foreground">
+                    Nenhum endereço cadastrado
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -411,11 +473,11 @@ export default function ProfilePage() {
         </Button>
       </main>
       <BottomNav />
-      <LoginModal 
-        isOpen={isLoginModalOpen} 
+      <LoginModal
+        isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
       />
     </div>
-  )
+  );
 }

@@ -1,51 +1,63 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import { AuthGuard } from "@/components/auth-guard"
-import { AdminLayout } from "@/components/admin/admin-layout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useOrderStore } from "@/lib/store"
-import { mockOrders } from "@/lib/mock-data"
-import { formatCurrency, formatDateShort } from "@/lib/currency"
-import { DollarSign, TrendingUp, CreditCard, Banknote } from "lucide-react"
+import { useEffect, useMemo, useState } from "react";
+import { AuthGuard } from "@/components/auth-guard";
+import { AdminLayout } from "@/components/admin/admin-layout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { formatCurrency, formatDateShort } from "@/lib/currency";
+import { DollarSign, TrendingUp, CreditCard, Banknote } from "lucide-react";
 
 export default function AdminFinancialPage() {
-  const { orders } = useOrderStore()
+  const [financialData, setFinancialData] = useState<any>({
+    totalRevenue: 0,
+    totalDeliveryFees: 0,
+    totalProductsSold: 0,
+    paymentBreakdown: {},
+    recentOrders: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    String(new Date().getMonth() + 1)
+  );
+  const [selectedYear, setSelectedYear] = useState<string>(
+    String(new Date().getFullYear())
+  );
+  const [recentPage, setRecentPage] = useState<number>(1);
 
-  const financialData = useMemo(() => {
-    const allOrders = [...orders, ...mockOrders].filter((order) => order.status === "delivered")
-
-    const totalRevenue = allOrders.reduce((sum, order) => sum + order.totalAmount, 0)
-    const totalDeliveryFees = allOrders.reduce((sum, order) => sum + order.deliveryFee, 0)
-    const totalProductsSold = allOrders.reduce((sum, order) => order.items.reduce((s, item) => s + item.quantity, 0), 0)
-
-    const paymentBreakdown = allOrders.reduce(
-      (acc, order) => {
-        acc[order.paymentMethod] = (acc[order.paymentMethod] || 0) + order.totalAmount
-        return acc
-      },
-      {} as Record<string, number>,
-    )
-
-    const recentOrders = allOrders
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      .slice(0, 10)
-
-    return {
-      totalRevenue,
-      totalDeliveryFees,
-      totalProductsSold,
-      paymentBreakdown,
-      recentOrders,
-    }
-  }, [orders])
+  useEffect(() => {
+    const fetchFinancial = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `/api/admin/financial?month=${selectedMonth}&year=${selectedYear}&page=${recentPage}&limit=10`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setFinancialData(data);
+        }
+      } catch (error) {
+        console.error("Error fetching financial data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFinancial();
+  }, [selectedMonth, selectedYear, recentPage]);
 
   const paymentMethodLabels = {
     pix: "PIX",
     credit: "Cartão de Crédito",
     debit: "Cartão de Débito",
     cash: "Dinheiro",
-  }
+  };
 
   return (
     <AuthGuard requireRole="admin">
@@ -53,41 +65,107 @@ export default function AdminFinancialPage() {
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold">Financeiro</h1>
-            <p className="text-muted-foreground">Análise financeira e relatórios</p>
+            <p className="text-muted-foreground">
+              Análise financeira e relatórios
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Mês" />
+              </SelectTrigger>
+              <SelectContent>
+                {[
+                  { value: "1", label: "Janeiro" },
+                  { value: "2", label: "Fevereiro" },
+                  { value: "3", label: "Março" },
+                  { value: "4", label: "Abril" },
+                  { value: "5", label: "Maio" },
+                  { value: "6", label: "Junho" },
+                  { value: "7", label: "Julho" },
+                  { value: "8", label: "Agosto" },
+                  { value: "9", label: "Setembro" },
+                  { value: "10", label: "Outubro" },
+                  { value: "11", label: "Novembro" },
+                  { value: "12", label: "Dezembro" },
+                ].map((m) => (
+                  <SelectItem key={m.value} value={m.value}>
+                    {m.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={selectedYear} onValueChange={setSelectedYear}>
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Ano" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 5 }, (_, i) =>
+                  String(new Date().getFullYear() - i)
+                ).map((y) => (
+                  <SelectItem key={y} value={y}>
+                    {y}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Receita Total</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Receita Total
+                </CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(financialData.totalRevenue)}</div>
-                <p className="text-xs text-muted-foreground">Pedidos entregues</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Taxas de Entrega</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(financialData.totalDeliveryFees)}</div>
+                <div className="text-2xl font-bold">
+                  {loading ? "..." : formatCurrency(financialData.totalRevenue)}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  {((financialData.totalDeliveryFees / financialData.totalRevenue) * 100).toFixed(1)}% da receita
+                  Pedidos confirmados (exclui cancelados)
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Produtos Vendidos</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Taxas de Entrega
+                </CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {loading
+                    ? "..."
+                    : formatCurrency(financialData.totalDeliveryFees)}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {loading
+                    ? "..."
+                    : `${(
+                        (financialData.totalDeliveryFees /
+                          (financialData.totalRevenue || 1)) *
+                        100
+                      ).toFixed(1)}% da receita`}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Produtos Vendidos
+                </CardTitle>
                 <Banknote className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{financialData.totalProductsSold}</div>
+                <div className="text-2xl font-bold">
+                  {loading ? "..." : financialData.totalProductsSold}
+                </div>
                 <p className="text-xs text-muted-foreground">Total de itens</p>
               </CardContent>
             </Card>
@@ -99,26 +177,40 @@ export default function AdminFinancialPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {Object.entries(financialData.paymentBreakdown).map(([method, amount]) => {
-                  const percentage = (amount / financialData.totalRevenue) * 100
-                  return (
-                    <div key={method}>
-                      <div className="mb-2 flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">
-                            {paymentMethodLabels[method as keyof typeof paymentMethodLabels]}
+                {Object.entries(financialData.paymentBreakdown).map(
+                  ([method, amount]) => {
+                    const percentage =
+                      (Number(amount) / financialData.totalRevenue) * 100;
+                    return (
+                      <div key={method}>
+                        <div className="mb-2 flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">
+                              {
+                                paymentMethodLabels[
+                                  method as keyof typeof paymentMethodLabels
+                                ]
+                              }
+                            </span>
+                          </div>
+                          <span className="font-bold">
+                            {loading ? "..." : formatCurrency(Number(amount))}
                           </span>
                         </div>
-                        <span className="font-bold">{formatCurrency(amount)}</span>
+                        <div className="h-2 overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full bg-primary transition-all"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {percentage.toFixed(1)}% do total
+                        </p>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-muted">
-                        <div className="h-full bg-primary transition-all" style={{ width: `${percentage}%` }} />
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">{percentage.toFixed(1)}% do total</p>
-                    </div>
-                  )
-                })}
+                    );
+                  }
+                )}
               </div>
             </CardContent>
           </Card>
@@ -129,25 +221,77 @@ export default function AdminFinancialPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {financialData.recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-0">
+                {financialData.recentOrders.map((order: any) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between border-b pb-4 last:border-0"
+                  >
                     <div>
-                      <p className="font-medium">Pedido #{order.id}</p>
-                      <p className="text-sm text-muted-foreground">{formatDateShort(order.createdAt)}</p>
+                      <p className="font-medium">
+                        Pedido #{String(order.id).slice(0, 8)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {formatDateShort(order.createdAt)}
+                      </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-primary">{formatCurrency(order.totalAmount)}</p>
+                      <p className="font-bold text-primary">
+                        {loading ? "..." : formatCurrency(order.totalAmount)}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {paymentMethodLabels[order.paymentMethod as keyof typeof paymentMethodLabels]}
+                        {
+                          paymentMethodLabels[
+                            order.paymentMethod as keyof typeof paymentMethodLabels
+                          ]
+                        }
                       </p>
                     </div>
                   </div>
                 ))}
+                {financialData.recentPagination &&
+                  financialData.recentPagination.totalPages > 1 && (
+                    <div className="mt-4 flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">
+                        Página {recentPage} de{" "}
+                        {financialData.recentPagination.totalPages}
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setRecentPage((p) => Math.max(1, p - 1))
+                          }
+                          disabled={recentPage <= 1}
+                        >
+                          Anterior
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setRecentPage((p) =>
+                              Math.min(
+                                financialData.recentPagination.totalPages,
+                                p + 1
+                              )
+                            )
+                          }
+                          disabled={
+                            recentPage >=
+                            financialData.recentPagination.totalPages
+                          }
+                        >
+                          Próximo
+                        </Button>
+                      </div>
+                    </div>
+                  )}
               </div>
             </CardContent>
           </Card>
         </div>
       </AdminLayout>
     </AuthGuard>
-  )
+  );
 }

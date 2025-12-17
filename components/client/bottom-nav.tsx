@@ -76,9 +76,6 @@ export function BottomNav() {
       <nav className="fixed bottom-0 left-0 right-0 z-20 border-t bg-background">
         <div className="relative flex items-center justify-around py-2">
           {navItems.map((item) => {
-            // Skip auth-required items if not authenticated
-            if (item.requireAuth && !isAuthenticated) return null;
-            
             const Icon = item.icon;
             const isActive = pathname === item.path;
             const isCart = item.path === "/client/cart";
