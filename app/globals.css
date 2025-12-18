@@ -132,4 +132,74 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+  @keyframes floatSlow {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  .animate-float-slow {
+    animation: floatSlow 3s ease-in-out infinite;
+    will-change: transform;
+  }
+  @keyframes spinSlow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .animate-spin-slow {
+    animation: spinSlow 6s linear infinite;
+    will-change: transform;
+  }
+  @keyframes zoomInOut {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.08);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  .animate-zoom-in {
+    animation: zoomInOut 3s ease-in-out infinite;
+    will-change: transform;
+  }
+  @keyframes slideInLeft {
+    0% {
+      transform: translateX(-20px);
+    }
+    50% {
+      transform: translateX(10px);
+    }
+    100% {
+      transform: translateX(-20px);
+    }
+  }
+  .animate-slide-in-left {
+    animation: slideInLeft 3s ease-in-out infinite;
+    will-change: transform;
+  }
+  @keyframes rotate3dAnim {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(360deg);
+    }
+  }
+  .animate-rotate-3d {
+    animation: rotate3dAnim 6s linear infinite;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
 }

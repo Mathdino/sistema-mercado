@@ -126,16 +126,47 @@ export default function EditProductPage() {
 
   const handleUpdateProduct = async () => {
     try {
+      // Validation
+      if (!editProduct.name.trim()) {
+        alert("Nome do produto é obrigatório");
+        return;
+      }
+      
+      if (!editProduct.price || isNaN(parseFloat(editProduct.price)) || parseFloat(editProduct.price) <= 0) {
+        alert("Preço válido é obrigatório");
+        return;
+      }
+      
+      if (!editProduct.categoryId) {
+        alert("Categoria é obrigatória");
+        return;
+      }
+      
+      if (!editProduct.unit.trim()) {
+        alert("Unidade é obrigatória");
+        return;
+      }
+      
+      if (editProduct.stock === "" || isNaN(parseInt(editProduct.stock)) || parseInt(editProduct.stock) < 0) {
+        alert("Estoque válido é obrigatório");
+        return;
+      }
+      
       // In a real implementation, you would upload the image file to a storage service
       // and get a URL back. For now, we'll just use a placeholder.
       const imageUrl = imagePreview || product?.image || "/placeholder.svg"
       
+      // Prepare data for API - only send the fields the API expects
       const productData = {
-        ...editProduct,
-        image: imageUrl,
+        name: editProduct.name,
+        description: editProduct.description,
         price: parseFloat(editProduct.price),
         originalPrice: editProduct.originalPrice ? parseFloat(editProduct.originalPrice) : undefined,
-        stock: parseInt(editProduct.stock)
+        image: imageUrl,
+        categoryId: editProduct.categoryId,
+        unit: editProduct.unit,
+        stock: parseInt(editProduct.stock),
+        featured: editProduct.featured
       };
       
       const response = await fetch(`/api/admin/products/${productId}`, {
@@ -151,9 +182,15 @@ export default function EditProductPage() {
         // Redirect back to products page after successful update
         router.push("/admin/products")
       } else {
-        const error = await response.json()
+        const errorText = await response.text();
+        let error;
+        try {
+          error = JSON.parse(errorText);
+        } catch {
+          error = { error: errorText || 'Unknown error' };
+        }
         console.error("Error updating product:", error)
-        alert(`Error updating product: ${error.error || 'Unknown error'}`)
+        alert(`Error updating product: ${error.error || error.message || 'Unknown error'}`)
       }
     } catch (error) {
       console.error("Error updating product:", error)

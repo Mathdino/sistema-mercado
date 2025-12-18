@@ -134,10 +134,14 @@ export function PromotionBanner({
       </div>
 
       {/* Right Product Image */}
-      <div className="relative z-10 w-[35%] sm:w-[40%] h-full flex items-center justify-center p-2 sm:p-4 shrink-0">
+      <div
+        className="relative z-10 w-[35%] sm:w-[40%] h-full flex items-center justify-center p-2 sm:p-4 shrink-0"
+        style={{ perspective: "800px" }}
+      >
         {productImage && (
           <div
             className={`w-full h-full relative ${getAnimationClass(animation)}`}
+            style={{ transformOrigin: "center" }}
           >
             <img
               src={productImage}
