@@ -52,7 +52,7 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
       </div>
 
       {/* Progress Indicators */}
-      <div className="absolute bottom-4 left-0 w-full px-4 z-20 flex gap-2">
+      <div className="absolute bottom-2 left-0 w-full px-4 z-20 flex gap-2">
         {banners.map((_, idx) => (
           <div
             key={idx}
