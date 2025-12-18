@@ -1,68 +1,72 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { useAuthStore } from "@/lib/store"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/lib/store";
 
 interface AuthGuardProps {
-  children: React.ReactNode
-  requireAuth?: boolean
-  requireRole?: "client" | "admin"
+  children: React.ReactNode;
+  requireAuth?: boolean;
+  requireRole?: "client" | "admin";
 }
 
-export function AuthGuard({ children, requireAuth = true, requireRole }: AuthGuardProps) {
-  const router = useRouter()
-  const { user, isAuthenticated, loginWithOAuth } = useAuthStore()
-  const [hydrated, setHydrated] = useState(false)
+export function AuthGuard({
+  children,
+  requireAuth = true,
+  requireRole,
+}: AuthGuardProps) {
+  const router = useRouter();
+  const { user, isAuthenticated, loginWithOAuth } = useAuthStore();
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setHydrated(true)
-  }, [])
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     const tryRestoreFromCookie = async () => {
       try {
-        const res = await fetch("/api/users/me", { method: "PUT" })
+        const res = await fetch("/api/users/me", { method: "PUT" });
         if (res.ok) {
-          const data = await res.json()
+          const data = await res.json();
           if (data?.user) {
-            loginWithOAuth(data.user)
+            loginWithOAuth(data.user);
           }
         }
       } catch {}
-    }
+    };
     if (hydrated && !isAuthenticated) {
-      tryRestoreFromCookie()
+      tryRestoreFromCookie();
     }
-  }, [hydrated, isAuthenticated, loginWithOAuth])
+  }, [hydrated, isAuthenticated, loginWithOAuth]);
 
   useEffect(() => {
     if (!hydrated) {
-      return
+      return;
     }
     if (requireAuth && !isAuthenticated) {
-      router.push("/login")
-      return
+      router.push("/login");
+      return;
     }
 
     if (requireRole && user?.role !== requireRole) {
-      router.push("/")
+      router.push("/");
     }
-  }, [hydrated, isAuthenticated, user, requireAuth, requireRole, router])
+  }, [hydrated, isAuthenticated, user, requireAuth, requireRole, router]);
 
   if (!hydrated) {
-    return null
+    return null;
   }
 
   if (requireAuth && !isAuthenticated) {
-    return null
+    return null;
   }
 
   if (requireRole && user?.role !== requireRole) {
-    return null
+    return null;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

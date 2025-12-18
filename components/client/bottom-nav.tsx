@@ -1,7 +1,14 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, ShoppingBag, ShoppingCart, Clock, User, Tag } from "lucide-react";
+import {
+  Home,
+  ShoppingBag,
+  ShoppingCart,
+  Clock,
+  User,
+  Tag,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/lib/store";
 import { useCartStore } from "@/lib/store";
@@ -25,13 +32,11 @@ export function BottomNav() {
   // Subscribe to cart changes after hydration
   useEffect(() => {
     if (!isHydrated) return;
-    
-    const unsubscribe = useCartStore.subscribe(
-      (state) => {
-        setItemCount(state.getItemCount());
-      }
-    );
-    
+
+    const unsubscribe = useCartStore.subscribe((state) => {
+      setItemCount(state.getItemCount());
+    });
+
     return unsubscribe;
   }, [isHydrated]);
 
@@ -60,9 +65,14 @@ export function BottomNav() {
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.path} className="flex flex-col items-center gap-1 px-4 py-2">
+              <div
+                key={item.path}
+                className="flex flex-col items-center gap-1 px-4 py-2"
+              >
                 <div className="h-5 w-5" /> {/* Placeholder for icon */}
-                <span className="text-xs font-medium invisible">{item.label}</span>
+                <span className="text-xs font-medium invisible">
+                  {item.label}
+                </span>
               </div>
             );
           })}

@@ -73,9 +73,30 @@ model Product {
   stock         Int
   featured      Boolean    @default(false)
   promotionEndsAt DateTime?
+  promotionCards PromotionCard[]
   orderItems    OrderItem[]
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+}
+
+model PromotionCard {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  discountPrice   Float?
+  
+  backgroundImage String?
+  productImage    String?
+  
+  config          Json?
+  
+  productId       String?
+  product         Product? @relation(fields: [productId], references: [id])
+  
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 // Order model
