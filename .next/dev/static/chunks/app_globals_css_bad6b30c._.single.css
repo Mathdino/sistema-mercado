@@ -13,7 +13,6 @@
       --tw-rotate-z: initial;
       --tw-skew-x: initial;
       --tw-skew-y: initial;
-      --tw-scroll-snap-strictness: proximity;
       --tw-space-y-reverse: 0;
       --tw-space-x-reverse: 0;
       --tw-border-style: solid;
@@ -698,10 +697,6 @@
     margin-inline: calc(var(--spacing) * -1);
   }
 
-  .-mx-4 {
-    margin-inline: calc(var(--spacing) * -4);
-  }
-
   .mx-2 {
     margin-inline: calc(var(--spacing) * 2);
   }
@@ -1041,10 +1036,6 @@
     height: 180px;
   }
 
-  .h-\[200px\] {
-    height: 200px;
-  }
-
   .h-\[250px\] {
     height: 250px;
   }
@@ -1273,10 +1264,6 @@
     max-width: 90%;
   }
 
-  .max-w-\[95\%\] {
-    max-width: 95%;
-  }
-
   .max-w-\[calc\(100\%-2rem\)\] {
     max-width: calc(100% - 2rem);
   }
@@ -1327,14 +1314,6 @@
 
   .min-w-\[12rem\] {
     min-width: 12rem;
-  }
-
-  .min-w-\[85\%\] {
-    min-width: 85%;
-  }
-
-  .min-w-\[90\%\] {
-    min-width: 90%;
   }
 
   .min-w-\[var\(--radix-select-trigger-width\)\] {
@@ -1513,14 +1492,6 @@
 
   .resize-none {
     resize: none;
-  }
-
-  .snap-x {
-    scroll-snap-type: x var(--tw-scroll-snap-strictness);
-  }
-
-  .snap-center {
-    scroll-snap-align: center;
   }
 
   .scroll-my-1 {
@@ -2381,11 +2352,6 @@
   .text-4xl {
     font-size: var(--text-4xl);
     line-height: var(--tw-leading, var(--text-4xl--line-height));
-  }
-
-  .text-5xl {
-    font-size: var(--text-5xl);
-    line-height: var(--tw-leading, var(--text-5xl--line-height));
   }
 
   .text-6xl {
@@ -4732,18 +4698,6 @@
   }
 
   @media (min-width: 40rem) {
-    .sm\:min-w-\[380px\] {
-      min-width: 380px;
-    }
-  }
-
-  @media (min-width: 40rem) {
-    .sm\:min-w-\[400px\] {
-      min-width: 400px;
-    }
-  }
-
-  @media (min-width: 40rem) {
     .sm\:grid-cols-1 {
       grid-template-columns: repeat(1, minmax(0, 1fr));
     }
@@ -4938,12 +4892,6 @@
   @media (min-width: 48rem) {
     .md\:max-w-\[420px\] {
       max-width: 420px;
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:min-w-\[450px\] {
-      min-width: 450px;
     }
   }
 
@@ -6157,12 +6105,6 @@
 @property --tw-skew-y {
   syntax: "*";
   inherits: false
-}
-
-@property --tw-scroll-snap-strictness {
-  syntax: "*";
-  inherits: false;
-  initial-value: proximity;
 }
 
 @property --tw-space-y-reverse {
