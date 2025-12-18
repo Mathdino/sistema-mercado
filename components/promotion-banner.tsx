@@ -82,7 +82,7 @@ export function PromotionBanner({
 
   return (
     <div
-      className={`relative w-full h-[180px] sm:h-[250px] overflow-hidden rounded-xl shadow-lg flex flex-row ${className}`}
+      className={`relative w-full h-[220px] sm:h-[280px] overflow-hidden rounded-xl shadow-lg flex flex-row ${className}`}
       style={{
         background:
           backgroundType === "gradient"
@@ -93,7 +93,7 @@ export function PromotionBanner({
       {/* Left Content */}
       <div className="relative z-10 flex-1 flex flex-col p-3 sm:p-6 justify-center items-start text-left h-full min-w-0">
         <h2
-          className={`font-bold mb-1 sm:mb-2 leading-tight truncate w-full ${getFontFamily(
+          className={`font-bold mb-1 sm:mb-2 leading-tight w-full break-words ${getFontFamily(
             fontFamily
           )} ${getFontSizeClass(fontSize)}`}
           style={{ color: textColor }}
@@ -103,7 +103,7 @@ export function PromotionBanner({
 
         {description && (
           <p
-            className={`mb-2 sm:mb-4 opacity-90 w-full line-clamp-2 sm:line-clamp-3 ${getFontFamily(
+            className={`mb-2 sm:mb-4 opacity-90 w-full break-words ${getFontFamily(
               fontFamily
             )}`}
             style={{
@@ -116,7 +116,7 @@ export function PromotionBanner({
         )}
 
         {discountPrice && (
-          <div className="mt-auto bg-white/90 backdrop-blur-sm px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-lg inline-flex items-center whitespace-nowrap">
+          <div className="mt-auto mb-2 sm:mb-4 bg-white/90 backdrop-blur-sm px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-lg inline-flex items-center whitespace-nowrap">
             <span className="text-[10px] sm:text-xs text-gray-500 font-medium mr-1.5 sm:mr-2">
               Por apenas
             </span>
