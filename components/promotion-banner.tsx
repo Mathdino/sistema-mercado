@@ -70,11 +70,17 @@ export function PromotionBanner({
   const getAnimationClass = (anim: string) => {
     switch (anim) {
       case "float":
-        return "animate-bounce";
+        return "animate-float-slow";
       case "pulse":
         return "animate-pulse";
       case "spin":
         return "animate-spin-slow";
+      case "zoom":
+        return "animate-zoom-in";
+      case "slide":
+        return "animate-slide-in-left";
+      case "rotate3d":
+        return "animate-rotate-3d";
       default:
         return "";
     }

@@ -196,11 +196,17 @@ export function PromotionBannerCreator({
   const getAnimationClass = (anim: string) => {
     switch (anim) {
       case "float":
-        return "animate-bounce"; // Simplified float
+        return "animate-float-slow"; // Slower float animation
       case "pulse":
         return "animate-pulse";
       case "spin":
-        return "animate-spin-slow"; // Need to ensure this exists or use style
+        return "animate-spin-slow"; // Slow spin
+      case "zoom":
+        return "animate-zoom-in"; // New zoom animation
+      case "slide":
+        return "animate-slide-in-left"; // New slide animation
+      case "rotate3d":
+        return "animate-rotate-3d"; // New 3D rotation
       default:
         return "";
     }
@@ -434,9 +440,12 @@ export function PromotionBannerCreator({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nenhuma</SelectItem>
-                  <SelectItem value="float">Flutuar</SelectItem>
+                  <SelectItem value="float">Flutuar (Lento)</SelectItem>
                   <SelectItem value="pulse">Pulsar</SelectItem>
-                  <SelectItem value="spin">Girar (Lento)</SelectItem>
+                  <SelectItem value="spin">Girar (Muito Lento)</SelectItem>
+                  <SelectItem value="zoom">Zoom</SelectItem>
+                  <SelectItem value="slide">Deslizar da Esquerda</SelectItem>
+                  <SelectItem value="rotate3d">Rotação 3D</SelectItem>
                 </SelectContent>
               </Select>
             </div>

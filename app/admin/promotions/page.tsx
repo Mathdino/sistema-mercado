@@ -365,7 +365,7 @@ export default function AdminPromotionsPage() {
               ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                   {promotionCards.map((card) => (
-                    <Card key={card.id} className="overflow-hidden group">
+                    <Card key={card.id} className="overflow-hidden group p-0">
                       <div className="aspect-video relative bg-gray-100">
                         {card.backgroundImage ? (
                           <img
@@ -377,8 +377,10 @@ export default function AdminPromotionsPage() {
                           <div
                             className="w-full h-full flex items-center justify-center"
                             style={{
-                              backgroundColor:
-                                card.config?.backgroundColor || "#f3f4f6",
+                              background:
+                                card.config?.backgroundType === "gradient"
+                                  ? `linear-gradient(${card.config?.gradientDirection || "to right"}, ${card.config?.gradientStart || "#ef4444"}, ${card.config?.gradientEnd || "#b91c1c"})`
+                                  : card.config?.backgroundColor || "#f3f4f6",
                             }}
                           >
                             {card.productImage && (
@@ -407,17 +409,17 @@ export default function AdminPromotionsPage() {
                           </Button>
                         </div>
                       </div>
-                      <CardHeader className="p-4">
-                        <CardTitle className="text-lg truncate">
+                      <CardHeader className="p-0">
+                        <CardTitle className="text-lg truncate p-4">
                           {card.title}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="p-4 pt-0">
-                        <p className="text-sm text-gray-500 line-clamp-2">
+                      <CardContent className="p-0">
+                        <p className="text-sm text-gray-500 line-clamp-2 p-4 pt-0">
                           {card.description || "Sem descrição"}
                         </p>
                         {card.discountPrice && (
-                          <div className="mt-2 font-bold text-green-600">
+                          <div className="font-bold text-green-600 p-4 pt-0">
                             {formatCurrency(card.discountPrice)}
                           </div>
                         )}
