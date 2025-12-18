@@ -250,6 +250,35 @@ async function GET(req) {
                 status: 403
             });
         }
+        // Cleanup expired promotions
+        const now = new Date();
+        const expiredProducts = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].product.findMany({
+            where: {
+                originalPrice: {
+                    not: null
+                },
+                promotionEndsAt: {
+                    lt: now
+                }
+            }
+        });
+        if (expiredProducts.length > 0) {
+            for (const product of expiredProducts){
+                if (product.originalPrice) {
+                    await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].product.update({
+                        where: {
+                            id: product.id
+                        },
+                        data: {
+                            price: product.originalPrice,
+                            originalPrice: null,
+                            promotionEndsAt: null,
+                            updatedAt: new Date()
+                        }
+                    });
+                }
+            }
+        }
         // Fetch all products with their original prices (promotions)
         const products = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].product.findMany({
             where: {
@@ -327,7 +356,7 @@ async function POST(req) {
         const body = await req.json();
         const { productId, originalPrice, promotionEndDate } = body;
         // Validate required fields
-        if (!productId || !originalPrice || !promotionEndDate) {
+        if (!productId || !originalPrice) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
                 error: "missing_required_fields"
             }, {
@@ -342,14 +371,17 @@ async function POST(req) {
                 status: 400
             });
         }
-        // Validate date
-        const endDate = new Date(promotionEndDate);
-        if (isNaN(endDate.getTime())) {
-            return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                error: "invalid_date"
-            }, {
-                status: 400
-            });
+        // Validate date if provided
+        let endDate = null;
+        if (promotionEndDate) {
+            endDate = new Date(promotionEndDate);
+            if (isNaN(endDate.getTime())) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    error: "invalid_date"
+                }, {
+                    status: 400
+                });
+            }
         }
         // Check if product exists
         const product = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].product.findUnique({

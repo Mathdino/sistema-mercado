@@ -2740,32 +2740,47 @@ function PromotionCarousel({ banners }) {
     const [progress, setProgress] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "PromotionCarousel.useEffect": ()=>{
-            if (banners.length <= 1) return;
+            // Reset progress when currentIndex changes
             setProgress(0);
+        }
+    }["PromotionCarousel.useEffect"], [
+        currentIndex
+    ]);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "PromotionCarousel.useEffect": ()=>{
+            if (banners.length <= 1) return;
             const duration = 3000; // 3 seconds
             const intervalTime = 50; // Update progress every 50ms
             const steps = duration / intervalTime;
-            const timer = setInterval({
-                "PromotionCarousel.useEffect.timer": ()=>{
+            const interval = setInterval({
+                "PromotionCarousel.useEffect.interval": ()=>{
                     setProgress({
-                        "PromotionCarousel.useEffect.timer": (prev)=>{
-                            if (prev >= 100) {
-                                setCurrentIndex({
-                                    "PromotionCarousel.useEffect.timer": (prevIndex)=>(prevIndex + 1) % banners.length
-                                }["PromotionCarousel.useEffect.timer"]);
+                        "PromotionCarousel.useEffect.interval": (prev)=>{
+                            if (prev >= 99) {
                                 return 0;
                             }
                             return prev + 100 / steps;
                         }
+                    }["PromotionCarousel.useEffect.interval"]);
+                }
+            }["PromotionCarousel.useEffect.interval"], intervalTime);
+            const timer = setTimeout({
+                "PromotionCarousel.useEffect.timer": ()=>{
+                    setCurrentIndex({
+                        "PromotionCarousel.useEffect.timer": (prevIndex)=>(prevIndex + 1) % banners.length
                     }["PromotionCarousel.useEffect.timer"]);
                 }
-            }["PromotionCarousel.useEffect.timer"], intervalTime);
+            }["PromotionCarousel.useEffect.timer"], duration);
             return ({
-                "PromotionCarousel.useEffect": ()=>clearInterval(timer)
+                "PromotionCarousel.useEffect": ()=>{
+                    clearInterval(interval);
+                    clearTimeout(timer);
+                }
             })["PromotionCarousel.useEffect"];
         }
     }["PromotionCarousel.useEffect"], [
-        banners.length
+        banners.length,
+        currentIndex
     ]);
     if (banners.length === 0) return null;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2778,12 +2793,12 @@ function PromotionCarousel({ banners }) {
                     className: "w-full"
                 }, void 0, false, {
                     fileName: "[project]/components/client/promotion-carousel.tsx",
-                    lineNumber: 42,
+                    lineNumber: 51,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/client/promotion-carousel.tsx",
-                lineNumber: 41,
+                lineNumber: 50,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2797,27 +2812,27 @@ function PromotionCarousel({ banners }) {
                             }
                         }, void 0, false, {
                             fileName: "[project]/components/client/promotion-carousel.tsx",
-                            lineNumber: 52,
+                            lineNumber: 61,
                             columnNumber: 13
                         }, this)
                     }, idx, false, {
                         fileName: "[project]/components/client/promotion-carousel.tsx",
-                        lineNumber: 48,
+                        lineNumber: 57,
                         columnNumber: 11
                     }, this))
             }, void 0, false, {
                 fileName: "[project]/components/client/promotion-carousel.tsx",
-                lineNumber: 46,
+                lineNumber: 55,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/client/promotion-carousel.tsx",
-        lineNumber: 39,
+        lineNumber: 48,
         columnNumber: 5
     }, this);
 }
-_s(PromotionCarousel, "cMgRwoINenFlnKz4JzBrARuEjZ0=");
+_s(PromotionCarousel, "boHde7LpX8WVbnxJJnN2KIookjY=");
 _c = PromotionCarousel;
 var _c;
 __turbopack_context__.k.register(_c, "PromotionCarousel");

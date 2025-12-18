@@ -12,26 +12,35 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (banners.length <= 1) return;
-
+    // Reset progress when currentIndex changes
     setProgress(0);
+  }, [currentIndex]);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
 
     const duration = 3000; // 3 seconds
     const intervalTime = 50; // Update progress every 50ms
     const steps = duration / intervalTime;
 
-    const timer = setInterval(() => {
+    const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) {
-          setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length);
+        if (prev >= 99) { // Using 99 instead of 100 to account for floating point precision
           return 0;
         }
         return prev + 100 / steps;
       });
     }, intervalTime);
 
-    return () => clearInterval(timer);
-  }, [banners.length]);
+    const timer = setTimeout(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length);
+    }, duration);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
+  }, [banners.length, currentIndex]);
 
   if (banners.length === 0) return null;
 
