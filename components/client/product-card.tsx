@@ -19,15 +19,24 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   // Validate product data more thoroughly
   if (!product) {
-    console.error("Invalid product data passed to ProductCard: product is null or undefined");
+    console.error(
+      "Invalid product data passed to ProductCard: product is null or undefined"
+    );
     return null; // Don't render invalid products
   }
-  
-  if (!product.id || typeof product.id !== 'string' || product.id.trim() === '') {
-    console.error("Invalid product data passed to ProductCard: Product ID is missing or invalid", product);
+
+  if (
+    !product.id ||
+    typeof product.id !== "string" ||
+    product.id.trim() === ""
+  ) {
+    console.error(
+      "Invalid product data passed to ProductCard: Product ID is missing or invalid",
+      product
+    );
     return null; // Don't render products without valid IDs
   }
-  
+
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const { items, addItem, updateQuantity } = useCartStore();
@@ -37,63 +46,72 @@ export function ProductCard({ product }: ProductCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const { triggerAnimation } = useCartAnimation();
 
-  
   // Get cart icon position for animation
   useEffect(() => {
     const updateCartPosition = () => {
-      const cartElement = document.querySelector('[data-cart-icon]');
+      const cartElement = document.querySelector("[data-cart-icon]");
       if (cartElement) {
         const rect = cartElement.getBoundingClientRect();
         const x = rect.left + rect.width / 2;
         const y = rect.top + rect.height / 2;
-        
+
         // Update CSS variables for animation
-        document.documentElement.style.setProperty('--cart-x', `${x}px`);
-        document.documentElement.style.setProperty('--cart-y', `${y}px`);
+        document.documentElement.style.setProperty("--cart-x", `${x}px`);
+        document.documentElement.style.setProperty("--cart-y", `${y}px`);
       }
     };
 
     // Update position on mount and resize
     updateCartPosition();
-    window.addEventListener('resize', updateCartPosition);
-    
+    window.addEventListener("resize", updateCartPosition);
+
     return () => {
-      window.removeEventListener('resize', updateCartPosition);
+      window.removeEventListener("resize", updateCartPosition);
     };
   }, []);
 
   const handleAdd = async () => {
     console.log("Attempting to add product:", product);
-    
+
     // Validate product ID before proceeding with more thorough checks
-    if (!product.id || typeof product.id !== 'string' || product.id.trim() === '') {
-      console.error("Cannot add product to cart: Product ID is missing or invalid", product);
+    if (
+      !product.id ||
+      typeof product.id !== "string" ||
+      product.id.trim() === ""
+    ) {
+      console.error(
+        "Cannot add product to cart: Product ID is missing or invalid",
+        product
+      );
       return;
     }
-    
+
     // Additional validation for the product ID
     const trimmedId = product.id.trim();
-    if (trimmedId === 'undefined' || trimmedId === 'null' || trimmedId === '') {
-      console.error("Cannot add product to cart: Product ID is invalid", product);
+    if (trimmedId === "undefined" || trimmedId === "null" || trimmedId === "") {
+      console.error(
+        "Cannot add product to cart: Product ID is invalid",
+        product
+      );
       return;
     }
-    
+
     if (!isAuthenticated) {
       setIsLoginModalOpen(true);
       return;
     }
-    
+
     // Trigger animation
     setIsAdding(true);
     triggerAnimation(trimmedId);
-    
+
     // Add item to cart
     try {
       await addItem(trimmedId, 1); // Pass quantity of 1
     } catch (error) {
       console.error("Error adding item to cart:", error);
     }
-    
+
     // Reset animation after delay
     setTimeout(() => {
       setIsAdding(false);
@@ -109,18 +127,28 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleLoginSuccess = async () => {
     // Validate product ID before proceeding with more thorough checks
-    if (!product.id || typeof product.id !== 'string' || product.id.trim() === '') {
-      console.error("Cannot add product to cart after login: Product ID is missing or invalid", product);
+    if (
+      !product.id ||
+      typeof product.id !== "string" ||
+      product.id.trim() === ""
+    ) {
+      console.error(
+        "Cannot add product to cart after login: Product ID is missing or invalid",
+        product
+      );
       return;
     }
-    
+
     // Additional validation for the product ID
     const trimmedId = product.id.trim();
-    if (trimmedId === 'undefined' || trimmedId === 'null' || trimmedId === '') {
-      console.error("Cannot add product to cart after login: Product ID is invalid", product);
+    if (trimmedId === "undefined" || trimmedId === "null" || trimmedId === "") {
+      console.error(
+        "Cannot add product to cart after login: Product ID is invalid",
+        product
+      );
       return;
     }
-    
+
     // Add the product to cart after successful login
     try {
       await addItem(trimmedId, 1); // Pass quantity of 1
@@ -134,7 +162,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <>
-      <Card 
+      <Card
         className={`overflow-hidden py-0 pb-2 transition-all duration-300 ${
           isAdding ? "scale-95 bg-green-50 border-green-200" : ""
         }`}
@@ -143,18 +171,16 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Floating cart animation */}
         {isAdding && (
           <div className="fixed inset-0 pointer-events-none z-50">
-            <div 
+            <div
               className="absolute animate-cart-item"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
               }}
-            >
-              <ShoppingCart className="h-6 w-6 text-green-500" />
-            </div>
+            ></div>
           </div>
         )}
-        
+
         <CardContent className="p-0">
           <div className="relative aspect-square bg-muted rounded-t-lg overflow-hidden">
             <Image
@@ -198,8 +224,8 @@ export function ProductCard({ product }: ProductCardProps) {
               </p>
             </div>
             {quantity === 0 ? (
-              <Button 
-                onClick={handleAdd} 
+              <Button
+                onClick={handleAdd}
                 className={`w-full transition-all duration-300 ${
                   isAdding ? "bg-green-500 hover:bg-green-600" : ""
                 }`}

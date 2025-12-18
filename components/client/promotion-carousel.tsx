@@ -1,0 +1,68 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { PromotionBanner } from "@/components/promotion-banner";
+
+interface PromotionCarouselProps {
+  banners: any[];
+}
+
+export function PromotionCarousel({ banners }: PromotionCarouselProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+
+    setProgress(0);
+
+    const duration = 3000; // 3 seconds
+    const intervalTime = 50; // Update progress every 50ms
+    const steps = duration / intervalTime;
+
+    const timer = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length);
+          return 0;
+        }
+        return prev + 100 / steps;
+      });
+    }, intervalTime);
+
+    return () => clearInterval(timer);
+  }, [banners.length]);
+
+  if (banners.length === 0) return null;
+
+  return (
+    <div className="relative w-full max-w-full overflow-hidden rounded-xl">
+      {/* Banner Display */}
+      <div className="w-full">
+        <PromotionBanner data={banners[currentIndex]} className="w-full" />
+      </div>
+
+      {/* Progress Indicators */}
+      <div className="absolute bottom-4 left-0 w-full px-4 z-20 flex gap-2">
+        {banners.map((_, idx) => (
+          <div
+            key={idx}
+            className="h-1.5 flex-1 rounded-full bg-black/20 overflow-hidden backdrop-blur-sm"
+          >
+            <div
+              className="h-full bg-white transition-all duration-75 ease-linear"
+              style={{
+                width:
+                  idx === currentIndex
+                    ? `${progress}%`
+                    : idx < currentIndex
+                    ? "100%"
+                    : "0%",
+              }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

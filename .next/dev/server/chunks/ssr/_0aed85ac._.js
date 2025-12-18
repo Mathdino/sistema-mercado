@@ -836,7 +836,7 @@ function BottomNav() {
                                 className: "h-5 w-5"
                             }, void 0, false, {
                                 fileName: "[project]/components/client/bottom-nav.tsx",
-                                lineNumber: 64,
+                                lineNumber: 72,
                                 columnNumber: 17
                             }, this),
                             " ",
@@ -845,24 +845,24 @@ function BottomNav() {
                                 children: item.label
                             }, void 0, false, {
                                 fileName: "[project]/components/client/bottom-nav.tsx",
-                                lineNumber: 65,
+                                lineNumber: 73,
                                 columnNumber: 17
                             }, this)
                         ]
                     }, item.path, true, {
                         fileName: "[project]/components/client/bottom-nav.tsx",
-                        lineNumber: 63,
+                        lineNumber: 68,
                         columnNumber: 15
                     }, this);
                 })
             }, void 0, false, {
                 fileName: "[project]/components/client/bottom-nav.tsx",
-                lineNumber: 59,
+                lineNumber: 64,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/client/bottom-nav.tsx",
-            lineNumber: 58,
+            lineNumber: 63,
             columnNumber: 7
         }, this);
     }
@@ -888,7 +888,7 @@ function BottomNav() {
                                             className: "h-6 w-6 text-primary-foreground"
                                         }, void 0, false, {
                                             fileName: "[project]/components/client/bottom-nav.tsx",
-                                            lineNumber: 97,
+                                            lineNumber: 107,
                                             columnNumber: 21
                                         }, this),
                                         itemCount > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -898,18 +898,18 @@ function BottomNav() {
                                                 children: itemCount
                                             }, void 0, false, {
                                                 fileName: "[project]/components/client/bottom-nav.tsx",
-                                                lineNumber: 100,
+                                                lineNumber: 110,
                                                 columnNumber: 25
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/client/bottom-nav.tsx",
-                                            lineNumber: 99,
+                                            lineNumber: 109,
                                             columnNumber: 23
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/client/bottom-nav.tsx",
-                                    lineNumber: 90,
+                                    lineNumber: 100,
                                     columnNumber: 19
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -917,13 +917,13 @@ function BottomNav() {
                                     children: item.label
                                 }, void 0, false, {
                                     fileName: "[project]/components/client/bottom-nav.tsx",
-                                    lineNumber: 106,
+                                    lineNumber: 116,
                                     columnNumber: 19
                                 }, this)
                             ]
                         }, item.path, true, {
                             fileName: "[project]/components/client/bottom-nav.tsx",
-                            lineNumber: 85,
+                            lineNumber: 95,
                             columnNumber: 17
                         }, this);
                     }
@@ -935,7 +935,7 @@ function BottomNav() {
                                 className: "h-5 w-5"
                             }, void 0, false, {
                                 fileName: "[project]/components/client/bottom-nav.tsx",
-                                lineNumber: 127,
+                                lineNumber: 137,
                                 columnNumber: 17
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -943,24 +943,24 @@ function BottomNav() {
                                 children: item.label
                             }, void 0, false, {
                                 fileName: "[project]/components/client/bottom-nav.tsx",
-                                lineNumber: 128,
+                                lineNumber: 138,
                                 columnNumber: 17
                             }, this)
                         ]
                     }, item.path, true, {
                         fileName: "[project]/components/client/bottom-nav.tsx",
-                        lineNumber: 119,
+                        lineNumber: 129,
                         columnNumber: 15
                     }, this);
                 })
             }, void 0, false, {
                 fileName: "[project]/components/client/bottom-nav.tsx",
-                lineNumber: 77,
+                lineNumber: 87,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/components/client/bottom-nav.tsx",
-            lineNumber: 76,
+            lineNumber: 86,
             columnNumber: 7
         }, this)
     }, void 0, false);
