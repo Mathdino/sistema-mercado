@@ -140,7 +140,16 @@
   }
 }
 
-@keyframes zoomIn {
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+@keyframes zoomInPromo {
   0% {
     transform: scale(0.95);
     opacity: 0.7;
@@ -151,7 +160,7 @@
   }
 }
 
-@keyframes slideInLeft {
+@keyframes slideInLeftPromo {
   0% {
     transform: translateX(-20px);
     opacity: 0;
@@ -162,12 +171,21 @@
   }
 }
 
-@keyframes rotate3d {
+@keyframes rotate3dPromo {
   0% {
     transform: rotateY(0deg);
   }
   100% {
     transform: rotateY(360deg);
+  }
+}
+
+@keyframes spinPromo {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -188,24 +206,47 @@
 }
 
 /* Promotion banner animations */
+[class*="animate-float-slow"],
 .animate-float-slow {
-  animation: floatSlow 3s ease-in-out infinite;
+  animation: floatSlow 2s ease-in-out infinite !important;
+  animation-play-state: running !important;
+  transform-origin: center;
 }
 
+[class*="animate-pulse"],
+.animate-pulse {
+  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+  animation-play-state: running !important;
+  transform-origin: center;
+}
+
+[class*="animate-zoom-in"],
 .animate-zoom-in {
-  animation: zoomIn 0.5s ease-out;
+  animation: zoomInPromo 2s ease-out infinite !important;
+  animation-play-state: running !important;
+  transform-origin: center;
 }
 
+[class*="animate-slide-in-left"],
 .animate-slide-in-left {
-  animation: slideInLeft 0.5s ease-out;
+  animation: slideInLeftPromo 2s ease-out infinite !important;
+  animation-play-state: running !important;
+  transform-origin: center;
 }
 
+[class*="animate-rotate-3d"],
 .animate-rotate-3d {
-  animation: rotate3d 10s linear infinite;
+  animation: rotate3dPromo 5s linear infinite !important;
+  animation-play-state: running !important;
+  transform-origin: center;
+  transform-style: preserve-3d;
 }
 
+[class*="animate-spin-slow"],
 .animate-spin-slow {
-  animation: spin 8s linear infinite;
+  animation: spinPromo 4s linear infinite !important;
+  animation-play-state: running !important;
+  transform-origin: center;
 }
 
 @layer base {

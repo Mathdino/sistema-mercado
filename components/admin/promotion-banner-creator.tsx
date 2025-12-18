@@ -98,6 +98,21 @@ export function PromotionBannerCreator({
     initialData?.config?.animation || "none"
   );
 
+  // Debug animation state
+  useEffect(() => {
+    // Force re-render of animation
+    if (animation !== "none") {
+      const previewElement = document.querySelector(".preview-animation-test");
+      if (previewElement) {
+        // Remove and re-add animation class to trigger restart
+        previewElement.classList.remove(getAnimationClass(animation));
+        setTimeout(() => {
+          previewElement.classList.add(getAnimationClass(animation));
+        }, 10);
+      }
+    }
+  }, [animation]);
+
   // Effect to pre-fill data when product is selected
   useEffect(() => {
     if (selectedProductId) {
@@ -373,15 +388,6 @@ export function PromotionBannerCreator({
                 </div>
               </div>
             )}
-
-            <div className="space-y-2">
-              <Label>URL da Imagem do Produto</Label>
-              <Input
-                value={productImage}
-                onChange={(e) => setProductImage(e.target.value)}
-                placeholder="https://..."
-              />
-            </div>
           </TabsContent>
 
           <TabsContent value="typography" className="space-y-4">
@@ -431,10 +437,15 @@ export function PromotionBannerCreator({
             </div>
           </TabsContent>
 
-          <TabsContent value="animation" className="space-y-4">
+          <TabsContent value="animation" className="space-y-4 mt-3">
             <div className="space-y-2">
-              <Label>Animação do Produto</Label>
-              <Select value={animation} onValueChange={setAnimation}>
+              <Label className="mb-2">Animação do Produto</Label>
+              <Select
+                value={animation}
+                onValueChange={(value) => {
+                  setAnimation(value);
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -509,12 +520,16 @@ export function PromotionBannerCreator({
           </div>
 
           {/* Right Product Image */}
-          <div className="relative z-10 w-[40%] h-full flex items-center justify-center p-4">
+          <div
+            className="relative z-10 w-[40%] h-full flex items-center justify-center p-4"
+            style={{ perspective: "800px" }}
+          >
             {productImage && (
               <div
                 className={`w-full h-full relative ${getAnimationClass(
                   animation
                 )}`}
+                style={{ transformOrigin: "center" }}
               >
                 <img
                   src={productImage}

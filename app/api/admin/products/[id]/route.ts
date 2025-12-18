@@ -139,7 +139,7 @@ export async function PUT(
     } = body
 
     // Validate required fields
-    if (!name || !description || !price || !image || !categoryId || !unit || stock === undefined) {
+    if (!name || !price || !image || !categoryId || !unit || stock === undefined) {
       return NextResponse.json({ error: "missing_required_fields" }, { status: 400 })
     }
 
