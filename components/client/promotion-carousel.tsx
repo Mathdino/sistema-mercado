@@ -46,9 +46,9 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
   if (banners.length === 0) return null;
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center px-4">
       <PromotionBanner data={banners[currentIndex]} />
-      <div className="mt-2 w-[396px] px-2 flex gap-2">
+      <div className="mt-2 w-full max-w-[396px] mx-4 px-2 flex gap-2">
         {banners.map((_, idx) => (
           <div
             key={idx}

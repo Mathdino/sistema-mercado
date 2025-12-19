@@ -100,7 +100,7 @@ export function PromotionBanner({
 
   return (
     <div
-      className={`relative w-[396px] h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row ${className}`}
+      className={`relative w-[370px] h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row mx-4 my-2 ${className}`}
       style={{
         background:
           backgroundType === "gradient"
@@ -165,7 +165,9 @@ export function PromotionBanner({
             className="w-full h-full"
             style={{
               transformOrigin: "center",
-              transform: `scale(${scaleVal}) rotate(${productTransform.rotate ?? 0}deg)`,
+              transform: `scale(${scaleVal}) rotate(${
+                productTransform.rotate ?? 0
+              }deg)`,
             }}
           >
             <img
