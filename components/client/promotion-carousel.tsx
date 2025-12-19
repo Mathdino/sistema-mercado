@@ -25,7 +25,8 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
 
     const interval = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 99) { // Using 99 instead of 100 to account for floating point precision
+        if (prev >= 99) {
+          // Using 99 instead of 100 to account for floating point precision
           return 0;
         }
         return prev + 100 / steps;
@@ -45,18 +46,13 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
   if (banners.length === 0) return null;
 
   return (
-    <div className="relative w-full max-w-full overflow-hidden">
-      {/* Banner Display */}
-      <div className="w-full flex justify-center">
-        <PromotionBanner data={banners[currentIndex]} />
-      </div>
-
-      {/* Progress Indicators */}
-      <div className="absolute bottom-2 left-0 w-full px-4 z-20 flex gap-2">
+    <div className="w-full flex flex-col items-center">
+      <PromotionBanner data={banners[currentIndex]} />
+      <div className="mt-2 w-[396px] px-2 flex gap-2">
         {banners.map((_, idx) => (
           <div
             key={idx}
-            className="h-1.5 flex-1 rounded-full bg-black/20 overflow-hidden backdrop-blur-sm"
+            className="h-1.5 flex-1 rounded-full bg-black/20 overflow-hidden"
           >
             <div
               className="h-full bg-white transition-all duration-75 ease-linear"

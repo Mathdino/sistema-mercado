@@ -41,7 +41,17 @@ export function PromotionBanner({
     animation = "none",
     productTransform = { scale: 1, rotate: 0, pos: { x: 0, y: 0 } },
     extraTexts = [],
+    titleWidth,
+    descriptionWidth,
   } = config || {};
+  const baseSize = 160;
+  const canvasW = 396;
+  const canvasH = 220;
+  const scaleVal = Number(productTransform?.scale ?? 1);
+  const xRaw = Number(productTransform?.pos?.x ?? 0);
+  const yRaw = Number(productTransform?.pos?.y ?? 0);
+  const safeX = Math.max(0, Math.min(canvasW - baseSize * scaleVal, xRaw));
+  const safeY = Math.max(0, Math.min(canvasH - baseSize * scaleVal, yRaw));
 
   const getFontFamily = (font: string) => {
     switch (font) {
@@ -99,12 +109,15 @@ export function PromotionBanner({
       }}
     >
       {/* Left Content */}
-      <div className="relative z-10 flex-1 flex flex-col p-3 sm:p-6 justify-center items-start text-left h-full min-w-0">
+      <div className="relative z-10 flex-1 flex flex-col p-6 justify-center items-start text-left h-full min-w-0">
         <h2
-          className={`font-bold mb-1 sm:mb-2 leading-tight w-full break-words ${getFontFamily(
+          className={`font-bold mb-2 leading-tight w-full break-words ${getFontFamily(
             fontFamily
           )} ${getFontSizeClass(fontSize)}`}
-          style={{ color: textColor }}
+          style={{
+            color: textColor,
+            width: titleWidth ? `${titleWidth}px` : undefined,
+          }}
         >
           {title}
         </h2>
@@ -117,6 +130,7 @@ export function PromotionBanner({
             style={{
               color: textColor,
               fontSize: fontSize === "small" ? "0.75rem" : "0.875rem",
+              width: descriptionWidth ? `${descriptionWidth}px` : undefined,
             }}
           >
             {description}
@@ -136,35 +150,32 @@ export function PromotionBanner({
       </div>
 
       {/* Right Product Image */}
-      <div
-        className="relative z-10 w-[40%] h-full flex items-center justify-center p-2 sm:p-4 shrink-0"
-        style={{ perspective: "800px" }}
-      >
-        {productImage && (
+      {productImage && (
+        <div
+          className={`absolute ${getAnimationClass(animation)}`}
+          style={{
+            left: `${safeX}px`,
+            top: `${safeY}px`,
+            width: "160px",
+            height: "160px",
+            zIndex: 20,
+          }}
+        >
           <div
-            className={`w-full h-full relative ${getAnimationClass(animation)}`}
+            className="w-full h-full"
+            style={{
+              transformOrigin: "center",
+              transform: `scale(${scaleVal}) rotate(${productTransform.rotate ?? 0}deg)`,
+            }}
           >
-            <div
-              className="w-full h-full"
-              style={{
-                transformOrigin: "center",
-                transform: `translate(${productTransform.pos?.x ?? 0}px, ${
-                  productTransform.pos?.y ?? 0
-                }px) scale(${productTransform.scale ?? 1}) rotate(${
-                  productTransform.rotate ?? 0
-                }deg)`,
-                willChange: "transform",
-              }}
-            >
-              <img
-                src={productImage}
-                alt={title}
-                className="w-full h-full object-contain drop-shadow-xl"
-              />
-            </div>
+            <img
+              src={productImage}
+              alt={title}
+              className="w-full h-full object-contain drop-shadow-xl"
+            />
           </div>
-        )}
-      </div>
+        </div>
+      )}
       {/* Extra Texts Overlay */}
       {extraTexts.map(
         (t: {
@@ -183,7 +194,7 @@ export function PromotionBanner({
               left: `${t.x}px`,
               top: `${t.y}px`,
               color: t.color,
-              maxWidth: t.width ? `${t.width}px` : undefined,
+              width: t.width ? `${t.width}px` : undefined,
               fontSize:
                 t.fontSize === "small"
                   ? "0.875rem"
@@ -192,6 +203,8 @@ export function PromotionBanner({
                   : "1rem",
               fontWeight: 700,
               zIndex: 30,
+              whiteSpace: "normal",
+              wordBreak: "break-word",
             }}
           >
             {t.content}
