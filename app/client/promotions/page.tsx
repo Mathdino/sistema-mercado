@@ -53,7 +53,7 @@ export default function PromotionsPage() {
         setLoading(true);
         const [productsRes, bannersRes] = await Promise.all([
           fetch("/api/products"),
-          fetch("/api/promotion-banners")
+          fetch("/api/promotion-banners"),
         ]);
 
         if (productsRes.ok) {
@@ -61,7 +61,7 @@ export default function PromotionsPage() {
           setFeaturedProducts(data.featuredProducts);
           setPromotionProducts(data.promotionProducts);
         }
-        
+
         if (bannersRes.ok) {
           const banners = await bannersRes.json();
           setPromotionBanners(banners);
@@ -114,7 +114,7 @@ export default function PromotionsPage() {
             <Star className="h-5 w-5 text-yellow-500" />
             <h2 className="text-xl font-bold">Produtos em Destaque</h2>
           </div>
-          
+
           {loading ? (
             <div className="flex items-center justify-center h-32">
               <p>Carregando...</p>
@@ -127,7 +127,9 @@ export default function PromotionsPage() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">Nenhum produto em destaque</p>
+              <p className="text-muted-foreground">
+                Nenhum produto em destaque
+              </p>
             </div>
           )}
         </div>
@@ -138,9 +140,9 @@ export default function PromotionsPage() {
             <Tag className="h-5 w-5 text-green-500" />
             <h2 className="text-xl font-bold">Mais Ofertas</h2>
           </div>
-          
+
           {loading ? (
-             <div className="flex items-center justify-center h-32">
+            <div className="flex items-center justify-center h-32">
               <p>Carregando...</p>
             </div>
           ) : promotionProducts.length > 0 ? (

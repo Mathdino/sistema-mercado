@@ -27,7 +27,7 @@ export function ClientHeader({ showBack = false }: ClientHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-999 border-b bg-background">
+    <header className="sticky top-0 z-30 border-b bg-background">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
           {showBack && (
