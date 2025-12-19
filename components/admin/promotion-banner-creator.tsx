@@ -110,8 +110,13 @@ export function PromotionBannerCreator({
       fontSize: "small" | "medium" | "large";
       x: number;
       y: number;
+      width?: number;
     }[]
   >(initialData?.config?.extraTexts || []);
+  const [selected, setSelected] = useState<{
+    type: "product" | "text";
+    index?: number;
+  } | null>(null);
 
   // Typography
   const [fontFamily, setFontFamily] = useState(
@@ -122,6 +127,12 @@ export function PromotionBannerCreator({
   );
   const [fontSize, setFontSize] = useState(
     initialData?.config?.fontSize || "medium"
+  );
+  const [titleWidth, setTitleWidth] = useState<number | undefined>(
+    initialData?.config?.titleWidth
+  );
+  const [descriptionWidth, setDescriptionWidth] = useState<number | undefined>(
+    initialData?.config?.descriptionWidth
   );
 
   // Animation
@@ -182,6 +193,8 @@ export function PromotionBannerCreator({
             pos: productPos,
           },
           extraTexts,
+          titleWidth,
+          descriptionWidth,
         },
       };
 
@@ -514,6 +527,34 @@ export function PromotionBannerCreator({
                 />
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Largura do Título (px)</Label>
+                <Input
+                  type="number"
+                  value={String(titleWidth ?? "")}
+                  onChange={(e) =>
+                    setTitleWidth(
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
+                  }
+                  placeholder="Opcional"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Largura da Descrição (px)</Label>
+                <Input
+                  type="number"
+                  value={String(descriptionWidth ?? "")}
+                  onChange={(e) =>
+                    setDescriptionWidth(
+                      e.target.value === "" ? undefined : Number(e.target.value)
+                    )
+                  }
+                  placeholder="Opcional"
+                />
+              </div>
+            </div>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label>Textos Extras</Label>
@@ -686,10 +727,43 @@ export function PromotionBannerCreator({
             const newX = draggingRef.current.origX + dx;
             const newY = draggingRef.current.origY + dy;
             if (draggingRef.current.type === "product") {
+              const base = 160;
+              const productW = base * productScale;
+              const productH = base * productScale;
               setProductPos({
-                x: Math.max(-100, Math.min(100, newX)),
-                y: Math.max(-60, Math.min(60, newY)),
+                x: Math.max(0, Math.min(rect.width - productW, newX)),
+                y: Math.max(0, Math.min(rect.height - productH, newY)),
               });
+            } else if (draggingRef.current.type === "resize_product") {
+              const newWidth = Math.max(
+                60,
+                Math.min(
+                  rect.width - productPos.x,
+                  (draggingRef.current as any).origWidth + dx
+                )
+              );
+              const scaleFromWidth = newWidth / 160;
+              setProductScale(scaleFromWidth);
+            } else if (draggingRef.current.type === "resize_text") {
+              const idx = draggingRef.current.index!;
+              setExtraTexts((prev) =>
+                prev.map((et, i) =>
+                  i === idx
+                    ? {
+                        ...et,
+                        width: Math.max(
+                          60,
+                          Math.min(
+                            rect.width - et.x,
+                            ((draggingRef.current as any).origWidth ||
+                              et.width ||
+                              160) + dx
+                          )
+                        ),
+                      }
+                    : et
+                )
+              );
             } else {
               const idx = draggingRef.current.index!;
               setExtraTexts((prev) =>
@@ -718,7 +792,10 @@ export function PromotionBannerCreator({
               className={`font-bold mb-2 leading-tight ${getFontFamily(
                 fontFamily
               )} ${getFontSizeClass(fontSize)}`}
-              style={{ color: textColor }}
+              style={{
+                color: textColor,
+                width: titleWidth ? `${titleWidth}px` : undefined,
+              }}
             >
               {title || "Título da Promoção"}
             </h2>
@@ -728,7 +805,10 @@ export function PromotionBannerCreator({
                 className={`mb-4 opacity-90 max-w-[90%] ${getFontFamily(
                   fontFamily
                 )}`}
-                style={{ color: textColor }}
+                style={{
+                  color: textColor,
+                  width: descriptionWidth ? `${descriptionWidth}px` : undefined,
+                }}
               >
                 {description}
               </p>
@@ -764,10 +844,16 @@ export function PromotionBannerCreator({
                   zIndex: 30,
                   whiteSpace: "normal",
                   wordBreak: "break-word",
+                  border:
+                    selected?.type === "text" && selected.index === idx
+                      ? "1px dashed rgba(0,0,0,0.5)"
+                      : undefined,
+                  boxSizing: "border-box",
                 }}
                 onMouseDown={(e) => {
                   const rect = previewRef.current?.getBoundingClientRect();
                   if (!rect) return;
+                  setSelected({ type: "text", index: idx });
                   draggingRef.current = {
                     type: "text",
                     index: idx,
@@ -779,50 +865,111 @@ export function PromotionBannerCreator({
                 }}
               >
                 {t.content}
+                {selected?.type === "text" && selected.index === idx && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: -6,
+                      bottom: -6,
+                      width: 12,
+                      height: 12,
+                      background: "#ffffff",
+                      border: "1px solid rgba(0,0,0,0.6)",
+                      borderRadius: 2,
+                      cursor: "nwse-resize",
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      setSelected({ type: "text", index: idx });
+                      draggingRef.current = {
+                        type: "resize_text",
+                        index: idx,
+                        startX: e.clientX,
+                        startY: e.clientY,
+                        origX: t.x,
+                        origY: t.y,
+                        // @ts-expect-error
+                        origWidth: t.width ?? 160,
+                      } as any;
+                    }}
+                  />
+                )}
               </div>
             ))}
           </div>
 
-          {/* Right Product Image */}
-          <div
-            className="relative z-10 w-[40%] h-full flex items-center justify-center p-4"
-            style={{ perspective: "800px" }}
-            ref={productAreaRef}
-          >
-            {productImage && (
+          {/* Product Image Overlay */}
+          {productImage && (
+            <div
+              className={`absolute ${getAnimationClass(animation)}`}
+              style={{
+                left: `${productPos.x}px`,
+                top: `${productPos.y}px`,
+                width: "160px",
+                height: "160px",
+                zIndex: 20,
+                border:
+                  selected?.type === "product"
+                    ? "1px dashed rgba(0,0,0,0.5)"
+                    : undefined,
+                boxSizing: "border-box",
+              }}
+              onMouseDown={(e) => {
+                const rect = previewRef.current?.getBoundingClientRect();
+                if (!rect) return;
+                setSelected({ type: "product" });
+                draggingRef.current = {
+                  type: "product",
+                  startX: e.clientX,
+                  startY: e.clientY,
+                  origX: productPos.x,
+                  origY: productPos.y,
+                };
+              }}
+            >
               <div
-                className={`w-full h-full relative ${getAnimationClass(
-                  animation
-                )}`}
+                className="w-full h-full"
+                style={{
+                  transformOrigin: "center",
+                  transform: `scale(${productScale}) rotate(${productRotate}deg)`,
+                }}
               >
+                <img
+                  src={productImage}
+                  alt="Product"
+                  className="w-full h-full object-contain drop-shadow-lg"
+                />
+              </div>
+              {selected?.type === "product" && (
                 <div
-                  className="w-full h-full"
                   style={{
-                    transformOrigin: "center",
-                    transform: `translate(${productPos.x}px, ${productPos.y}px) scale(${productScale}) rotate(${productRotate}deg)`,
+                    position: "absolute",
+                    right: -6,
+                    bottom: -6,
+                    width: 12,
+                    height: 12,
+                    background: "#ffffff",
+                    border: "1px solid rgba(0,0,0,0.6)",
+                    borderRadius: 2,
+                    cursor: "nwse-resize",
                   }}
                   onMouseDown={(e) => {
-                    const rect =
-                      productAreaRef.current?.getBoundingClientRect();
-                    if (!rect) return;
+                    e.stopPropagation();
+                    setSelected({ type: "product" });
                     draggingRef.current = {
-                      type: "product",
+                      type: "resize_product",
                       startX: e.clientX,
                       startY: e.clientY,
                       origX: productPos.x,
                       origY: productPos.y,
-                    };
+                      // @ts-expect-error
+                      origWidth: 160 * productScale,
+                    } as any;
                   }}
-                >
-                  <img
-                    src={productImage}
-                    alt="Product"
-                    className="w-full h-full object-contain drop-shadow-lg"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
