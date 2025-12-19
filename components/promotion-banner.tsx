@@ -39,6 +39,8 @@ export function PromotionBanner({
     textColor = "#000000",
     fontSize = "medium",
     animation = "none",
+    productTransform = { scale: 1, rotate: 0, pos: { x: 0, y: 0 } },
+    extraTexts = [],
   } = config || {};
 
   const getFontFamily = (font: string) => {
@@ -57,13 +59,13 @@ export function PromotionBanner({
   const getFontSizeClass = (size: string) => {
     switch (size) {
       case "small":
-        return "text-base sm:text-lg";
+        return "text-lg";
       case "large":
-        return "text-2xl sm:text-3xl";
+        return "text-4xl";
       case "xl":
-        return "text-3xl sm:text-5xl";
+        return "text-6xl";
       default:
-        return "text-xl sm:text-2xl";
+        return "text-2xl";
     }
   };
 
@@ -88,7 +90,7 @@ export function PromotionBanner({
 
   return (
     <div
-      className={`relative w-full h-[220px] sm:h-[280px] overflow-hidden rounded-xl shadow-lg flex flex-row ${className}`}
+      className={`relative w-[396px] h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row ${className}`}
       style={{
         background:
           backgroundType === "gradient"
@@ -135,22 +137,67 @@ export function PromotionBanner({
 
       {/* Right Product Image */}
       <div
-        className="relative z-10 w-[35%] sm:w-[40%] h-full flex items-center justify-center p-2 sm:p-4 shrink-0"
+        className="relative z-10 w-[40%] h-full flex items-center justify-center p-2 sm:p-4 shrink-0"
         style={{ perspective: "800px" }}
       >
         {productImage && (
           <div
             className={`w-full h-full relative ${getAnimationClass(animation)}`}
-            style={{ transformOrigin: "center" }}
           >
-            <img
-              src={productImage}
-              alt={title}
-              className="w-full h-full object-contain drop-shadow-xl"
-            />
+            <div
+              className="w-full h-full"
+              style={{
+                transformOrigin: "center",
+                transform: `translate(${productTransform.pos?.x ?? 0}px, ${
+                  productTransform.pos?.y ?? 0
+                }px) scale(${productTransform.scale ?? 1}) rotate(${
+                  productTransform.rotate ?? 0
+                }deg)`,
+                willChange: "transform",
+              }}
+            >
+              <img
+                src={productImage}
+                alt={title}
+                className="w-full h-full object-contain drop-shadow-xl"
+              />
+            </div>
           </div>
         )}
       </div>
+      {/* Extra Texts Overlay */}
+      {extraTexts.map(
+        (t: {
+          id: string;
+          content: string;
+          color: string;
+          fontSize: "small" | "medium" | "large";
+          x: number;
+          y: number;
+          width?: number;
+        }) => (
+          <div
+            key={t.id}
+            className="absolute"
+            style={{
+              left: `${t.x}px`,
+              top: `${t.y}px`,
+              color: t.color,
+              maxWidth: t.width ? `${t.width}px` : undefined,
+              fontSize:
+                t.fontSize === "small"
+                  ? "0.875rem"
+                  : t.fontSize === "large"
+                  ? "1.5rem"
+                  : "1rem",
+              fontWeight: 700,
+              zIndex: 30,
+            }}
+          >
+            {t.content}
+          </div>
+        )
+      )}
     </div>
   );
 }
