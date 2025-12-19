@@ -1203,6 +1203,10 @@
     width: calc(var(--spacing) * 32);
   }
 
+  .w-40 {
+    width: calc(var(--spacing) * 40);
+  }
+
   .w-64 {
     width: calc(var(--spacing) * 64);
   }
@@ -1229,6 +1233,10 @@
 
   .w-\[180px\] {
     width: 180px;
+  }
+
+  .w-\[396px\] {
+    width: 396px;
   }
 
   .w-auto {
@@ -1467,6 +1475,10 @@
 
   .cursor-default {
     cursor: default;
+  }
+
+  .cursor-move {
+    cursor: move;
   }
 
   .cursor-pointer {

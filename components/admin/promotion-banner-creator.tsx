@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -81,6 +81,37 @@ export function PromotionBannerCreator({
   const [productImage, setProductImage] = useState(
     initialData?.productImage || ""
   );
+  // Product Transform
+  const [productScale, setProductScale] = useState<number>(
+    initialData?.config?.productTransform?.scale ?? 1
+  );
+  const [productRotate, setProductRotate] = useState<number>(
+    initialData?.config?.productTransform?.rotate ?? 0
+  );
+  const [productPos, setProductPos] = useState<{ x: number; y: number }>(
+    initialData?.config?.productTransform?.pos ?? { x: 0, y: 0 }
+  );
+  const draggingRef = useRef<{
+    type: "product" | "text";
+    index?: number;
+    startX: number;
+    startY: number;
+    origX: number;
+    origY: number;
+  } | null>(null);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const productAreaRef = useRef<HTMLDivElement | null>(null);
+  // Extra texts
+  const [extraTexts, setExtraTexts] = useState<
+    {
+      id: string;
+      content: string;
+      color: string;
+      fontSize: "small" | "medium" | "large";
+      x: number;
+      y: number;
+    }[]
+  >(initialData?.config?.extraTexts || []);
 
   // Typography
   const [fontFamily, setFontFamily] = useState(
@@ -145,6 +176,12 @@ export function PromotionBannerCreator({
           textColor,
           fontSize,
           animation,
+          productTransform: {
+            scale: productScale,
+            rotate: productRotate,
+            pos: productPos,
+          },
+          extraTexts,
         },
       };
 
@@ -388,6 +425,48 @@ export function PromotionBannerCreator({
                 </div>
               </div>
             )}
+            <div className="space-y-4">
+              <Label>Imagem do Produto</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Escala</Label>
+                  <Slider
+                    defaultValue={[productScale]}
+                    min={0.5}
+                    max={1.5}
+                    step={0.01}
+                    onValueChange={(v) => setProductScale(v[0])}
+                  />
+                  <div className="text-sm text-muted-foreground">
+                    x{productScale.toFixed(2)}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Rotação</Label>
+                  <Slider
+                    defaultValue={[productRotate]}
+                    min={-30}
+                    max={30}
+                    step={1}
+                    onValueChange={(v) => setProductRotate(v[0])}
+                  />
+                  <div className="text-sm text-muted-foreground">
+                    {productRotate}°
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setProductPos({ x: 0, y: 0 })}
+                >
+                  Resetar posição
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Dica: arraste a imagem no preview para reposicionar.
+              </p>
+            </div>
           </TabsContent>
 
           <TabsContent value="typography" className="space-y-4">
@@ -435,6 +514,119 @@ export function PromotionBannerCreator({
                 />
               </div>
             </div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Textos Extras</Label>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    setExtraTexts((prev) => [
+                      ...prev,
+                      {
+                        id: crypto.randomUUID(),
+                        content: "Novo texto",
+                        color: "#ffffff",
+                        fontSize: "medium",
+                        x: 10,
+                        y: 80,
+                      },
+                    ])
+                  }
+                >
+                  Adicionar Texto
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {extraTexts.map((t, idx) => (
+                  <div
+                    key={t.id}
+                    className="grid grid-cols-2 gap-3 items-center"
+                  >
+                    <Input
+                      value={t.content}
+                      onChange={(e) =>
+                        setExtraTexts((prev) =>
+                          prev.map((et) =>
+                            et.id === t.id
+                              ? { ...et, content: e.target.value }
+                              : et
+                          )
+                        )
+                      }
+                      placeholder="Conteúdo"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="color"
+                        className="w-12 h-10 p-1"
+                        value={t.color}
+                        onChange={(e) =>
+                          setExtraTexts((prev) =>
+                            prev.map((et) =>
+                              et.id === t.id
+                                ? { ...et, color: e.target.value }
+                                : et
+                            )
+                          )
+                        }
+                      />
+                      <Input
+                        type="number"
+                        className="w-24"
+                        value={String(t.width ?? 160)}
+                        onChange={(e) =>
+                          setExtraTexts((prev) =>
+                            prev.map((et) =>
+                              et.id === t.id
+                                ? {
+                                    ...et,
+                                    width: Number(e.target.value || "0"),
+                                  }
+                                : et
+                            )
+                          )
+                        }
+                        placeholder="Largura (px)"
+                      />
+                      <Select
+                        value={t.fontSize}
+                        onValueChange={(val) =>
+                          setExtraTexts((prev) =>
+                            prev.map((et) =>
+                              et.id === t.id
+                                ? { ...et, fontSize: val as any }
+                                : et
+                            )
+                          )
+                        }
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Pequeno</SelectItem>
+                          <SelectItem value="medium">Médio</SelectItem>
+                          <SelectItem value="large">Grande</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="destructive"
+                        onClick={() =>
+                          setExtraTexts((prev) =>
+                            prev.filter((et) => et.id !== t.id)
+                          )
+                        }
+                      >
+                        Remover
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Dica: arraste cada texto no preview para reposicionar.
+              </p>
+            </div>
           </TabsContent>
 
           <TabsContent value="animation" className="space-y-4 mt-3">
@@ -477,12 +669,47 @@ export function PromotionBannerCreator({
       {/* Live Preview */}
       <div className="border rounded-xl p-4 bg-gray-50 flex items-center justify-center min-h-[400px]">
         <div
-          className="relative w-full h-[250px] rounded-lg shadow-xl flex flex-row overflow-hidden"
+          className="relative w-[396px] h-[220px] rounded-lg shadow-xl flex flex-row overflow-hidden"
           style={{
             background:
               backgroundType === "gradient"
                 ? `linear-gradient(${gradientDirection}, ${gradientStart}, ${gradientEnd})`
                 : backgroundColor,
+          }}
+          ref={previewRef}
+          onMouseMove={(e) => {
+            if (!draggingRef.current) return;
+            const rect = previewRef.current?.getBoundingClientRect();
+            if (!rect) return;
+            const dx = e.clientX - draggingRef.current.startX;
+            const dy = e.clientY - draggingRef.current.startY;
+            const newX = draggingRef.current.origX + dx;
+            const newY = draggingRef.current.origY + dy;
+            if (draggingRef.current.type === "product") {
+              setProductPos({
+                x: Math.max(-100, Math.min(100, newX)),
+                y: Math.max(-60, Math.min(60, newY)),
+              });
+            } else {
+              const idx = draggingRef.current.index!;
+              setExtraTexts((prev) =>
+                prev.map((et, i) =>
+                  i === idx
+                    ? {
+                        ...et,
+                        x: Math.max(
+                          0,
+                          Math.min(rect.width - (et.width ?? 160), newX)
+                        ),
+                        y: Math.max(0, Math.min(rect.height - 24, newY)),
+                      }
+                    : et
+                )
+              );
+            }
+          }}
+          onMouseUp={() => {
+            draggingRef.current = null;
           }}
         >
           {/* Left Content */}
@@ -517,25 +744,82 @@ export function PromotionBannerCreator({
                 </span>
               </div>
             )}
+            {/* Extra Texts Overlay */}
+            {extraTexts.map((t, idx) => (
+              <div
+                key={t.id}
+                className="absolute cursor-move"
+                style={{
+                  left: `${t.x}px`,
+                  top: `${t.y}px`,
+                  color: t.color,
+                  width: `${t.width ?? 160}px`,
+                  fontSize:
+                    t.fontSize === "small"
+                      ? "0.875rem"
+                      : t.fontSize === "large"
+                      ? "1.5rem"
+                      : "1rem",
+                  fontWeight: 700,
+                  zIndex: 30,
+                  whiteSpace: "normal",
+                  wordBreak: "break-word",
+                }}
+                onMouseDown={(e) => {
+                  const rect = previewRef.current?.getBoundingClientRect();
+                  if (!rect) return;
+                  draggingRef.current = {
+                    type: "text",
+                    index: idx,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    origX: t.x,
+                    origY: t.y,
+                  };
+                }}
+              >
+                {t.content}
+              </div>
+            ))}
           </div>
 
           {/* Right Product Image */}
           <div
             className="relative z-10 w-[40%] h-full flex items-center justify-center p-4"
             style={{ perspective: "800px" }}
+            ref={productAreaRef}
           >
             {productImage && (
               <div
                 className={`w-full h-full relative ${getAnimationClass(
                   animation
                 )}`}
-                style={{ transformOrigin: "center" }}
               >
-                <img
-                  src={productImage}
-                  alt="Product"
-                  className="w-full h-full object-contain drop-shadow-lg"
-                />
+                <div
+                  className="w-full h-full"
+                  style={{
+                    transformOrigin: "center",
+                    transform: `translate(${productPos.x}px, ${productPos.y}px) scale(${productScale}) rotate(${productRotate}deg)`,
+                  }}
+                  onMouseDown={(e) => {
+                    const rect =
+                      productAreaRef.current?.getBoundingClientRect();
+                    if (!rect) return;
+                    draggingRef.current = {
+                      type: "product",
+                      startX: e.clientX,
+                      startY: e.clientY,
+                      origX: productPos.x,
+                      origY: productPos.y,
+                    };
+                  }}
+                >
+                  <img
+                    src={productImage}
+                    alt="Product"
+                    className="w-full h-full object-contain drop-shadow-lg"
+                  />
+                </div>
               </div>
             )}
           </div>

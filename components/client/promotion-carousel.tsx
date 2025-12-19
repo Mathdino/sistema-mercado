@@ -45,10 +45,10 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
   if (banners.length === 0) return null;
 
   return (
-    <div className="relative w-full max-w-full overflow-hidden rounded-xl">
+    <div className="relative w-full max-w-full overflow-hidden">
       {/* Banner Display */}
-      <div className="w-full">
-        <PromotionBanner data={banners[currentIndex]} className="w-full" />
+      <div className="w-full flex justify-center">
+        <PromotionBanner data={banners[currentIndex]} />
       </div>
 
       {/* Progress Indicators */}

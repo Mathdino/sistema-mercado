@@ -21,12 +21,60 @@
   },
   "dynamicRoutes": [
     {
+      "page": "/admin/products/edit/[id]",
+      "regex": "^/admin/products/edit/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/admin/products/edit/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/admin/categories/[id]",
+      "regex": "^/api/admin/categories/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/admin/categories/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/admin/products/[id]",
+      "regex": "^/api/admin/products/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/admin/products/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/admin/promotion-cards/[id]",
+      "regex": "^/api/admin/promotion\\-cards/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/admin/promotion\\-cards/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/admin/promotions/[id]",
+      "regex": "^/api/admin/promotions/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/admin/promotions/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/api/orders/[id]/status",
       "regex": "^/api/orders/([^/]+?)/status(?:/)?$",
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/api/orders/(?<nxtPid>[^/]+?)/status(?:/)?$"
+    },
+    {
+      "page": "/api/products/[id]",
+      "regex": "^/api/products/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/products/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
       "page": "/api/users/[id]",
@@ -71,6 +119,18 @@
       "namedRegex": "^/admin(?:/)?$"
     },
     {
+      "page": "/admin/categories",
+      "regex": "^/admin/categories(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/categories(?:/)?$"
+    },
+    {
+      "page": "/admin/debug",
+      "regex": "^/admin/debug(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/debug(?:/)?$"
+    },
+    {
       "page": "/admin/financial",
       "regex": "^/admin/financial(?:/)?$",
       "routeKeys": {},
@@ -89,10 +149,70 @@
       "namedRegex": "^/admin/products(?:/)?$"
     },
     {
+      "page": "/admin/products/create",
+      "regex": "^/admin/products/create(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/products/create(?:/)?$"
+    },
+    {
+      "page": "/admin/promotions",
+      "regex": "^/admin/promotions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/promotions(?:/)?$"
+    },
+    {
+      "page": "/admin/seed",
+      "regex": "^/admin/seed(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/seed(?:/)?$"
+    },
+    {
       "page": "/admin/users",
       "regex": "^/admin/users(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/admin/users(?:/)?$"
+    },
+    {
+      "page": "/api/admin/categories",
+      "regex": "^/api/admin/categories(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/categories(?:/)?$"
+    },
+    {
+      "page": "/api/admin/financial",
+      "regex": "^/api/admin/financial(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/financial(?:/)?$"
+    },
+    {
+      "page": "/api/admin/products",
+      "regex": "^/api/admin/products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/products(?:/)?$"
+    },
+    {
+      "page": "/api/admin/promotion-cards",
+      "regex": "^/api/admin/promotion\\-cards(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/promotion\\-cards(?:/)?$"
+    },
+    {
+      "page": "/api/admin/promotions",
+      "regex": "^/api/admin/promotions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/promotions(?:/)?$"
+    },
+    {
+      "page": "/api/admin/stats",
+      "regex": "^/api/admin/stats(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/stats(?:/)?$"
+    },
+    {
+      "page": "/api/admin/users",
+      "regex": "^/api/admin/users(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/users(?:/)?$"
     },
     {
       "page": "/api/auth/login",
@@ -107,6 +227,42 @@
       "namedRegex": "^/api/auth/register(?:/)?$"
     },
     {
+      "page": "/api/cleanup",
+      "regex": "^/api/cleanup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cleanup(?:/)?$"
+    },
+    {
+      "page": "/api/create-admin",
+      "regex": "^/api/create\\-admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/create\\-admin(?:/)?$"
+    },
+    {
+      "page": "/api/debug-db",
+      "regex": "^/api/debug\\-db(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/debug\\-db(?:/)?$"
+    },
+    {
+      "page": "/api/debug-orders",
+      "regex": "^/api/debug\\-orders(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/debug\\-orders(?:/)?$"
+    },
+    {
+      "page": "/api/debug-products",
+      "regex": "^/api/debug\\-products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/debug\\-products(?:/)?$"
+    },
+    {
+      "page": "/api/homepage",
+      "regex": "^/api/homepage(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/homepage(?:/)?$"
+    },
+    {
       "page": "/api/orders",
       "regex": "^/api/orders(?:/)?$",
       "routeKeys": {},
@@ -119,16 +275,64 @@
       "namedRegex": "^/api/orders/me(?:/)?$"
     },
     {
+      "page": "/api/products",
+      "regex": "^/api/products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/products(?:/)?$"
+    },
+    {
+      "page": "/api/promotion-banners",
+      "regex": "^/api/promotion\\-banners(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/promotion\\-banners(?:/)?$"
+    },
+    {
+      "page": "/api/seed-categories",
+      "regex": "^/api/seed\\-categories(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/seed\\-categories(?:/)?$"
+    },
+    {
+      "page": "/api/seed-sample-data",
+      "regex": "^/api/seed\\-sample\\-data(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/seed\\-sample\\-data(?:/)?$"
+    },
+    {
+      "page": "/api/seed-test-products",
+      "regex": "^/api/seed\\-test\\-products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/seed\\-test\\-products(?:/)?$"
+    },
+    {
       "page": "/api/test",
       "regex": "^/api/test(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/test(?:/)?$"
     },
     {
+      "page": "/api/test-cart",
+      "regex": "^/api/test\\-cart(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/test\\-cart(?:/)?$"
+    },
+    {
+      "page": "/api/upload",
+      "regex": "^/api/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/upload(?:/)?$"
+    },
+    {
       "page": "/api/users/me",
       "regex": "^/api/users/me(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/users/me(?:/)?$"
+    },
+    {
+      "page": "/cleanup-cart",
+      "regex": "^/cleanup\\-cart(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cleanup\\-cart(?:/)?$"
     },
     {
       "page": "/client",
@@ -167,10 +371,64 @@
       "namedRegex": "^/client/profile(?:/)?$"
     },
     {
+      "page": "/client/promotions",
+      "regex": "^/client/promotions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/client/promotions(?:/)?$"
+    },
+    {
+      "page": "/debug/api-test",
+      "regex": "^/debug/api\\-test(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug/api\\-test(?:/)?$"
+    },
+    {
+      "page": "/debug/cart-debug",
+      "regex": "^/debug/cart\\-debug(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug/cart\\-debug(?:/)?$"
+    },
+    {
+      "page": "/debug/final-test",
+      "regex": "^/debug/final\\-test(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug/final\\-test(?:/)?$"
+    },
+    {
+      "page": "/debug/product-data",
+      "regex": "^/debug/product\\-data(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug/product\\-data(?:/)?$"
+    },
+    {
+      "page": "/debug/product-test",
+      "regex": "^/debug/product\\-test(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug/product\\-test(?:/)?$"
+    },
+    {
+      "page": "/debug/seed-test",
+      "regex": "^/debug/seed\\-test(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug/seed\\-test(?:/)?$"
+    },
+    {
+      "page": "/debug/simple-test",
+      "regex": "^/debug/simple\\-test(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/debug/simple\\-test(?:/)?$"
+    },
+    {
       "page": "/login",
       "regex": "^/login(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/test/cart-test",
+      "regex": "^/test/cart\\-test(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/test/cart\\-test(?:/)?$"
     }
   ],
   "dataRoutes": [],
