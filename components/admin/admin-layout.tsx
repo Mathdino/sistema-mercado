@@ -14,6 +14,8 @@ import {
   Package,
   Users,
   DollarSign,
+  Building,
+  Truck,
   LogOut,
   Menu,
   X,
@@ -63,6 +65,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     { icon: Package, label: "Produtos", path: "/admin/products" },
     { icon: Users, label: "Clientes", path: "/admin/users" },
     { icon: DollarSign, label: "Financeiro", path: "/admin/financial" },
+    { icon: Building, label: "Estabelecimento", path: "/admin/establishment" },
+    { icon: Truck, label: "Taxas", path: "/admin/fees" },
   ];
 
   return (

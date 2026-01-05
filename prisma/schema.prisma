@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,28 +6,20 @@ datasource db {
   provider = "postgresql"
 }
 
-// User model
 model User {
-  id           String     @id @default(uuid())
-  email        String?    @unique
-  cpf          String     @unique
+  id           String    @id @default(uuid())
+  email        String?   @unique
+  cpf          String    @unique
   passwordHash String
   name         String
   phone        String
-  role         Role       @default(CLIENT)
+  role         Role      @default(CLIENT)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   addresses    Address[]
   orders       Order[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
 }
 
-// Role enum
-enum Role {
-  CLIENT
-  ADMIN
-}
-
-// Address model
 model Address {
   id           String   @id @default(uuid())
   street       String
@@ -41,42 +30,40 @@ model Address {
   state        String
   zipCode      String
   isDefault    Boolean  @default(false)
-  user         User     @relation(fields: [userId], references: [id])
   userId       String
-  orders       Order[]  @relation("DeliveryAddress")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id])
+  orders       Order[]  @relation("DeliveryAddress")
 }
 
-// Category model
 model Category {
   id        String    @id @default(uuid())
   name      String    @unique
   icon      String
   image     String
-  products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  products  Product[]
 }
 
-// Product model
 model Product {
-  id            String     @id @default(uuid())
-  name          String
-  description   String
-  price         Float
-  originalPrice Float?
-  image         String
-  categoryId    String
-  category      Category   @relation(fields: [categoryId], references: [id])
-  unit          String
-  stock         Int
-  featured      Boolean    @default(false)
+  id              String          @id @default(uuid())
+  name            String
+  description     String
+  price           Float
+  originalPrice   Float?
+  image           String
+  categoryId      String
+  unit            String
+  stock           Int
+  featured        Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   promotionEndsAt DateTime?
-  promotionCards PromotionCard[]
-  orderItems    OrderItem[]
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  orderItems      OrderItem[]
+  category        Category        @relation(fields: [categoryId], references: [id])
+  promotionCards  PromotionCard[]
 }
 
 model PromotionCard {
@@ -84,74 +71,51 @@ model PromotionCard {
   title           String
   description     String?
   discountPrice   Float?
-  
   backgroundImage String?
   productImage    String?
-  
   config          Json?
-  
   productId       String?
-  product         Product? @relation(fields: [productId], references: [id])
-  
   isActive        Boolean  @default(true)
-  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  product         Product? @relation(fields: [productId], references: [id])
 }
 
-// Order model
 model Order {
-  id                 String      @id @default(uuid())
-  userId             String
-  user               User        @relation(fields: [userId], references: [id])
-  items              OrderItem[]
-  totalAmount        Float
-  deliveryFee        Float
-  subtotal           Float
-  status             OrderStatus @default(PENDING)
-  paymentMethod      PaymentMethod
-  deliveryAddress    Address     @relation("DeliveryAddress", fields: [deliveryAddressId], references: [id])
-  deliveryAddressId  String
-  estimatedDelivery  DateTime?
-  notes              String?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
+  id                String        @id @default(uuid())
+  userId            String
+  totalAmount       Float
+  deliveryFee       Float
+  subtotal          Float
+  status            OrderStatus   @default(PENDING)
+  paymentMethod     PaymentMethod
+  deliveryAddressId String
+  estimatedDelivery DateTime?
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  deliveryAddress   Address       @relation("DeliveryAddress", fields: [deliveryAddressId], references: [id])
+  user              User          @relation(fields: [userId], references: [id])
+  items             OrderItem[]
 }
 
-// Order status enum
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-}
-
-// Payment method enum
-enum PaymentMethod {
-  CREDIT
-  DEBIT
-  PIX
-  CASH
-}
-
-// Order item model (junction table)
 model OrderItem {
-  id            String  @id @default(uuid())
-  orderId       String
-  order         Order   @relation(fields: [orderId], references: [id])
-  productId     String
-  product       Product @relation(fields: [productId], references: [id])
-  productName   String
-  productImage  String
-  quantity      Int
-  price         Float
-  subtotal      Float
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(uuid())
+  orderId      String
+  productId    String
+  productName  String
+  productImage String
+  quantity     Int
+  price        Float
+  subtotal     Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  order        Order    @relation(fields: [orderId], references: [id])
+  product      Product  @relation(fields: [productId], references: [id])
 }
 
-// Market model
 model Market {
-  id                    String   @id @default(uuid())
+  id                    String     @id @default(uuid())
   name                  String
   address               String
   phone                 String
@@ -162,6 +126,53 @@ model Market {
   rating                Float
   logo                  String
   banner                String
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  employees             Employee[]
+}
+
+model Employee {
+  id        String   @id @default(uuid())
+  name      String
+  role      String
+  phone     String
+  marketId  String
+  market    Market   @relation(fields: [marketId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DeliveryFee {
+  id         String          @id @default(uuid())
+  type       DeliveryFeeType
+  fixedValue Float?
+  perKmValue Float?
+  minValue   Float?
+  minRange   Float?
+  isActive   Boolean         @default(true)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CREDIT
+  DEBIT
+  PIX
+  CASH
+}
+
+enum DeliveryFeeType {
+  FIXED
+  PER_KM
 }

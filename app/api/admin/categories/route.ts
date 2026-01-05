@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
     const { name, icon, image } = body
 
     // Validate required fields
-    if (!name || !icon || !image) {
+    if (!name || !icon) { // Image is now optional
       return NextResponse.json({ error: "missing_required_fields" }, { status: 400 })
     }
 
@@ -130,7 +130,7 @@ export async function POST(req: NextRequest) {
       data: {
         name,
         icon,
-        image
+        image: image || "/placeholder-category.svg" // Use a default if no image provided
       }
     })
 

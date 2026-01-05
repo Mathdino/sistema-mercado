@@ -25,7 +25,7 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
 
     // Only set up auto-rotation if user is not interacting
     if (isDragging) return;
-    
+
     const duration = 3000; // 3 seconds
     const intervalTime = 50; // Update progress every 50ms
     const steps = duration / intervalTime;
@@ -52,7 +52,7 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
 
   const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
     setIsDragging(true);
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     startX.current = clientX;
     currentX.current = clientX;
     dragStartTime.current = Date.now();
@@ -60,34 +60,34 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
 
   const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (!isDragging) return;
-    
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     currentX.current = clientX;
   };
 
   const handleTouchEnd = () => {
     if (!isDragging) return;
-    
+
     const diffX = currentX.current - startX.current;
     const dragDuration = Date.now() - dragStartTime.current;
-    
+
     // Minimum swipe distance (in pixels) or quick flick
     const minSwipeDistance = 50;
     const minFlickSpeed = 0.5; // pixels per ms
-    
+
     const isQuickSwipe = Math.abs(diffX) / dragDuration > minFlickSpeed;
     const isLongSwipe = Math.abs(diffX) > minSwipeDistance;
-    
+
     if (isQuickSwipe || isLongSwipe) {
       if (diffX > 0) {
         // Swipe right - go to previous
-        setCurrentIndex(prev => (prev - 1 + banners.length) % banners.length);
+        setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
       } else {
         // Swipe left - go to next
-        setCurrentIndex(prev => (prev + 1) % banners.length);
+        setCurrentIndex((prev) => (prev + 1) % banners.length);
       }
     }
-    
+
     setIsDragging(false);
   };
 
@@ -113,8 +113,8 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
 
   return (
     <div className="w-full flex flex-col items-center px-4">
-      <div 
-        className="relative w-full max-w-[95vw] sm:max-w-[420px] mx-auto"
+      <div
+        className="relative w-full max-w-[95vw] sm:max-w-[296px] mx-auto"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -125,7 +125,7 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
       >
         <PromotionBanner data={banners[currentIndex]} />
       </div>
-      <div className="mt-2 w-full max-w-[95vw] sm:max-w-[396px] mx-auto px-2 flex gap-2">
+      <div className="mt-2 w-full max-w-[95vw] sm:max-w-[296px] mx-auto px-2 flex gap-2">
         {banners.map((_, idx) => (
           <div
             key={idx}

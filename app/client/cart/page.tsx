@@ -21,9 +21,18 @@ export default function CartPage() {
   const [cartProducts, setCartProducts] = useState<
     Array<CartItem & { product: Product }>
   >([]);
+  const [activeFee, setActiveFee] = useState<{
+    type: "FIXED" | "PER_KM";
+    fixedValue: number | null;
+    perKmValue: number | null;
+    minValue: number | null;
+    minRange: number | null;
+  } | null>(null);
   const router = useRouter();
   const { items, getTotal } = useCartStore();
-  const { isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
+  const [computedDeliveryFee, setComputedDeliveryFee] = useState(0);
+  const [loadingDeliveryFee, setLoadingDeliveryFee] = useState(false);
 
   useEffect(() => {
     // Mark the component as hydrated after mount
@@ -108,9 +117,78 @@ export default function CartPage() {
     }
   }, [items, isHydrated, isAuthenticated]);
 
+  // Fetch active delivery fee
+  useEffect(() => {
+    const fetchActiveFee = async () => {
+      try {
+        const res = await fetch("/api/fees/active");
+        if (res.ok) {
+          const data = await res.json();
+          setActiveFee(data.fee);
+        } else {
+          setActiveFee(null);
+        }
+      } catch {
+        setActiveFee(null);
+      }
+    };
+    if (isHydrated) fetchActiveFee();
+  }, [isHydrated]);
+
+  useEffect(() => {
+    const calc = async () => {
+      setLoadingDeliveryFee(true);
+      if (!activeFee) {
+        setComputedDeliveryFee(0);
+        setLoadingDeliveryFee(false);
+        return;
+      }
+      if (activeFee.type === "FIXED") {
+        setComputedDeliveryFee(Number(activeFee.fixedValue || 0));
+        setLoadingDeliveryFee(false);
+        return;
+      }
+      const addr =
+        user?.addresses?.find((a) => a.isDefault) || user?.addresses?.[0];
+      const body = addr
+        ? {
+            street: addr.street,
+            number: addr.number,
+            complement: addr.complement || undefined,
+            neighborhood: addr.neighborhood,
+            city: addr.city,
+            state: addr.state,
+            zipCode: addr.zipCode,
+          }
+        : {};
+      try {
+        const res = await fetch("/api/delivery-fee", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setComputedDeliveryFee(Number(data.fee || 0));
+          setLoadingDeliveryFee(false);
+        } else {
+          const minVal = Number(activeFee.minValue || 0);
+          setComputedDeliveryFee(minVal);
+          setLoadingDeliveryFee(false);
+        }
+      } catch {
+        const minVal = Number(activeFee.minValue || 0);
+        setComputedDeliveryFee(minVal);
+        setLoadingDeliveryFee(false);
+      }
+    };
+    if (isHydrated && activeFee) {
+      calc();
+    }
+  }, [isHydrated, activeFee, user?.addresses]);
+
   const subtotal = getTotal();
-  const deliveryFee =
-    subtotal >= mockMarket.minOrderValue ? mockMarket.deliveryFee : 0;
+  const deliveryFee = computedDeliveryFee;
   const total = subtotal + deliveryFee;
 
   const canCheckout = subtotal >= mockMarket.minOrderValue;
@@ -180,7 +258,11 @@ export default function CartPage() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Taxa de entrega</span>
               <span className="font-medium">
-                {deliveryFee > 0 ? formatCurrency(deliveryFee) : "Grátis"}
+                {loadingDeliveryFee
+                  ? "Calculando taxa"
+                  : deliveryFee > 0
+                  ? formatCurrency(deliveryFee)
+                  : "Grátis"}
               </span>
             </div>
             <Separator />

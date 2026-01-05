@@ -45,6 +45,7 @@ import {
 import Image from "next/image";
 import { PromotionBannerCreator } from "@/components/admin/promotion-banner-creator";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface Category {
   id: string;
@@ -136,6 +137,7 @@ export default function AdminPromotionsPage() {
     endDate: "",
     isDateBased: false,
   });
+  const [isCreatingPromotion, setIsCreatingPromotion] = useState(false);
 
   // Banner Creator State
   const [isCreatingBanner, setIsCreatingBanner] = useState(false);
@@ -178,6 +180,7 @@ export default function AdminPromotionsPage() {
 
   const handleAddPromotion = async () => {
     try {
+      setIsCreatingPromotion(true);
       const response = await fetch("/api/admin/promotions", {
         method: "POST",
         headers: {
@@ -219,6 +222,8 @@ export default function AdminPromotionsPage() {
         description: String(error),
         variant: "destructive",
       });
+    } finally {
+      setIsCreatingPromotion(false);
     }
   };
 
@@ -597,10 +602,11 @@ export default function AdminPromotionsPage() {
                 <Button
                   onClick={handleAddPromotion}
                   disabled={
-                    !newPromotion.productId || !newPromotion.promotionalPrice
+                    !newPromotion.productId || !newPromotion.promotionalPrice || isCreatingPromotion
                   }
                 >
-                  Salvar Promoção
+                  {isCreatingPromotion && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isCreatingPromotion ? "Salvando..." : "Salvar Promoção"}
                 </Button>
               </DialogFooter>
             </DialogContent>

@@ -22,7 +22,12 @@ export function PromotionBanner({
   className = "",
 }: PromotionBannerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerDimensions, setContainerDimensions] = useState({ width: 350, height: 180 });
+  const leftContentRef = useRef<HTMLDivElement>(null);
+  const [containerDimensions, setContainerDimensions] = useState({
+    width: 396,
+    height: 220,
+  });
+  const [leftContentWidth, setLeftContentWidth] = useState<number>(220);
   const {
     title,
     description,
@@ -47,11 +52,32 @@ export function PromotionBanner({
     titleWidth,
     descriptionWidth,
   } = config || {};
-  const baseSize = 120; // Reduced for mobile responsiveness
+  const PREVIEW_W = 396;
+  const PREVIEW_H = 220;
+  const baseSize = Math.max(
+    60,
+    Math.round(160 * (containerDimensions.height / PREVIEW_H))
+  );
   const scaleVal = Number(productTransform?.scale ?? 1);
   const xRaw = Number(productTransform?.pos?.x ?? 0);
   const yRaw = Number(productTransform?.pos?.y ?? 0);
-  
+  const scaleW = Math.min(1, containerDimensions.width / PREVIEW_W);
+  const scaleH = Math.min(1, containerDimensions.height / PREVIEW_H);
+  const uiScale = Math.min(scaleW, scaleH);
+  const titleBase =
+    fontSize === "small"
+      ? 18
+      : fontSize === "large"
+      ? 32
+      : fontSize === "xl"
+      ? 48
+      : 24;
+  const descBase = fontSize === "small" ? 14 : fontSize === "large" ? 18 : 16;
+  const pillPadY = Math.round(6 * uiScale);
+  const pillPadX = Math.round(12 * uiScale);
+  const labelBase = 12;
+  const priceBase = 20;
+
   // Update container dimensions when mounted/resized
   useEffect(() => {
     const updateDimensions = () => {
@@ -59,23 +85,36 @@ export function PromotionBanner({
         const { width, height } = containerRef.current.getBoundingClientRect();
         setContainerDimensions({ width, height });
       }
+      if (leftContentRef.current) {
+        const { width } = leftContentRef.current.getBoundingClientRect();
+        setLeftContentWidth(width);
+      }
     };
-    
+
     updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
   }, []);
-  
+
   // Make positioning responsive based on actual container dimensions
-  const getImagePosition = (containerWidth: number, containerHeight: number) => {
-    // Ensure image stays within bounds considering scaling
+  const getImagePosition = (
+    containerWidth: number,
+    containerHeight: number
+  ) => {
+    const scaleX = containerWidth / PREVIEW_W;
+    const scaleY = containerHeight / PREVIEW_H;
     const scaledImageSize = baseSize * scaleVal;
-    const maxX = Math.max(0, containerWidth - scaledImageSize - 20); // 20px padding
+    const maxX = Math.max(0, containerWidth - scaledImageSize - 20);
     const maxY = Math.max(0, containerHeight - scaledImageSize - 20);
-    
-    const safeX = Math.max(0, Math.min(maxX, xRaw));
-    const safeY = Math.max(0, Math.min(maxY, yRaw));
-    
+    const targetX = xRaw * scaleX;
+    const targetY = yRaw * scaleY;
+    const leftGutter = Math.max(
+      0,
+      Math.round((leftContentWidth - 104) * scaleX)
+    );
+    const safeX = Math.max(leftGutter, Math.min(maxX, targetX));
+    const safeY = Math.max(0, Math.min(maxY, targetY));
+
     return { safeX, safeY };
   };
 
@@ -127,7 +166,7 @@ export function PromotionBanner({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-[180px] sm:h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row my-2 ${className}`}
+      className={`relative w-full h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row my-2 ${className}`}
       style={{
         background:
           backgroundType === "gradient"
@@ -136,14 +175,19 @@ export function PromotionBanner({
       }}
     >
       {/* Left Content */}
-      <div className="relative z-10 flex-1 flex flex-col p-4 sm:p-6 justify-center items-start text-left h-full min-w-0">
+      <div
+        ref={leftContentRef}
+        className="relative z-10 flex-1 flex flex-col p-6 justify-center items-start text-left h-full min-w-0"
+      >
         <h2
-          className={`font-bold mb-1 sm:mb-2 leading-tight w-full break-words text-sm sm:text-base md:text-lg ${getFontFamily(
+          className={`font-bold mb-2 leading-tight w-full break-words ${getFontFamily(
             fontFamily
           )} ${getFontSizeClass(fontSize)}`}
           style={{
             color: textColor,
             width: titleWidth ? `${titleWidth}px` : undefined,
+            fontSize: `${Math.round(titleBase * uiScale)}px`,
+            lineHeight: 1.1,
           }}
         >
           {title}
@@ -151,13 +195,17 @@ export function PromotionBanner({
 
         {description && (
           <p
-            className={`mb-1 sm:mb-4 opacity-90 w-full break-words text-xs sm:text-sm ${getFontFamily(
+            className={`mb-4 opacity-90 w-full break-words ${getFontFamily(
               fontFamily
             )}`}
             style={{
               color: textColor,
-              fontSize: fontSize === "small" ? "0.75rem" : "0.875rem",
+              fontSize: `${Math.round(descBase * uiScale)}px`,
               width: descriptionWidth ? `${descriptionWidth}px` : undefined,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
             }}
           >
             {description}
@@ -165,11 +213,20 @@ export function PromotionBanner({
         )}
 
         {discountPrice && (
-          <div className="mt-auto mb-1 sm:mb-4 bg-white/90 backdrop-blur-sm px-2 py-0.5 sm:px-4 sm:py-1.5 rounded-full shadow-lg inline-flex items-center whitespace-nowrap">
-            <span className="text-[8px] sm:text-xs text-gray-500 font-medium mr-1 sm:mr-2">
+          <div
+            className="mt-auto bg-white/90 backdrop-blur-sm rounded-full shadow-lg inline-flex items-center whitespace-nowrap"
+            style={{ padding: `${pillPadY}px ${pillPadX}px` }}
+          >
+            <span
+              className="text-gray-500 font-medium mr-2"
+              style={{ fontSize: `${Math.round(labelBase * uiScale)}px` }}
+            >
               Por apenas
             </span>
-            <span className="text-sm sm:text-base md:text-lg font-bold text-green-600">
+            <span
+              className="font-bold text-green-600"
+              style={{ fontSize: `${Math.round(priceBase * uiScale)}px` }}
+            >
               {formatCurrency(discountPrice)}
             </span>
           </div>
@@ -183,10 +240,10 @@ export function PromotionBanner({
           style={(() => {
             // Get responsive positioning based on actual container size
             const { safeX, safeY } = getImagePosition(
-              containerDimensions.width, 
+              containerDimensions.width,
               containerDimensions.height
             );
-            
+
             return {
               left: `${safeX}px`,
               top: `${safeY}px`,
@@ -228,16 +285,21 @@ export function PromotionBanner({
             key={t.id}
             className="absolute"
             style={{
-              left: `${t.x}px`,
-              top: `${t.y}px`,
+              left: `${t.x * (containerDimensions.width / PREVIEW_W)}px`,
+              top: `${t.y * (containerDimensions.height / PREVIEW_H)}px`,
               color: t.color,
-              width: t.width ? `${t.width}px` : undefined,
-              fontSize:
-                t.fontSize === "small"
-                  ? "0.875rem"
+              width: t.width
+                ? `${Math.round(
+                    t.width * (containerDimensions.width / PREVIEW_W)
+                  )}px`
+                : undefined,
+              fontSize: `${Math.round(
+                (t.fontSize === "small"
+                  ? 14 * uiScale
                   : t.fontSize === "large"
-                  ? "1.5rem"
-                  : "1rem",
+                  ? 24 * uiScale
+                  : 16 * uiScale) as number
+              )}px`,
               fontWeight: 700,
               zIndex: 30,
               whiteSpace: "normal",

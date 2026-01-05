@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
 import { formatCurrency } from "@/lib/currency"
-import { Search, Plus, MoreHorizontal, Edit, Trash2, Eye, EyeOff, ChevronRight } from "lucide-react"
+import { Search, Plus, MoreHorizontal, Edit, Trash2, Eye, EyeOff, ChevronRight, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
@@ -45,6 +45,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
+  const [updatingProductIds, setUpdatingProductIds] = useState<Set<string>>(new Set())
 
   // Fetch products and categories
   useEffect(() => {
@@ -73,6 +74,11 @@ export default function AdminProductsPage() {
 
   const handleDeleteProduct = async (productId: string) => {
     try {
+      // Prevent multiple clicks on the same product
+      if (updatingProductIds.has(productId)) return;
+      
+      setUpdatingProductIds(prev => new Set(prev).add(productId));
+      
       const response = await fetch(`/api/admin/products/${productId}`, {
         method: "DELETE",
       })
@@ -86,28 +92,37 @@ export default function AdminProductsPage() {
     } catch (error) {
       console.error("Error deleting product:", error)
       alert(`Network error deleting product: ${error}`)
+    } finally {
+      setUpdatingProductIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
     }
   }
 
   const handleToggleFeatured = async (productId: string, featured: boolean) => {
     try {
-      const product = products.find(p => p.id === productId)
-      if (!product) return
-
+      // Prevent multiple clicks on the same product
+      if (updatingProductIds.has(productId)) return;
+      
+      setUpdatingProductIds(prev => new Set(prev).add(productId));
+      
       const response = await fetch(`/api/admin/products/${productId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...product,
           featured
         }),
       })
 
       if (response.ok) {
         const updatedProduct = await response.json()
-        setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p))
+        setProducts(prevProducts => 
+          prevProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p)
+        )
       } else {
         const error = await response.json()
         console.error("Error updating product:", error)
@@ -115,18 +130,31 @@ export default function AdminProductsPage() {
     } catch (error) {
       console.error("Error updating product:", error)
       alert(`Network error updating product: ${error}`)
+    } finally {
+      setUpdatingProductIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
     }
   }
 
   const handleRemovePromotion = async (productId: string) => {
     try {
+      // Prevent multiple clicks on the same product
+      if (updatingProductIds.has(productId)) return;
+      
+      setUpdatingProductIds(prev => new Set(prev).add(productId));
+      
       const response = await fetch(`/api/admin/promotions/${productId}`, {
         method: "DELETE",
       })
 
       if (response.ok) {
         const updatedProduct = await response.json()
-        setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p))
+        setProducts(prevProducts => 
+          prevProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p)
+        )
       } else {
         const error = await response.json()
         console.error("Error removing promotion:", error)
@@ -134,6 +162,12 @@ export default function AdminProductsPage() {
     } catch (error) {
       console.error("Error removing promotion:", error)
       alert(`Network error removing promotion: ${error}`)
+    } finally {
+      setUpdatingProductIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
     }
   }
 
@@ -177,7 +211,7 @@ export default function AdminProductsPage() {
               >
                 <div>
                   <h3 className="font-medium text-gray-900">Categorias</h3>
-                  <p className="text-sm text-gray-500 mt-1">Gerenciar categorias de produtos</p>
+                  <p className="text-sm text-gray-500 mt-1">Crie novas categorias de produtos</p>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </div>
@@ -236,25 +270,41 @@ export default function AdminProductsPage() {
                                   <Edit className="mr-2 h-4 w-4" />
                                   Editar
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDeleteProduct(product.id)}>
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Excluir
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteProduct(product.id)}
+                                  disabled={updatingProductIds.has(product.id)}
+                                >
+                                  {updatingProductIds.has(product.id) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                  {updatingProductIds.has(product.id) ? "Excluindo..." : "Excluir"}
+                                  {!updatingProductIds.has(product.id) && <Trash2 className="ml-2 h-4 w-4" />}
                                 </DropdownMenuItem>
                                 {product.featured ? (
-                                  <DropdownMenuItem onClick={() => handleToggleFeatured(product.id, false)}>
-                                    <EyeOff className="mr-2 h-4 w-4" />
-                                    Remover destaque
+                                  <DropdownMenuItem 
+                                    onClick={() => handleToggleFeatured(product.id, false)}
+                                    disabled={updatingProductIds.has(product.id)}
+                                  >
+                                    {updatingProductIds.has(product.id) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {updatingProductIds.has(product.id) ? "Removendo..." : "Remover destaque"}
+                                    {!updatingProductIds.has(product.id) && <EyeOff className="ml-2 h-4 w-4" />}
                                   </DropdownMenuItem>
                                 ) : (
-                                  <DropdownMenuItem onClick={() => handleToggleFeatured(product.id, true)}>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    Destacar
+                                  <DropdownMenuItem 
+                                    onClick={() => handleToggleFeatured(product.id, true)}
+                                    disabled={updatingProductIds.has(product.id)}
+                                  >
+                                    {updatingProductIds.has(product.id) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {updatingProductIds.has(product.id) ? "Destacando..." : "Destacar"}
+                                    {!updatingProductIds.has(product.id) && <Eye className="ml-2 h-4 w-4" />}
                                   </DropdownMenuItem>
                                 )}
                                 {product.originalPrice ? (
-                                  <DropdownMenuItem onClick={() => handleRemovePromotion(product.id)}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Remover promoção
+                                  <DropdownMenuItem 
+                                    onClick={() => handleRemovePromotion(product.id)}
+                                    disabled={updatingProductIds.has(product.id)}
+                                  >
+                                    {updatingProductIds.has(product.id) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {updatingProductIds.has(product.id) ? "Removendo..." : "Remover promoção"}
+                                    {!updatingProductIds.has(product.id) && <Trash2 className="ml-2 h-4 w-4" />}
                                   </DropdownMenuItem>
                                 ) : null}
                               </DropdownMenuContent>

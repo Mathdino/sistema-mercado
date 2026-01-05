@@ -22,14 +22,12 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
-import { Upload, MoreHorizontal, Edit, Trash2, ChevronRight } from "lucide-react"
-import Image from "next/image"
+import { Upload, MoreHorizontal, Edit, Trash2, ChevronRight, Loader2 } from "lucide-react"
 
 interface Category {
   id: string
   name: string
   icon: string
-  image: string
 }
 
 export default function AdminCategoriesPage() {
@@ -41,21 +39,15 @@ export default function AdminCategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const [newCategory, setNewCategory] = useState({
     name: "",
-    icon: "",
-    image: "",
-    imageFile: null as File | null
+    icon: ""
   })
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false)
   const [editCategory, setEditCategory] = useState({
     id: "",
     name: "",
-    icon: "",
-    image: "",
-    imageFile: null as File | null
+    icon: ""
   })
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [editImagePreview, setEditImagePreview] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const editFileInputRef = useRef<HTMLInputElement>(null)
+
 
   // Fetch categories
   useEffect(() => {
@@ -76,37 +68,11 @@ export default function AdminCategoriesPage() {
     fetchCategories()
   }, [])
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, isEdit: boolean = false) => {
-    const file = e.target.files?.[0]
-    if (!file) return
 
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      const imageUrl = reader.result as string
-      if (isEdit) {
-        setEditCategory({ ...editCategory, imageFile: file })
-        setEditImagePreview(imageUrl)
-      } else {
-        setNewCategory({ ...newCategory, imageFile: file })
-        setImagePreview(imageUrl)
-      }
-    }
-    reader.readAsDataURL(file)
-  }
-
-  const triggerFileInput = (isEdit: boolean = false) => {
-    if (isEdit && editFileInputRef.current) {
-      editFileInputRef.current.click()
-    } else if (fileInputRef.current) {
-      fileInputRef.current.click()
-    }
-  }
 
   const handleAddCategory = async () => {
     try {
-      // In a real implementation, you would upload the image file to a storage service
-      // and get a URL back. For now, we'll just use a placeholder.
-      const imageUrl = imagePreview || "/placeholder.svg"
+      setIsCreatingCategory(true);
       
       const response = await fetch("/api/admin/categories", {
         method: "POST",
@@ -115,7 +81,7 @@ export default function AdminCategoriesPage() {
         },
         body: JSON.stringify({
           ...newCategory,
-          image: imageUrl
+          image: "/placeholder-category.svg"
         }),
       })
 
@@ -125,11 +91,8 @@ export default function AdminCategoriesPage() {
         setIsAddCategoryOpen(false)
         setNewCategory({
           name: "",
-          icon: "",
-          image: "",
-          imageFile: null
+          icon: ""
         })
-        setImagePreview(null)
       } else {
         const error = await response.json()
         console.error("Error adding category:", error)
@@ -138,6 +101,8 @@ export default function AdminCategoriesPage() {
     } catch (error) {
       console.error("Error adding category:", error)
       alert(`Network error adding category: ${error}`)
+    } finally {
+      setIsCreatingCategory(false);
     }
   }
 
@@ -145,10 +110,6 @@ export default function AdminCategoriesPage() {
     if (!selectedCategory) return
 
     try {
-      // In a real implementation, you would upload the image file to a storage service
-      // and get a URL back. For now, we'll just use a placeholder.
-      const imageUrl = editImagePreview || selectedCategory.image
-      
       const response = await fetch(`/api/admin/categories/${selectedCategory.id}`, {
         method: "PUT",
         headers: {
@@ -156,7 +117,7 @@ export default function AdminCategoriesPage() {
         },
         body: JSON.stringify({
           ...editCategory,
-          image: imageUrl
+          image: "/placeholder-category.svg"
         }),
       })
 
@@ -165,7 +126,6 @@ export default function AdminCategoriesPage() {
         setCategories(categories.map(c => c.id === updatedCategory.id ? updatedCategory : c))
         setIsEditCategoryOpen(false)
         setSelectedCategory(null)
-        setEditImagePreview(null)
       } else {
         const error = await response.json()
         console.error("Error updating category:", error)
@@ -201,11 +161,8 @@ export default function AdminCategoriesPage() {
     setEditCategory({
       id: category.id,
       name: category.name,
-      icon: category.icon,
-      image: category.image,
-      imageFile: null
+      icon: category.icon
     })
-    setEditImagePreview(category.image)
     setIsEditCategoryOpen(true)
   }
 
@@ -237,7 +194,7 @@ export default function AdminCategoriesPage() {
             >
               <div>
                 <h3 className="font-medium text-gray-900">Categorias</h3>
-                <p className="text-sm text-gray-500 mt-1">Gerenciar categorias de produtos</p>
+                <p className="text-sm text-gray-500 mt-1">Crie novas categorias de produtos</p>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
@@ -278,7 +235,6 @@ export default function AdminCategoriesPage() {
                 <CardHeader className="p-4">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <span>{category.icon}</span>
                       <span>{category.name}</span>
                     </CardTitle>
                     <DropdownMenu>
@@ -301,13 +257,8 @@ export default function AdminCategoriesPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
-                  <div className="relative h-32 w-full overflow-hidden rounded-lg bg-muted">
-                    <Image
-                      src={category.image || "/placeholder.svg"}
-                      alt={category.name}
-                      fill
-                      className="object-cover"
-                    />
+                  <div className="flex items-center justify-center h-16 text-4xl">
+                    {category.icon}
                   </div>
                 </CardContent>
               </Card>
@@ -344,46 +295,16 @@ export default function AdminCategoriesPage() {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label>Imagem da Categoria</Label>
-                <div className="flex items-center gap-4">
-                  <div 
-                    className="relative h-24 w-24 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
-                    onClick={() => triggerFileInput()}
-                  >
-                    {imagePreview ? (
-                      <Image 
-                        src={imagePreview} 
-                        alt="Preview" 
-                        fill 
-                        className="object-cover"
-                      />
-                    ) : (
-                      <Upload className="h-6 w-6 text-gray-400" />
-                    )}
-                  </div>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => triggerFileInput()}
-                  >
-                    Escolher Imagem
-                  </Button>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e)}
-                  />
-                </div>
-              </div>
+
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAddCategoryOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleAddCategory}>Adicionar Categoria</Button>
+              <Button onClick={handleAddCategory} disabled={isCreatingCategory}>
+                {isCreatingCategory && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isCreatingCategory ? "Adicionando..." : "Adicionar Categoria"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -417,40 +338,7 @@ export default function AdminCategoriesPage() {
                 />
               </div>
               
-              <div className="space-y-2">
-                <Label>Imagem da Categoria</Label>
-                <div className="flex items-center gap-4">
-                  <div 
-                    className="relative h-24 w-24 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
-                    onClick={() => triggerFileInput(true)}
-                  >
-                    {editImagePreview ? (
-                      <Image 
-                        src={editImagePreview} 
-                        alt="Preview" 
-                        fill 
-                        className="object-cover"
-                      />
-                    ) : (
-                      <Upload className="h-6 w-6 text-gray-400" />
-                    )}
-                  </div>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => triggerFileInput(true)}
-                  >
-                    Escolher Imagem
-                  </Button>
-                  <input
-                    type="file"
-                    ref={editFileInputRef}
-                    className="hidden"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, true)}
-                  />
-                </div>
-              </div>
+
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsEditCategoryOpen(false)}>

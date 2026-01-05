@@ -106,6 +106,19 @@ export default function ClientPage() {
     <div className="min-h-screen bg-background pb-24">
       <ClientHeader />
       <main className="space-y-6 px-4 py-6">
+        {/* Market Header */}
+        <div className="text-center py-6">
+          <div className="flex items-center justify-center mb-2">
+            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl mr-3">
+              {market?.name?.charAt(0) || 'M'}
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">{market?.name || "Mercado Delivery"}</h1>
+          </div>
+          <p className="text-gray-600 text-sm">
+            {market?.address || "Seu supermercado online de confiança"}
+          </p>
+        </div>
+        
         {promotionBanners.length > 0 ? (
           <section>
             <h2 className="text-xl font-bold mb-4">Promoções</h2>

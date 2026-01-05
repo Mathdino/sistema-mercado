@@ -196,11 +196,16 @@ async function GET(req) {
                 name: "asc"
             }
         });
-        // Fetch featured products
+        // Fetch featured products (filtered by category if specified)
+        const featuredWhereClause = {
+            featured: true
+        };
+        // Apply category filter to featured products if category is specified
+        if (categoryId) {
+            featuredWhereClause.categoryId = categoryId;
+        }
         const featuredProducts = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$prisma$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].product.findMany({
-            where: {
-                featured: true
-            },
+            where: featuredWhereClause,
             include: {
                 category: true
             },

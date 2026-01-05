@@ -710,7 +710,7 @@ export function PromotionBannerCreator({
       {/* Live Preview */}
       <div className="border rounded-xl p-4 bg-gray-50 flex items-center justify-center min-h-[400px]">
         <div
-          className="relative w-[396px] h-[220px] rounded-lg shadow-xl flex flex-row overflow-hidden"
+          className="relative w-[296px] h-[220px] rounded-lg shadow-xl flex flex-row overflow-hidden"
           style={{
             background:
               backgroundType === "gradient"

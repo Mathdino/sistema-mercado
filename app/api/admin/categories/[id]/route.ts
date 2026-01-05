@@ -58,7 +58,7 @@ export async function PUT(
     const { name, icon, image } = body
 
     // Validate required fields
-    if (!name || !icon || !image) {
+    if (!name || !icon) { // Image is now optional
       return NextResponse.json({ error: "missing_required_fields" }, { status: 400 })
     }
 
@@ -68,7 +68,7 @@ export async function PUT(
       data: {
         name,
         icon,
-        image
+        image: image || "/placeholder-category.svg" // Use a default if no image provided
       }
     })
 

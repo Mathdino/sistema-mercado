@@ -80,11 +80,18 @@ export async function GET(req: NextRequest) {
       }
     })
 
-    // Fetch featured products
+    // Fetch featured products (filtered by category if specified)
+    const featuredWhereClause: any = {
+      featured: true
+    }
+    
+    // Apply category filter to featured products if category is specified
+    if (categoryId) {
+      featuredWhereClause.categoryId = categoryId
+    }
+    
     const featuredProducts = await prisma.product.findMany({
-      where: {
-        featured: true
-      },
+      where: featuredWhereClause,
       include: {
         category: true
       },

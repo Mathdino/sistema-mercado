@@ -14,7 +14,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select"
-import { Upload, ChevronRight } from "lucide-react"
+import { Upload, ChevronRight, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 
@@ -41,6 +41,7 @@ export default function CreateProductPage() {
     stock: "",
     featured: false
   })
+  const [isCreatingProduct, setIsCreatingProduct] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -84,6 +85,7 @@ export default function CreateProductPage() {
 
   const handleAddProduct = async () => {
     try {
+      setIsCreatingProduct(true);
       // In a real implementation, you would upload the image file to a storage service
       // and get a URL back. For now, we'll just use a placeholder.
       const imageUrl = imagePreview || "/placeholder.svg"
@@ -123,6 +125,8 @@ export default function CreateProductPage() {
     } catch (error) {
       console.error("Error adding product:", error)
       alert(`Network error adding product: ${error}`)
+    } finally {
+      setIsCreatingProduct(false);
     }
   }
 
@@ -154,7 +158,7 @@ export default function CreateProductPage() {
             >
               <div>
                 <h3 className="font-medium text-gray-900">Categorias</h3>
-                <p className="text-sm text-gray-500 mt-1">Gerenciar categorias de produtos</p>
+                <p className="text-sm text-gray-500 mt-1">Crie novas categorias de produtos</p>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
@@ -301,7 +305,10 @@ export default function CreateProductPage() {
               <Button variant="outline" onClick={() => router.push("/admin/products")}>
                 Cancelar
               </Button>
-              <Button onClick={handleAddProduct}>Adicionar Produto</Button>
+              <Button onClick={handleAddProduct} disabled={isCreatingProduct}>
+                {isCreatingProduct && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isCreatingProduct ? "Adicionando..." : "Adicionar Produto"}
+              </Button>
             </div>
           </div>
         </div>

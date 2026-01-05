@@ -2587,10 +2587,12 @@ var _s = __turbopack_context__.k.signature();
 function PromotionBanner({ data, className = "" }) {
     _s();
     const containerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
+    const leftContentRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const [containerDimensions, setContainerDimensions] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
-        width: 350,
-        height: 180
+        width: 396,
+        height: 220
     });
+    const [leftContentWidth, setLeftContentWidth] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(220);
     const { title, description, discountPrice, backgroundImage, productImage, config } = data;
     const { backgroundType = "solid", backgroundColor = "#f3f4f6", gradientStart = "#ef4444", gradientEnd = "#b91c1c", gradientDirection = "to right", fontFamily = "sans", textColor = "#000000", fontSize = "medium", animation = "none", productTransform = {
         scale: 1,
@@ -2600,10 +2602,21 @@ function PromotionBanner({ data, className = "" }) {
             y: 0
         }
     }, extraTexts = [], titleWidth, descriptionWidth } = config || {};
-    const baseSize = 120; // Reduced for mobile responsiveness
+    const PREVIEW_W = 396;
+    const PREVIEW_H = 220;
+    const baseSize = Math.max(60, Math.round(160 * (containerDimensions.height / PREVIEW_H)));
     const scaleVal = Number(productTransform?.scale ?? 1);
     const xRaw = Number(productTransform?.pos?.x ?? 0);
     const yRaw = Number(productTransform?.pos?.y ?? 0);
+    const scaleW = Math.min(1, containerDimensions.width / PREVIEW_W);
+    const scaleH = Math.min(1, containerDimensions.height / PREVIEW_H);
+    const uiScale = Math.min(scaleW, scaleH);
+    const titleBase = fontSize === "small" ? 18 : fontSize === "large" ? 32 : fontSize === "xl" ? 48 : 24;
+    const descBase = fontSize === "small" ? 14 : fontSize === "large" ? 18 : 16;
+    const pillPadY = Math.round(6 * uiScale);
+    const pillPadX = Math.round(12 * uiScale);
+    const labelBase = 12;
+    const priceBase = 20;
     // Update container dimensions when mounted/resized
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "PromotionBanner.useEffect": ()=>{
@@ -2616,23 +2629,31 @@ function PromotionBanner({ data, className = "" }) {
                             height
                         });
                     }
+                    if (leftContentRef.current) {
+                        const { width } = leftContentRef.current.getBoundingClientRect();
+                        setLeftContentWidth(width);
+                    }
                 }
             }["PromotionBanner.useEffect.updateDimensions"];
             updateDimensions();
-            window.addEventListener('resize', updateDimensions);
+            window.addEventListener("resize", updateDimensions);
             return ({
-                "PromotionBanner.useEffect": ()=>window.removeEventListener('resize', updateDimensions)
+                "PromotionBanner.useEffect": ()=>window.removeEventListener("resize", updateDimensions)
             })["PromotionBanner.useEffect"];
         }
     }["PromotionBanner.useEffect"], []);
     // Make positioning responsive based on actual container dimensions
     const getImagePosition = (containerWidth, containerHeight)=>{
-        // Ensure image stays within bounds considering scaling
+        const scaleX = containerWidth / PREVIEW_W;
+        const scaleY = containerHeight / PREVIEW_H;
         const scaledImageSize = baseSize * scaleVal;
-        const maxX = Math.max(0, containerWidth - scaledImageSize - 20); // 20px padding
+        const maxX = Math.max(0, containerWidth - scaledImageSize - 20);
         const maxY = Math.max(0, containerHeight - scaledImageSize - 20);
-        const safeX = Math.max(0, Math.min(maxX, xRaw));
-        const safeY = Math.max(0, Math.min(maxY, yRaw));
+        const targetX = xRaw * scaleX;
+        const targetY = yRaw * scaleY;
+        const leftGutter = Math.max(0, Math.round((leftContentWidth - 104) * scaleX));
+        const safeX = Math.max(leftGutter, Math.min(maxX, targetX));
+        const safeY = Math.max(0, Math.min(maxY, targetY));
         return {
             safeX,
             safeY
@@ -2682,68 +2703,84 @@ function PromotionBanner({ data, className = "" }) {
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         ref: containerRef,
-        className: `relative w-full h-[180px] sm:h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row my-2 ${className}`,
+        className: `relative w-full h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row my-2 ${className}`,
         style: {
             background: backgroundType === "gradient" ? `linear-gradient(${gradientDirection}, ${gradientStart}, ${gradientEnd})` : backgroundColor
         },
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "relative z-10 flex-1 flex flex-col p-4 sm:p-6 justify-center items-start text-left h-full min-w-0",
+                ref: leftContentRef,
+                className: "relative z-10 flex-1 flex flex-col p-6 justify-center items-start text-left h-full min-w-0",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                        className: `font-bold mb-1 sm:mb-2 leading-tight w-full break-words text-sm sm:text-base md:text-lg ${getFontFamily(fontFamily)} ${getFontSizeClass(fontSize)}`,
+                        className: `font-bold mb-2 leading-tight w-full break-words ${getFontFamily(fontFamily)} ${getFontSizeClass(fontSize)}`,
                         style: {
                             color: textColor,
-                            width: titleWidth ? `${titleWidth}px` : undefined
+                            width: titleWidth ? `${titleWidth}px` : undefined,
+                            fontSize: `${Math.round(titleBase * uiScale)}px`,
+                            lineHeight: 1.1
                         },
                         children: title
                     }, void 0, false, {
                         fileName: "[project]/components/promotion-banner.tsx",
-                        lineNumber: 140,
+                        lineNumber: 182,
                         columnNumber: 9
                     }, this),
                     description && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: `mb-1 sm:mb-4 opacity-90 w-full break-words text-xs sm:text-sm ${getFontFamily(fontFamily)}`,
+                        className: `mb-4 opacity-90 w-full break-words ${getFontFamily(fontFamily)}`,
                         style: {
                             color: textColor,
-                            fontSize: fontSize === "small" ? "0.75rem" : "0.875rem",
-                            width: descriptionWidth ? `${descriptionWidth}px` : undefined
+                            fontSize: `${Math.round(descBase * uiScale)}px`,
+                            width: descriptionWidth ? `${descriptionWidth}px` : undefined,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden"
                         },
                         children: description
                     }, void 0, false, {
                         fileName: "[project]/components/promotion-banner.tsx",
-                        lineNumber: 153,
+                        lineNumber: 197,
                         columnNumber: 11
                     }, this),
                     discountPrice && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "mt-auto mb-1 sm:mb-4 bg-white/90 backdrop-blur-sm px-2 py-0.5 sm:px-4 sm:py-1.5 rounded-full shadow-lg inline-flex items-center whitespace-nowrap",
+                        className: "mt-auto bg-white/90 backdrop-blur-sm rounded-full shadow-lg inline-flex items-center whitespace-nowrap",
+                        style: {
+                            padding: `${pillPadY}px ${pillPadX}px`
+                        },
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-[8px] sm:text-xs text-gray-500 font-medium mr-1 sm:mr-2",
+                                className: "text-gray-500 font-medium mr-2",
+                                style: {
+                                    fontSize: `${Math.round(labelBase * uiScale)}px`
+                                },
                                 children: "Por apenas"
                             }, void 0, false, {
                                 fileName: "[project]/components/promotion-banner.tsx",
-                                lineNumber: 169,
+                                lineNumber: 220,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                className: "text-sm sm:text-base md:text-lg font-bold text-green-600",
+                                className: "font-bold text-green-600",
+                                style: {
+                                    fontSize: `${Math.round(priceBase * uiScale)}px`
+                                },
                                 children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$currency$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatCurrency"])(discountPrice)
                             }, void 0, false, {
                                 fileName: "[project]/components/promotion-banner.tsx",
-                                lineNumber: 172,
+                                lineNumber: 226,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/promotion-banner.tsx",
-                        lineNumber: 168,
+                        lineNumber: 216,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/promotion-banner.tsx",
-                lineNumber: 139,
+                lineNumber: 178,
                 columnNumber: 7
             }, this),
             productImage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2771,27 +2808,27 @@ function PromotionBanner({ data, className = "" }) {
                         className: "w-full h-full object-contain drop-shadow-xl"
                     }, void 0, false, {
                         fileName: "[project]/components/promotion-banner.tsx",
-                        lineNumber: 208,
+                        lineNumber: 265,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/promotion-banner.tsx",
-                    lineNumber: 199,
+                    lineNumber: 256,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/promotion-banner.tsx",
-                lineNumber: 181,
+                lineNumber: 238,
                 columnNumber: 9
             }, this),
             extraTexts.map((t)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "absolute",
                     style: {
-                        left: `${t.x}px`,
-                        top: `${t.y}px`,
+                        left: `${t.x * (containerDimensions.width / PREVIEW_W)}px`,
+                        top: `${t.y * (containerDimensions.height / PREVIEW_H)}px`,
                         color: t.color,
-                        width: t.width ? `${t.width}px` : undefined,
-                        fontSize: t.fontSize === "small" ? "0.875rem" : t.fontSize === "large" ? "1.5rem" : "1rem",
+                        width: t.width ? `${Math.round(t.width * (containerDimensions.width / PREVIEW_W))}px` : undefined,
+                        fontSize: `${Math.round(t.fontSize === "small" ? 14 * uiScale : t.fontSize === "large" ? 24 * uiScale : 16 * uiScale)}px`,
                         fontWeight: 700,
                         zIndex: 30,
                         whiteSpace: "normal",
@@ -2800,17 +2837,17 @@ function PromotionBanner({ data, className = "" }) {
                     children: t.content
                 }, t.id, false, {
                     fileName: "[project]/components/promotion-banner.tsx",
-                    lineNumber: 227,
+                    lineNumber: 284,
                     columnNumber: 11
                 }, this))
         ]
     }, void 0, true, {
         fileName: "[project]/components/promotion-banner.tsx",
-        lineNumber: 128,
+        lineNumber: 167,
         columnNumber: 5
     }, this);
 }
-_s(PromotionBanner, "wm4lyRxAKlzo8++lHMa0tCVzZM4=");
+_s(PromotionBanner, "UQAg8WoNG+QB5T97MEGK7CTmpqw=");
 _c = PromotionBanner;
 var _c;
 __turbopack_context__.k.register(_c, "PromotionBanner");
@@ -2891,14 +2928,14 @@ function PromotionCarousel({ banners }) {
     ]);
     const handleTouchStart = (e)=>{
         setIsDragging(true);
-        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
         startX.current = clientX;
         currentX.current = clientX;
         dragStartTime.current = Date.now();
     };
     const handleTouchMove = (e)=>{
         if (!isDragging) return;
-        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
         currentX.current = clientX;
     };
     const handleTouchEnd = ()=>{
@@ -2940,7 +2977,7 @@ function PromotionCarousel({ banners }) {
         className: "w-full flex flex-col items-center px-4",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "relative w-full max-w-[95vw] sm:max-w-[420px] mx-auto",
+                className: "relative w-full max-w-[95vw] sm:max-w-[296px] mx-auto",
                 onTouchStart: handleTouchStart,
                 onTouchMove: handleTouchMove,
                 onTouchEnd: handleTouchEnd,
@@ -2961,7 +2998,7 @@ function PromotionCarousel({ banners }) {
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "mt-2 w-full max-w-[95vw] sm:max-w-[396px] mx-auto px-2 flex gap-2",
+                className: "mt-2 w-full max-w-[95vw] sm:max-w-[296px] mx-auto px-2 flex gap-2",
                 children: banners.map((_, idx)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "h-1.5 flex-1 rounded-full bg-black/20 overflow-hidden",
                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3655,6 +3692,48 @@ function ClientPage() {
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
                 className: "space-y-6 px-4 py-6",
                 children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "text-center py-6",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "flex items-center justify-center mb-2",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl mr-3",
+                                        children: market?.name?.charAt(0) || 'M'
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/client/page.tsx",
+                                        lineNumber: 112,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                        className: "text-2xl font-bold text-gray-900",
+                                        children: market?.name || "Mercado Delivery"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/client/page.tsx",
+                                        lineNumber: 115,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/client/page.tsx",
+                                lineNumber: 111,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-gray-600 text-sm",
+                                children: market?.address || "Seu supermercado online de confiança"
+                            }, void 0, false, {
+                                fileName: "[project]/app/client/page.tsx",
+                                lineNumber: 117,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/client/page.tsx",
+                        lineNumber: 110,
+                        columnNumber: 9
+                    }, this),
                     promotionBanners.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -3662,40 +3741,40 @@ function ClientPage() {
                                 children: "Promoções"
                             }, void 0, false, {
                                 fileName: "[project]/app/client/page.tsx",
-                                lineNumber: 111,
+                                lineNumber: 124,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$client$2f$promotion$2d$carousel$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PromotionCarousel"], {
                                 banners: promotionBanners
                             }, void 0, false, {
                                 fileName: "[project]/app/client/page.tsx",
-                                lineNumber: 112,
+                                lineNumber: 125,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/client/page.tsx",
-                        lineNumber: 110,
+                        lineNumber: 123,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$client$2f$promo$2d$banner$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PromoBanner"], {
                         market: market
                     }, void 0, false, {
                         fileName: "[project]/app/client/page.tsx",
-                        lineNumber: 115,
+                        lineNumber: 128,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$client$2f$category$2d$grid$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CategoryGrid"], {
                         categories: categories
                     }, void 0, false, {
                         fileName: "[project]/app/client/page.tsx",
-                        lineNumber: 117,
+                        lineNumber: 130,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$client$2f$featured$2d$products$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FeaturedProducts"], {
                         products: featuredProducts
                     }, void 0, false, {
                         fileName: "[project]/app/client/page.tsx",
-                        lineNumber: 118,
+                        lineNumber: 131,
                         columnNumber: 9
                     }, this)
                 ]
@@ -3706,7 +3785,7 @@ function ClientPage() {
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$client$2f$bottom$2d$nav$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BottomNav"], {}, void 0, false, {
                 fileName: "[project]/app/client/page.tsx",
-                lineNumber: 120,
+                lineNumber: 133,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$client$2f$login$2d$modal$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["LoginModal"], {
@@ -3715,7 +3794,7 @@ function ClientPage() {
                 onLoginSuccess: handleLoginSuccess
             }, void 0, false, {
                 fileName: "[project]/app/client/page.tsx",
-                lineNumber: 121,
+                lineNumber: 134,
                 columnNumber: 7
             }, this)
         ]

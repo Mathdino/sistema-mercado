@@ -14,7 +14,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select"
-import { Upload, ChevronRight } from "lucide-react"
+import { Upload, ChevronRight, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { useRouter, useParams } from "next/navigation"
 
@@ -58,6 +58,7 @@ export default function EditProductPage() {
     stock: "",
     featured: false
   })
+  const [isUpdatingProduct, setIsUpdatingProduct] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -126,6 +127,7 @@ export default function EditProductPage() {
 
   const handleUpdateProduct = async () => {
     try {
+      setIsUpdatingProduct(true);
       // Validation
       if (!editProduct.name.trim()) {
         alert("Nome do produto é obrigatório");
@@ -195,6 +197,8 @@ export default function EditProductPage() {
     } catch (error) {
       console.error("Error updating product:", error)
       alert(`Network error updating product: ${error}`)
+    } finally {
+      setIsUpdatingProduct(false);
     }
   }
 
@@ -238,7 +242,7 @@ export default function EditProductPage() {
             >
               <div>
                 <h3 className="font-medium text-gray-900">Categorias</h3>
-                <p className="text-sm text-gray-500 mt-1">Gerenciar categorias de produtos</p>
+                <p className="text-sm text-gray-500 mt-1">Crie novas categorias de produtos</p>
               </div>
               <ChevronRight className="h-5 w-5 text-gray-400" />
             </div>
@@ -385,7 +389,10 @@ export default function EditProductPage() {
               <Button variant="outline" onClick={() => router.push("/admin/products")}>
                 Cancelar
               </Button>
-              <Button onClick={handleUpdateProduct}>Atualizar Produto</Button>
+              <Button onClick={handleUpdateProduct} disabled={isUpdatingProduct}>
+                {isUpdatingProduct && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isUpdatingProduct ? "Atualizando..." : "Atualizar Produto"}
+              </Button>
             </div>
           </div>
         </div>

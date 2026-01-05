@@ -6,9 +6,7 @@ import { BottomNav } from "@/components/client/bottom-nav"
 import { ProductCard } from "@/components/client/product-card"
 import { CategoryTabs } from "@/components/client/category-tabs"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Search, Star, Tag } from "lucide-react"
-import Link from "next/link"
+import { Search } from "lucide-react"
 
 interface Category {
   id: string
@@ -35,9 +33,8 @@ export default function MarketPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [products, setProducts] = useState<Product[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
-  const [promotionProducts, setPromotionProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
 
   // Fetch products and categories from API
@@ -49,9 +46,9 @@ export default function MarketPage() {
         if (response.ok) {
           const data = await response.json()
           setProducts(data.products)
+          setFeaturedProducts(data.featuredProducts || [])
           setCategories(data.categories)
-          setFeaturedProducts(data.featuredProducts)
-          setPromotionProducts(data.promotionProducts)
+
         }
       } catch (error) {
         console.error("Error fetching products:", error)
@@ -72,9 +69,9 @@ export default function MarketPage() {
         if (response.ok) {
           const data = await response.json()
           setProducts(data.products)
+          setFeaturedProducts(data.featuredProducts || [])
           setCategories(data.categories)
-          setFeaturedProducts(data.featuredProducts)
-          setPromotionProducts(data.promotionProducts)
+
         }
       } catch (error) {
         console.error("Error fetching initial data:", error)
@@ -103,48 +100,7 @@ export default function MarketPage() {
           </div>
         </div>
         
-        {/* Featured Products Section */}
-        {featuredProducts.length > 0 && (
-          <div className="px-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-yellow-500" />
-                <h2 className="text-xl font-bold">Destaques</h2>
-              </div>
-              <Link href="/client/promotions" className="text-sm text-primary hover:underline">
-                Ver todos
-              </Link>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              {featuredProducts.slice(0, 4).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Promotion Products Section */}
-        {promotionProducts.length > 0 && (
-          <div className="px-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Tag className="h-5 w-5 text-red-500" />
-                <h2 className="text-xl font-bold">Promoções</h2>
-                <Badge variant="destructive">OFERTA</Badge>
-              </div>
-              <Link href="/client/promotions" className="text-sm text-primary hover:underline">
-                Ver todos
-              </Link>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              {promotionProducts.slice(0, 4).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Categories */}
         <div className="px-4">
@@ -155,6 +111,25 @@ export default function MarketPage() {
           />
         </div>
         
+        {/* Featured Products */}
+        {featuredProducts.length > 0 && (
+          <div className="px-4">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-xl font-bold">⭐ Destaques</span>
+              <span className="text-sm text-muted-foreground">
+                ({selectedCategory 
+                  ? categories.find(c => c.id === selectedCategory)?.name 
+                  : "Todos"})
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* All Products */}
         <div className="px-4">
           <h2 className="text-xl font-bold mb-4">
@@ -169,9 +144,11 @@ export default function MarketPage() {
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 gap-4">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              {products
+                .filter(product => !featuredProducts.some(fp => fp.id === product.id))
+                .map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
             </div>
           ) : (
             <div className="text-center py-8">
