@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { formatCurrency } from "@/lib/currency";
 
 interface PromotionBannerProps {
@@ -20,6 +21,8 @@ export function PromotionBanner({
   data,
   className = "",
 }: PromotionBannerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerDimensions, setContainerDimensions] = useState({ width: 350, height: 180 });
   const {
     title,
     description,
@@ -44,15 +47,37 @@ export function PromotionBanner({
     titleWidth,
     descriptionWidth,
   } = config || {};
-  const baseSize = 160;
-  const canvasW = 396;
-  const canvasH = 220;
+  const baseSize = 120; // Reduced for mobile responsiveness
   const scaleVal = Number(productTransform?.scale ?? 1);
   const xRaw = Number(productTransform?.pos?.x ?? 0);
   const yRaw = Number(productTransform?.pos?.y ?? 0);
-  // Calculate responsive values - base on container size
-  const safeX = Math.max(0, Math.min(canvasW - baseSize * scaleVal, xRaw));
-  const safeY = Math.max(0, Math.min(canvasH - baseSize * scaleVal, yRaw));
+  
+  // Update container dimensions when mounted/resized
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        setContainerDimensions({ width, height });
+      }
+    };
+    
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
+  
+  // Make positioning responsive based on actual container dimensions
+  const getImagePosition = (containerWidth: number, containerHeight: number) => {
+    // Ensure image stays within bounds considering scaling
+    const scaledImageSize = baseSize * scaleVal;
+    const maxX = Math.max(0, containerWidth - scaledImageSize - 20); // 20px padding
+    const maxY = Math.max(0, containerHeight - scaledImageSize - 20);
+    
+    const safeX = Math.max(0, Math.min(maxX, xRaw));
+    const safeY = Math.max(0, Math.min(maxY, yRaw));
+    
+    return { safeX, safeY };
+  };
 
   const getFontFamily = (font: string) => {
     switch (font) {
@@ -101,6 +126,7 @@ export function PromotionBanner({
 
   return (
     <div
+      ref={containerRef}
       className={`relative w-full h-[180px] sm:h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row my-2 ${className}`}
       style={{
         background:
@@ -154,13 +180,21 @@ export function PromotionBanner({
       {productImage && (
         <div
           className={`absolute ${getAnimationClass(animation)}`}
-          style={{
-            left: `${safeX}px`,
-            top: `${safeY}px`,
-            width: "120px",
-            height: "120px",
-            zIndex: 20,
-          }}
+          style={(() => {
+            // Get responsive positioning based on actual container size
+            const { safeX, safeY } = getImagePosition(
+              containerDimensions.width, 
+              containerDimensions.height
+            );
+            
+            return {
+              left: `${safeX}px`,
+              top: `${safeY}px`,
+              width: `${baseSize}px`,
+              height: `${baseSize}px`,
+              zIndex: 20,
+            };
+          })()}
         >
           <div
             className="w-full h-full"
