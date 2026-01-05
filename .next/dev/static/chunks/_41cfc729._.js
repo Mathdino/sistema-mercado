@@ -2792,6 +2792,10 @@ function PromotionCarousel({ banners }) {
     _s();
     const [currentIndex, setCurrentIndex] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
     const [progress, setProgress] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(0);
+    const [isDragging, setIsDragging] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const startX = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(0);
+    const currentX = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(0);
+    const dragStartTime = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(0);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "PromotionCarousel.useEffect": ()=>{
             // Reset progress when currentIndex changes
@@ -2803,6 +2807,8 @@ function PromotionCarousel({ banners }) {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "PromotionCarousel.useEffect": ()=>{
             if (banners.length <= 1) return;
+            // Only set up auto-rotation if user is not interacting
+            if (isDragging) return;
             const duration = 3000; // 3 seconds
             const intervalTime = 50; // Update progress every 50ms
             const steps = duration / intervalTime;
@@ -2835,17 +2841,78 @@ function PromotionCarousel({ banners }) {
         }
     }["PromotionCarousel.useEffect"], [
         banners.length,
-        currentIndex
+        currentIndex,
+        isDragging
     ]);
+    const handleTouchStart = (e)=>{
+        setIsDragging(true);
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        startX.current = clientX;
+        currentX.current = clientX;
+        dragStartTime.current = Date.now();
+    };
+    const handleTouchMove = (e)=>{
+        if (!isDragging) return;
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        currentX.current = clientX;
+    };
+    const handleTouchEnd = ()=>{
+        if (!isDragging) return;
+        const diffX = currentX.current - startX.current;
+        const dragDuration = Date.now() - dragStartTime.current;
+        // Minimum swipe distance (in pixels) or quick flick
+        const minSwipeDistance = 50;
+        const minFlickSpeed = 0.5; // pixels per ms
+        const isQuickSwipe = Math.abs(diffX) / dragDuration > minFlickSpeed;
+        const isLongSwipe = Math.abs(diffX) > minSwipeDistance;
+        if (isQuickSwipe || isLongSwipe) {
+            if (diffX > 0) {
+                // Swipe right - go to previous
+                setCurrentIndex((prev)=>(prev - 1 + banners.length) % banners.length);
+            } else {
+                // Swipe left - go to next
+                setCurrentIndex((prev)=>(prev + 1) % banners.length);
+            }
+        }
+        setIsDragging(false);
+    };
+    const handleMouseDown = (e)=>{
+        handleTouchStart(e);
+    };
+    const handleMouseMove = (e)=>{
+        handleTouchMove(e);
+    };
+    const handleMouseUp = ()=>{
+        handleTouchEnd();
+    };
+    const handleMouseLeave = ()=>{
+        if (isDragging) {
+            setIsDragging(false);
+        }
+    };
     if (banners.length === 0) return null;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "w-full flex flex-col items-center px-4",
         children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$promotion$2d$banner$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PromotionBanner"], {
-                data: banners[currentIndex]
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "relative w-full max-w-[396px]",
+                onTouchStart: handleTouchStart,
+                onTouchMove: handleTouchMove,
+                onTouchEnd: handleTouchEnd,
+                onMouseDown: handleMouseDown,
+                onMouseMove: handleMouseMove,
+                onMouseUp: handleMouseUp,
+                onMouseLeave: handleMouseLeave,
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$promotion$2d$banner$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PromotionBanner"], {
+                    data: banners[currentIndex]
+                }, void 0, false, {
+                    fileName: "[project]/components/client/promotion-carousel.tsx",
+                    lineNumber: 126,
+                    columnNumber: 9
+                }, this)
             }, void 0, false, {
                 fileName: "[project]/components/client/promotion-carousel.tsx",
-                lineNumber: 50,
+                lineNumber: 116,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$next$40$16$2e$0$2e$7_react$2d$dom$40$19$2e$2$2e$0_react$40$19$2e$2$2e$0_$5f$react$40$19$2e$2$2e$0$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2859,27 +2926,27 @@ function PromotionCarousel({ banners }) {
                             }
                         }, void 0, false, {
                             fileName: "[project]/components/client/promotion-carousel.tsx",
-                            lineNumber: 57,
+                            lineNumber: 134,
                             columnNumber: 13
                         }, this)
                     }, idx, false, {
                         fileName: "[project]/components/client/promotion-carousel.tsx",
-                        lineNumber: 53,
+                        lineNumber: 130,
                         columnNumber: 11
                     }, this))
             }, void 0, false, {
                 fileName: "[project]/components/client/promotion-carousel.tsx",
-                lineNumber: 51,
+                lineNumber: 128,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/client/promotion-carousel.tsx",
-        lineNumber: 49,
+        lineNumber: 115,
         columnNumber: 5
     }, this);
 }
-_s(PromotionCarousel, "boHde7LpX8WVbnxJJnN2KIookjY=");
+_s(PromotionCarousel, "mbhh72Jy7aLzPCeAoTMMjSAOYbw=");
 _c = PromotionCarousel;
 var _c;
 __turbopack_context__.k.register(_c, "PromotionCarousel");

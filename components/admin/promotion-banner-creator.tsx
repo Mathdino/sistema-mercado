@@ -888,7 +888,6 @@ export function PromotionBannerCreator({
                         startY: e.clientY,
                         origX: t.x,
                         origY: t.y,
-                        // @ts-expect-error
                         origWidth: t.width ?? 160,
                       } as any;
                     }}
@@ -962,7 +961,6 @@ export function PromotionBannerCreator({
                       startY: e.clientY,
                       origX: productPos.x,
                       origY: productPos.y,
-                      // @ts-expect-error
                       origWidth: 160 * productScale,
                     } as any;
                   }}
