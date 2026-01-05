@@ -50,6 +50,7 @@ export function PromotionBanner({
   const scaleVal = Number(productTransform?.scale ?? 1);
   const xRaw = Number(productTransform?.pos?.x ?? 0);
   const yRaw = Number(productTransform?.pos?.y ?? 0);
+  // Calculate responsive values - base on container size
   const safeX = Math.max(0, Math.min(canvasW - baseSize * scaleVal, xRaw));
   const safeY = Math.max(0, Math.min(canvasH - baseSize * scaleVal, yRaw));
 
@@ -100,7 +101,7 @@ export function PromotionBanner({
 
   return (
     <div
-      className={`relative w-[370px] h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row mx-4 my-2 ${className}`}
+      className={`relative w-full h-[180px] sm:h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row mx-2 sm:mx-4 my-2 ${className}`}
       style={{
         background:
           backgroundType === "gradient"
@@ -109,9 +110,9 @@ export function PromotionBanner({
       }}
     >
       {/* Left Content */}
-      <div className="relative z-10 flex-1 flex flex-col p-6 justify-center items-start text-left h-full min-w-0">
+      <div className="relative z-10 flex-1 flex flex-col p-4 sm:p-6 justify-center items-start text-left h-full min-w-0">
         <h2
-          className={`font-bold mb-2 leading-tight w-full break-words ${getFontFamily(
+          className={`font-bold mb-1 sm:mb-2 leading-tight w-full break-words text-sm sm:text-base md:text-lg ${getFontFamily(
             fontFamily
           )} ${getFontSizeClass(fontSize)}`}
           style={{
@@ -124,7 +125,7 @@ export function PromotionBanner({
 
         {description && (
           <p
-            className={`mb-2 sm:mb-4 opacity-90 w-full break-words ${getFontFamily(
+            className={`mb-1 sm:mb-4 opacity-90 w-full break-words text-xs sm:text-sm ${getFontFamily(
               fontFamily
             )}`}
             style={{
@@ -138,11 +139,11 @@ export function PromotionBanner({
         )}
 
         {discountPrice && (
-          <div className="mt-auto mb-2 sm:mb-4 bg-white/90 backdrop-blur-sm px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full shadow-lg inline-flex items-center whitespace-nowrap">
-            <span className="text-[10px] sm:text-xs text-gray-500 font-medium mr-1.5 sm:mr-2">
+          <div className="mt-auto mb-1 sm:mb-4 bg-white/90 backdrop-blur-sm px-2 py-0.5 sm:px-4 sm:py-1.5 rounded-full shadow-lg inline-flex items-center whitespace-nowrap">
+            <span className="text-[8px] sm:text-xs text-gray-500 font-medium mr-1 sm:mr-2">
               Por apenas
             </span>
-            <span className="text-base sm:text-xl font-bold text-green-600">
+            <span className="text-sm sm:text-base md:text-lg font-bold text-green-600">
               {formatCurrency(discountPrice)}
             </span>
           </div>
@@ -156,8 +157,8 @@ export function PromotionBanner({
           style={{
             left: `${safeX}px`,
             top: `${safeY}px`,
-            width: "160px",
-            height: "160px",
+            width: "120px",
+            height: "120px",
             zIndex: 20,
           }}
         >

@@ -114,7 +114,7 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
   return (
     <div className="w-full flex flex-col items-center px-4">
       <div 
-        className="relative w-full max-w-[396px]"
+        className="relative w-full max-w-[90vw] sm:max-w-[396px] mx-auto"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -125,7 +125,7 @@ export function PromotionCarousel({ banners }: PromotionCarouselProps) {
       >
         <PromotionBanner data={banners[currentIndex]} />
       </div>
-      <div className="mt-2 w-full max-w-[396px] mx-4 px-2 flex gap-2">
+      <div className="mt-2 w-full max-w-[90vw] sm:max-w-[396px] mx-auto px-2 flex gap-2">
         {banners.map((_, idx) => (
           <div
             key={idx}
