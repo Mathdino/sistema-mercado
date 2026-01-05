@@ -101,7 +101,7 @@ export function PromotionBanner({
 
   return (
     <div
-      className={`relative w-full h-[180px] sm:h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row mx-2 sm:mx-4 my-2 ${className}`}
+      className={`relative w-full h-[180px] sm:h-[220px] overflow-hidden rounded-xl shadow-lg flex flex-row my-2 ${className}`}
       style={{
         background:
           backgroundType === "gradient"

@@ -1391,6 +1391,10 @@
     max-width: 90vw;
   }
 
+  .max-w-\[95vw\] {
+    max-width: 95vw;
+  }
+
   .max-w-\[396px\] {
     max-width: 396px;
   }
@@ -4804,6 +4808,12 @@
   @media (min-width: 40rem) {
     .sm\:max-w-\[396px\] {
       max-width: 396px;
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .sm\:max-w-\[420px\] {
+      max-width: 420px;
     }
   }
 
