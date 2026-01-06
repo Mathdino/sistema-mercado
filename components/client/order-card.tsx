@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { formatCurrency, formatDate } from "@/lib/currency"
 import type { Order } from "@/lib/types"
-import { Package, Clock, CheckCircle2, XCircle, Truck, ChevronDown, ChevronUp } from "lucide-react"
+import { Package, Clock, CheckCircle2, XCircle, Truck, ChevronDown, ChevronUp, Ticket, DollarSign } from "lucide-react"
 
 interface OrderCardProps {
   order: any // Updated to accept the new order structure from the API
@@ -164,6 +164,35 @@ export function OrderCard({ order }: OrderCardProps) {
                     {order.deliveryFee > 0 ? formatCurrency(order.deliveryFee) : "Grátis"}
                   </span>
                 </div>
+                
+                {/* Conditionally display coupon discount if applied */}
+                {order.coupon && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <Ticket className="h-3 w-3" />
+                      Cupom ({order.coupon.code})
+                    </span>
+                    <span className="font-medium text-green-600">
+                      -{order.coupon.type === "PERCENTAGE"
+                        ? `${order.coupon.discount}%`
+                        : formatCurrency(order.coupon.discount)}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Conditionally display cashback if applied */}
+                {order.cashbackAmount && order.cashbackAmount > 0 && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground flex items-center gap-1">
+                      <DollarSign className="h-3 w-3" />
+                      Cashback
+                    </span>
+                    <span className="font-medium text-green-600">
+                      -{formatCurrency(order.cashbackAmount)}
+                    </span>
+                  </div>
+                )}
+                
                 <div className="flex items-center justify-between text-sm font-semibold">
                   <span>Total</span>
                   <span className="text-green-600">{formatCurrency(order.totalAmount)}</span>

@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Order" ADD COLUMN     "cashbackAmount" DOUBLE PRECISION NOT NULL DEFAULT 0.0;

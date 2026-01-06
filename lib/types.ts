@@ -69,6 +69,13 @@ export interface Order {
     email?: string
     cpf?: string
   }
+  coupon?: {
+    id: string
+    code: string
+    discount: number
+    type: "FIXED" | "PERCENTAGE"
+  }
+  cashbackAmount?: number
 }
 
 export interface OrderItem {

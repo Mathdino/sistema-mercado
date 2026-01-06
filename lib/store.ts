@@ -238,9 +238,23 @@ interface OrderStore {
   updateOrderStatus: (orderId: string, status: Order["status"]) => void
 }
 
+// Clear corrupted localStorage on initialization
+if (typeof window !== 'undefined') {
+  try {
+    const corruptedData = localStorage.getItem('order-storage');
+    if (corruptedData && corruptedData.length > 5 * 1024 * 1024) { // 5MB limit
+      console.warn('Clearing large order storage data');
+      localStorage.removeItem('order-storage');
+    }
+  } catch (e) {
+    // Clear localStorage if there are any errors
+    localStorage.removeItem('order-storage');
+  }
+}
+
 export const useOrderStore = create<OrderStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       orders: [],
       addOrder: (order) => {
         const newOrder: Order = {
@@ -248,18 +262,65 @@ export const useOrderStore = create<OrderStore>()(
           id: String(Date.now()),
           createdAt: new Date().toISOString(),
         }
-        set((state) => ({
-          orders: [newOrder, ...state.orders],
-        }))
+        
+        set((state) => {
+          // Limit to last 10 orders to prevent localStorage overflow
+          const updatedOrders = [newOrder, ...state.orders].slice(0, 10);
+          return {
+            orders: updatedOrders,
+          };
+        });
       },
       updateOrderStatus: (orderId, status) => {
         set((state) => ({
           orders: state.orders.map((order) => (order.id === orderId ? { ...order, status } : order)),
-        }))
+        }));
+      },
+      // Add method to clear old orders
+      clearOldOrders: () => {
+        set((state) => {
+          // Keep only last 5 orders
+          const recentOrders = state.orders.slice(0, 5);
+          return {
+            orders: recentOrders,
+          };
+        });
       },
     }),
     {
       name: "order-storage",
+      // Serialize only essential order data to save space
+      partialize: (state) => {
+        // Only store essential fields to reduce storage size
+        const serializedOrders = state.orders.map(order => ({
+          id: order.id,
+          userId: order.userId,
+          totalAmount: order.totalAmount,
+          deliveryFee: order.deliveryFee,
+          subtotal: order.subtotal,
+          status: order.status,
+          paymentMethod: order.paymentMethod,
+          createdAt: order.createdAt,
+          // Store only order item summaries instead of full items
+          itemsSummary: order.items?.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            subtotal: item.subtotal,
+          })) || [],
+          // Store minimal delivery address info
+          deliveryAddress: order.deliveryAddress ? {
+            id: order.deliveryAddress.id,
+            street: order.deliveryAddress.street,
+            number: order.deliveryAddress.number,
+            neighborhood: order.deliveryAddress.neighborhood,
+            city: order.deliveryAddress.city,
+          } : null,
+        }));
+        
+        return {
+          orders: serializedOrders,
+        };
+      },
     },
   ),
 )

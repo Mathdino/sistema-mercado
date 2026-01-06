@@ -7,17 +7,19 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String?   @unique
-  cpf          String    @unique
+  id           String       @id @default(uuid())
+  email        String?      @unique
+  cpf          String       @unique
   passwordHash String
   name         String
   phone        String
-  role         Role      @default(CLIENT)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  role         Role         @default(CLIENT)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   addresses    Address[]
+  cashbacks    Cashback[]
   orders       Order[]
+  userCoupons  UserCoupon[]
 }
 
 model Address {
@@ -94,6 +96,8 @@ model Order {
   notes             String?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+  cashbackAmount    Float         @default(0.0)
+  cashback          Cashback[]
   deliveryAddress   Address       @relation("DeliveryAddress", fields: [deliveryAddressId], references: [id])
   user              User          @relation(fields: [userId], references: [id])
   items             OrderItem[]
@@ -137,9 +141,9 @@ model Employee {
   role      String
   phone     String
   marketId  String
-  market    Market   @relation(fields: [marketId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  market    Market   @relation(fields: [marketId], references: [id])
 }
 
 model DeliveryFee {
@@ -152,6 +156,49 @@ model DeliveryFee {
   isActive   Boolean         @default(true)
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
+}
+
+model GlobalCashback {
+  id         String   @id @default(uuid())
+  isActive   Boolean  @default(false)
+  percentage Float
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Cashback {
+  id              String   @id @default(uuid())
+  userId          String
+  percentage      Float
+  previousOrderId String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  previousOrder   Order?   @relation(fields: [previousOrderId], references: [id])
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model Coupon {
+  id          String       @id @default(uuid())
+  code        String       @unique
+  discount    Float
+  type        CouponType
+  expiresAt   DateTime?
+  maxUses     Int?
+  usedCount   Int          @default(0)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userCoupons UserCoupon[]
+}
+
+model UserCoupon {
+  id       String   @id @default(uuid())
+  userId   String
+  couponId String
+  usedAt   DateTime @default(now())
+  coupon   Coupon   @relation(fields: [couponId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 }
 
 enum Role {
@@ -175,4 +222,9 @@ enum PaymentMethod {
 enum DeliveryFeeType {
   FIXED
   PER_KM
+}
+
+enum CouponType {
+  FIXED
+  PERCENTAGE
 }

@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea"; // Import Textarea from its own file
+import { Input } from "@/components/ui/input"; // Import Input separately
 import { useCartStore, useAuthStore, useOrderStore } from "@/lib/store";
 import { mockProducts, mockMarket } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/currency";
@@ -24,6 +25,7 @@ import {
   StickyNote,
   Phone,
   User,
+  Ticket, // Added Ticket icon for coupon
 } from "lucide-react";
 
 export default function CheckoutPage() {
@@ -51,6 +53,12 @@ export default function CheckoutPage() {
   const { addOrder } = useOrderStore();
   const [computedDeliveryFee, setComputedDeliveryFee] = useState(0);
   const [loadingDeliveryFee, setLoadingDeliveryFee] = useState(false);
+  
+  // Added states for coupon and cashback
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [cashbackAmount, setCashbackAmount] = useState(0);
+  const [loadingCashback, setLoadingCashback] = useState(false);
 
   useEffect(() => {
     // Mark the component as hydrated after mount
@@ -145,9 +153,55 @@ export default function CheckoutPage() {
     if (isHydrated) fetchActiveFee();
   }, [isHydrated]);
 
+  // Fetch user's cashback when authenticated
+  useEffect(() => {
+    const fetchCashback = async () => {
+      if (isHydrated && isAuthenticated && user) {
+        setLoadingCashback(true);
+        try {
+          const response = await fetch(`/api/client/cashback`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data && data.isActive && data.percentage) {
+              // Calculate cashback amount based on subtotal
+              const cashbackValue = (getTotal() * data.percentage) / 100;
+              setCashbackAmount(cashbackValue);
+            } else {
+              setCashbackAmount(0);
+            }
+          } else {
+            setCashbackAmount(0);
+          }
+        } catch (error) {
+          console.error("Error fetching cashback:", error);
+          setCashbackAmount(0);
+        } finally {
+          setLoadingCashback(false);
+        }
+      }
+    };
+    
+    fetchCashback();
+  }, [isHydrated, isAuthenticated, user, getTotal]);
+
   const subtotal = getTotal();
   const deliveryFee = computedDeliveryFee;
-  const total = subtotal + deliveryFee;
+  
+  // Calculate total with coupon discount and cashback
+  let total = subtotal + deliveryFee;
+  
+  // Apply coupon discount if available
+  if (appliedCoupon) {
+    if (appliedCoupon.type === "FIXED") {
+      total = Math.max(0, total - appliedCoupon.discount); // Prevent negative total
+    } else if (appliedCoupon.type === "PERCENTAGE") {
+      const discountAmount = (total * appliedCoupon.discount) / 100;
+      total = total - discountAmount;
+    }
+  }
+  
+  // Apply cashback if available
+  total = Math.max(0, total - cashbackAmount); // Prevent negative total
 
   useEffect(() => {
     const calc = async () => {
@@ -199,6 +253,8 @@ export default function CheckoutPage() {
         paymentMethod: paymentMethod.toUpperCase(), // Convert to uppercase to match Prisma enum
         deliveryAddressId: defaultAddress.id,
         notes: notes || undefined,
+        couponId: appliedCoupon?.id || null, // Include coupon ID if applied
+        cashbackAmount: cashbackAmount, // Include cashback amount if applied
       };
 
       // Send order to API
@@ -206,6 +262,7 @@ export default function CheckoutPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] || ''}`
         },
         body: JSON.stringify(orderData),
       });
@@ -269,6 +326,61 @@ export default function CheckoutPage() {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Function to apply coupon
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast({
+        title: "Código de cupom vazio",
+        description: "Por favor, insira um código de cupom válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/client/coupon/apply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: couponCode.trim().toUpperCase() }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAppliedCoupon(data.coupon);
+        toast({
+          title: "Cupom aplicado!",
+          description: `Cupom ${data.coupon.code} aplicado com sucesso.`,
+        });
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Erro ao aplicar cupom",
+          description: errorData.error || "Cupom inválido ou expirado.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+      toast({
+        title: "Erro ao aplicar cupom",
+        description: "Ocorreu um erro ao aplicar o cupom.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Function to remove coupon
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    toast({
+      title: "Cupom removido",
+      description: "O cupom foi removido do pedido.",
+    });
   };
 
   const handleLoginSuccess = () => {
@@ -381,8 +493,54 @@ export default function CheckoutPage() {
               <Textarea
                 placeholder="Alguma observação sobre o pedido?"
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
               />
+            </CardContent>
+          </Card>
+
+          {/* Coupon Input Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Ticket className="h-5 w-5" />
+                Cupom de desconto
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Código do cupom"
+                  value={couponCode}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCouponCode(e.target.value.toUpperCase())}
+                  disabled={!!appliedCoupon} // Disable if coupon is already applied
+                />
+                {appliedCoupon ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={removeCoupon}
+                  >
+                    Remover
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={applyCoupon}
+                  >
+                    Aplicar
+                  </Button>
+                )}
+              </div>
+              {appliedCoupon && (
+                <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                  <p className="text-sm text-green-800">
+                    Cupom <span className="font-semibold">{appliedCoupon.code}</span> aplicado:{" "}
+                    {appliedCoupon.type === "PERCENTAGE"
+                      ? `${appliedCoupon.discount}% de desconto`
+                      : `R$ ${appliedCoupon.discount.toFixed(2)} de desconto`}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -402,6 +560,29 @@ export default function CheckoutPage() {
                     : formatCurrency(deliveryFee)}
                 </span>
               </div>
+              
+              {/* Display coupon discount if applied */}
+              {appliedCoupon && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Desconto (cupom)</span>
+                  <span className="font-medium text-green-600">
+                    -{appliedCoupon.type === "PERCENTAGE"
+                      ? `${appliedCoupon.discount}%`
+                      : formatCurrency(appliedCoupon.discount)}
+                  </span>
+                </div>
+              )}
+              
+              {/* Display cashback if available */}
+              {cashbackAmount > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Cashback</span>
+                  <span className="font-medium text-green-600">
+                    -{formatCurrency(cashbackAmount)}
+                  </span>
+                </div>
+              )}
+              
               <Separator />
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Total</span>
