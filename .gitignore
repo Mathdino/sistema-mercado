@@ -3,3 +3,21 @@ node_modules
 .env
 
 /lib/generated/prisma
+
+# Next.js build output
+.next
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Production
+/build
+# Coverage directory used by tools like istanbul
+/coverage
+# Dependency directories
+/node_modules
+jspm_packages
+# IDE
+.vscode
+.idea
