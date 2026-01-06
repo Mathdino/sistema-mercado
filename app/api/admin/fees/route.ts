@@ -110,40 +110,19 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { type, fixedValue, perKmValue, minValue, minRange, isActive } = body;
+    const { type, fixedValue, isActive } = body;
 
-    // Validate required fields based on type
-    if (type !== 'FIXED' && type !== 'PER_KM') {
+    // Validate required fields
+    if (type !== 'FIXED') {
       return NextResponse.json(
         { error: "invalid_type" },
         { status: 400 }
       );
     }
 
-    if (type === 'FIXED' && (fixedValue === null || fixedValue === undefined || fixedValue < 0)) {
+    if (fixedValue === null || fixedValue === undefined || fixedValue < 0) {
       return NextResponse.json(
         { error: "fixed_value_required" },
-        { status: 400 }
-      );
-    }
-
-    if (type === 'PER_KM' && (perKmValue === null || perKmValue === undefined || perKmValue < 0)) {
-      return NextResponse.json(
-        { error: "per_km_value_required" },
-        { status: 400 }
-      );
-    }
-
-    if (minValue !== null && minValue !== undefined && minRange === null) {
-      return NextResponse.json(
-        { error: "min_range_required" },
-        { status: 400 }
-      );
-    }
-
-    if (minRange !== null && minRange !== undefined && minValue === null) {
-      return NextResponse.json(
-        { error: "min_value_required" },
         { status: 400 }
       );
     }
@@ -151,11 +130,11 @@ export async function POST(req: NextRequest) {
     // Create new delivery fee
     const fee = await prisma.deliveryFee.create({
       data: {
-        type: type as 'FIXED' | 'PER_KM',
-        fixedValue: fixedValue !== null && fixedValue !== undefined && type === 'FIXED' ? Number(fixedValue) : null,
-        perKmValue: perKmValue !== null && perKmValue !== undefined && type === 'PER_KM' ? Number(perKmValue) : null,
-        minValue: minValue !== null && minValue !== undefined ? Number(minValue) : null,
-        minRange: minRange !== null && minRange !== undefined ? Number(minRange) : null,
+        type: 'FIXED',
+        fixedValue: Number(fixedValue),
+        perKmValue: null,
+        minValue: null,
+        minRange: null,
         isActive: isActive !== undefined ? Boolean(isActive) : true,
       }
     });

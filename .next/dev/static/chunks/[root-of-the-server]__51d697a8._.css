@@ -2036,6 +2036,10 @@
     background-color: var(--color-bg);
   }
 
+  .bg-\[\#08be2e\] {
+    background-color: #08be2e;
+  }
+
   .bg-accent {
     background-color: var(--accent);
   }
@@ -3374,6 +3378,12 @@
       --tw-scale-y: 105%;
       --tw-scale-z: 105%;
       scale: var(--tw-scale-x) var(--tw-scale-y);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:bg-\[\#2acf44\]:hover {
+      background-color: #2acf44;
     }
   }
 

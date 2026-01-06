@@ -10,14 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/currency";
 
 interface DeliveryFee {
   id: string;
-  type: 'FIXED' | 'PER_KM';
+  type: 'FIXED';
   fixedValue: number | null;
-  perKmValue: number | null;
-  minValue: number | null;
-  minRange: number | null;
   isActive: boolean;
 }
 
@@ -27,11 +25,8 @@ export default function AdminFeesPage() {
   const [saving, setSaving] = useState(false);
   const [deliveryFees, setDeliveryFees] = useState<DeliveryFee[]>([]);
   const [newFee, setNewFee] = useState<Omit<DeliveryFee, 'id'>>({
-    type: 'fixed',
+    type: 'FIXED',
     fixedValue: 0,
-    perKmValue: null,
-    minValue: null,
-    minRange: null,
     isActive: true,
   });
 
@@ -65,55 +60,25 @@ export default function AdminFeesPage() {
     fetchDeliveryFees();
   }, []);
 
-  const handleInputChange = (field: keyof Omit<DeliveryFee, 'id'>, value: string | number | boolean) => {
+  const handleInputChange = (field: 'type' | 'fixedValue' | 'isActive', value: string | number | boolean) => {
     setNewFee(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
-  const handleTypeChange = (value: 'FIXED' | 'PER_KM') => {
+  const handleTypeChange = (value: 'FIXED') => {
     setNewFee(prev => ({
       ...prev,
       type: value,
-      // Reset other values when type changes
-      fixedValue: value === 'FIXED' ? (prev.fixedValue || 0) : null,
-      perKmValue: value === 'PER_KM' ? (prev.perKmValue || 0) : null,
     }));
   };
 
   const addFee = async () => {
-    if (newFee.type === 'FIXED' && (newFee.fixedValue === null || newFee.fixedValue < 0)) {
+    if (newFee.fixedValue === null || newFee.fixedValue < 0) {
       toast({
         title: "Erro",
-        description: "Para taxas fixas, é necessário informar um valor fixo",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (newFee.type === 'PER_KM' && (newFee.perKmValue === null || newFee.perKmValue < 0)) {
-      toast({
-        title: "Erro",
-        description: "Para taxas por KM, é necessário informar um valor por KM",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (newFee.minValue !== null && newFee.minRange === null) {
-      toast({
-        title: "Erro",
-        description: "Para valor mínimo, é necessário informar o raio de alcance mínimo",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (newFee.minRange !== null && newFee.minValue === null) {
-      toast({
-        title: "Erro",
-        description: "Para raio de alcance mínimo, é necessário informar o valor mínimo",
+        description: "É necessário informar um valor fixo",
         variant: "destructive",
       });
       return;
@@ -135,9 +100,6 @@ export default function AdminFeesPage() {
         setNewFee({
           type: 'FIXED',
           fixedValue: 0,
-          perKmValue: null,
-          minValue: null,
-          minRange: null,
           isActive: true,
         });
         toast({
@@ -277,75 +239,29 @@ export default function AdminFeesPage() {
                     <Label>Tipo de Taxa</Label>
                     <Select 
                       value={newFee.type} 
-                      onValueChange={(value: 'fixed' | 'per_km') => handleTypeChange(value)}
+                      onValueChange={(value: 'FIXED') => handleTypeChange(value)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de taxa" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="FIXED">Fixa</SelectItem>
-                        <SelectItem value="PER_KM">Por KM</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
-                  {newFee.type === 'FIXED' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fixedValue">Valor Fixo (R$)</Label>
-                      <Input
-                        id="fixedValue"
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={newFee.fixedValue ?? ''}
-                        onChange={(e) => handleInputChange("fixedValue", parseFloat(e.target.value) || 0)}
-                        placeholder="Ex: 10.00"
-                      />
-                    </div>
-                  )}
-
-                  {newFee.type === 'PER_KM' && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="perKmValue">Valor por KM (R$)</Label>
-                        <Input
-                          id="perKmValue"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={newFee.perKmValue ?? ''}
-                          onChange={(e) => handleInputChange("perKmValue", parseFloat(e.target.value) || 0)}
-                          placeholder="Ex: 1.50"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="minValue">Valor Mínimo de Entrega (R$)</Label>
-                        <Input
-                          id="minValue"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={newFee.minValue ?? ''}
-                          onChange={(e) => handleInputChange("minValue", parseFloat(e.target.value) || 0)}
-                          placeholder="Ex: 5.00"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="minRange">Raio de Alcance Mínimo (KM)</Label>
-                        <Input
-                          id="minRange"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={newFee.minRange ?? ''}
-                          onChange={(e) => handleInputChange("minRange", parseFloat(e.target.value) || 0)}
-                          placeholder="Ex: 3.00"
-                        />
-                      </div>
-                    </>
-                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="fixedValue">Valor Fixo (R$)</Label>
+                    <Input
+                      id="fixedValue"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={newFee.fixedValue ?? ''}
+                      onChange={(e) => handleInputChange("fixedValue", parseFloat(e.target.value) || 0)}
+                      placeholder="Ex: 10.00"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex justify-end">
@@ -374,15 +290,8 @@ export default function AdminFeesPage() {
                       >
                         <div>
                           <div className="font-medium">
-                            {fee.type === 'FIXED' 
-                              ? `Taxa Fixa: R$ ${fee.fixedValue?.toFixed(2)}` 
-                              : `Taxa por KM: R$ ${fee.perKmValue?.toFixed(2)}/km`}
+                            Taxa Fixa por entrega: {formatCurrency(fee.fixedValue || 0)}
                           </div>
-                          {fee.minValue !== null && fee.minRange !== null && (
-                            <div className="text-sm text-muted-foreground">
-                              Valor mínimo: R$ {fee.minValue.toFixed(2)} para até {fee.minRange} km
-                            </div>
-                          )}
                           <div className={`text-sm ${fee.isActive ? 'text-green-600' : 'text-red-600'}`}>
                             Status: {fee.isActive ? 'Ativa' : 'Inativa'}
                           </div>

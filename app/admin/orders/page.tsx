@@ -6,6 +6,7 @@ import { AdminLayout } from "@/components/admin/admin-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -33,6 +34,7 @@ import { formatCurrency, formatDate } from "@/lib/currency";
 import type { Order } from "@/lib/types";
 import { Eye, Download } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const getPaymentMethodLabel = (method: string) => {
   switch (method.toLowerCase()) {
@@ -58,6 +60,9 @@ export default function AdminOrdersPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const ordersPerPage = 10;
+  const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
+  const [estimatedDeliveryTime, setEstimatedDeliveryTime] = useState("");
+  const [orderForWhatsapp, setOrderForWhatsapp] = useState<Order | null>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -279,6 +284,78 @@ export default function AdminOrdersPage() {
   const shortenOrderId = (orderId: string) => {
     // Take first 8 characters and remove hyphens
     return orderId.replace(/-/g, "").substring(0, 8);
+  };
+
+  const sendWhatsAppMessage = (order: Order, estimatedTime: string) => {
+    // Format the order message
+    const orderItems = order.items.map(item => 
+      `• ${item.quantity}x ${item.productName} - ${formatCurrency(item.price)}`
+    ).join('\n');
+    
+    // Parse the estimated time and add 10 minutes for the range
+    let formattedEstimatedTime = estimatedTime;
+    let deliveryTimeText = '';
+    const timeMatch = estimatedTime.match(/(\d+)/);
+    if (timeMatch) {
+      const baseMinutes = parseInt(timeMatch[1]);
+      if (!isNaN(baseMinutes)) {
+        const minTime = baseMinutes;
+        const maxTime = baseMinutes + 10;
+        formattedEstimatedTime = `${minTime}-${maxTime} minutos`;
+        
+        // Calculate the estimated delivery time based on current time
+        const now = new Date();
+        const minDeliveryTime = new Date(now.getTime() + minTime * 60000); // Add minutes in milliseconds
+        const maxDeliveryTime = new Date(now.getTime() + maxTime * 60000); // Add minutes in milliseconds
+        
+        // Format times to HH:MM
+        const formatTime = (date: Date) => {
+          const hours = date.getHours().toString().padStart(2, '0');
+          const minutes = date.getMinutes().toString().padStart(2, '0');
+          return `${hours}:${minutes}`;
+        };
+        
+        const minDeliveryTimeString = formatTime(minDeliveryTime);
+        const maxDeliveryTimeString = formatTime(maxDeliveryTime);
+        
+        deliveryTimeText = `\n\nHorário estimado de entrega: ${minDeliveryTimeString} - ${maxDeliveryTimeString}`;
+      }
+    }
+    
+    const message = `Olá ${order.user?.name || 'cliente'}!
+    
+Seu pedido #${shortenOrderId(order.id)} foi confirmado!
+
+Itens:
+${orderItems}
+
+Subtotal: ${formatCurrency(order.subtotal)}
+Taxa de entrega: ${formatCurrency(order.deliveryFee)}
+Total: ${formatCurrency(order.totalAmount)}
+
+Tempo estimado de entrega: ${formattedEstimatedTime}${deliveryTimeText}
+
+Agradecemos pela sua compra!`;
+    
+    // Encode the message for WhatsApp URL
+    const encodedMessage = encodeURIComponent(message);
+    const phoneNumber = order.user?.phone?.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+    
+    if (phoneNumber) {
+      // Open WhatsApp with the message
+      window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+    } else {
+      toast.error('Número de telefone do cliente não disponível');
+    }
+  };
+
+  const handleSendWhatsAppMessage = () => {
+    if (!orderForWhatsapp || !estimatedDeliveryTime) return;
+    
+    sendWhatsAppMessage(orderForWhatsapp, estimatedDeliveryTime);
+    setWhatsappModalOpen(false);
+    setEstimatedDeliveryTime("");
+    setOrderForWhatsapp(null);
   };
 
   const generateOrderPDF = async (order: Order) => {
@@ -578,9 +655,9 @@ export default function AdminOrdersPage() {
                           <Button
                             className="bg-emerald-500 hover:bg-emerald-600"
                             size="sm"
-                            onClick={() =>
-                              handleStatusChange(order.id, "confirmed")
-                            }
+                            onClick={() => {
+                              handleStatusChange(order.id, "confirmed");
+                            }}
                           >
                             Confirmar
                           </Button>
@@ -588,12 +665,22 @@ export default function AdminOrdersPage() {
                         {order.status === "confirmed" && (
                           <Button
                             size="sm"
-                            variant="destructive"
-                            onClick={() =>
-                              handleStatusChange(order.id, "cancelled")
-                            }
+                            variant="default"
+                            className="bg-[#08be2e] hover:bg-[#2acf44]"
+                            onClick={() => {
+                              setOrderForWhatsapp(order);
+                              setWhatsappModalOpen(true);
+                            }}
                           >
-                            Cancelar
+                            
+                            Notificar cliente
+                            <Image
+                              src="/icon-wpp.svg"
+                              alt="WhatsApp"
+                              width={16}
+                              height={16}
+                              className="mr-2"
+                            />
                           </Button>
                         )}
                         {order.status === "pending" && (
@@ -765,9 +852,9 @@ export default function AdminOrdersPage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() =>
-                          handleStatusChange(selectedOrder.id, "confirmed")
-                        }
+                        onClick={() => {
+                          handleStatusChange(selectedOrder.id, "confirmed");
+                        }}
                       >
                         Confirmar
                       </Button>
@@ -796,6 +883,47 @@ export default function AdminOrdersPage() {
                 )}
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* WhatsApp Modal */}
+        <Dialog open={whatsappModalOpen} onOpenChange={setWhatsappModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enviar Pedido via WhatsApp</DialogTitle>
+              <DialogDescription>
+                Preencha o tempo estimado de entrega para enviar ao cliente
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Tempo estimado de entrega</label>
+                <Input
+                  type="text"
+                  placeholder="Ex: 30-45 minutos"
+                  value={estimatedDeliveryTime}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEstimatedDeliveryTime(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setWhatsappModalOpen(false);
+                    setEstimatedDeliveryTime("");
+                    setOrderForWhatsapp(null);
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSendWhatsAppMessage}
+                >
+                  Enviar Mensagem
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </AdminLayout>

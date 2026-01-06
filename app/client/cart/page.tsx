@@ -143,44 +143,9 @@ export default function CartPage() {
         setLoadingDeliveryFee(false);
         return;
       }
-      if (activeFee.type === "FIXED") {
-        setComputedDeliveryFee(Number(activeFee.fixedValue || 0));
-        setLoadingDeliveryFee(false);
-        return;
-      }
-      const addr =
-        user?.addresses?.find((a) => a.isDefault) || user?.addresses?.[0];
-      const body = addr
-        ? {
-            street: addr.street,
-            number: addr.number,
-            complement: addr.complement || undefined,
-            neighborhood: addr.neighborhood,
-            city: addr.city,
-            state: addr.state,
-            zipCode: addr.zipCode,
-          }
-        : {};
-      try {
-        const res = await fetch("/api/delivery-fee", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setComputedDeliveryFee(Number(data.fee || 0));
-          setLoadingDeliveryFee(false);
-        } else {
-          const minVal = Number(activeFee.minValue || 0);
-          setComputedDeliveryFee(minVal);
-          setLoadingDeliveryFee(false);
-        }
-      } catch {
-        const minVal = Number(activeFee.minValue || 0);
-        setComputedDeliveryFee(minVal);
-        setLoadingDeliveryFee(false);
-      }
+      // Since we only support fixed fees now, directly use the fixed value
+      setComputedDeliveryFee(Number(activeFee.fixedValue || 0));
+      setLoadingDeliveryFee(false);
     };
     if (isHydrated && activeFee) {
       calc();
@@ -259,10 +224,10 @@ export default function CartPage() {
               <span className="text-muted-foreground">Taxa de entrega</span>
               <span className="font-medium">
                 {loadingDeliveryFee
-                  ? "Calculando taxa"
-                  : deliveryFee > 0
-                  ? formatCurrency(deliveryFee)
-                  : "Grátis"}
+                  ? "Calculando taxa de entrega"
+                  : deliveryFee === 0
+                  ? "Grátis"
+                  : formatCurrency(deliveryFee)}
               </span>
             </div>
             <Separator />
