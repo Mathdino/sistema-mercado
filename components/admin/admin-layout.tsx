@@ -22,7 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Tag, // Import Tag icon for promotions
-  Badge, // Import Badge icon for cashback
+  PiggyBank, // Import Badge icon for cashback
 } from "lucide-react";
 
 interface AdminLayoutProps {
@@ -70,7 +70,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     { icon: Building, label: "Estabelecimento", path: "/admin/establishment" },
     { icon: Truck, label: "Taxas", path: "/admin/fees" },
     { icon: Tag, label: "Promoções", path: "/admin/promotions" },
-    { icon: Badge, label: "Cashback", path: "/admin/cashback" },
+    { icon: PiggyBank, label: "Cashback", path: "/admin/cashback" },
   ];
 
   return (

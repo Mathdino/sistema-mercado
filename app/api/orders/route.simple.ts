@@ -242,6 +242,31 @@ export async function POST(req: NextRequest) {
     
     console.log("All validations passed, creating order...");
     
+    // If couponId provided, validate coupon eligibility again server-side
+    if (couponId) {
+      const coupon = await prisma.coupon.findUnique({
+        where: { id: couponId }
+      });
+      if (!coupon) {
+        return NextResponse.json({ error: "invalid_coupon" }, { status: 400 });
+      }
+      if (!coupon.isActive) {
+        return NextResponse.json({ error: "coupon_inactive" }, { status: 400 });
+      }
+      if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) {
+        return NextResponse.json({ error: "coupon_expired" }, { status: 400 });
+      }
+      if (typeof coupon.maxUses === "number" && coupon.maxUses > 0 && coupon.usedCount >= coupon.maxUses) {
+        return NextResponse.json({ error: "coupon_max_uses_reached" }, { status: 400 });
+      }
+      const alreadyUsed = await prisma.userCoupon.findFirst({
+        where: { userId: decoded.sub, couponId }
+      });
+      if (alreadyUsed) {
+        return NextResponse.json({ error: "coupon_already_used_by_user" }, { status: 400 });
+      }
+    }
+    
     // Simple order creation using Prisma Client
     const order = await prisma.order.create({
       data: {
@@ -275,6 +300,23 @@ export async function POST(req: NextRequest) {
     }
     
     console.log("Order items created");
+    
+    // Record coupon usage and increment counter if applied
+    if (couponId) {
+      await prisma.$transaction([
+        prisma.userCoupon.create({
+          data: {
+            userId: decoded.sub,
+            couponId
+          }
+        }),
+        prisma.coupon.update({
+          where: { id: couponId },
+          data: { usedCount: { increment: 1 } }
+        })
+      ]);
+      console.log("Coupon usage recorded and count incremented");
+    }
     
     // Get complete order with relations
     const completeOrder = await prisma.order.findUnique({
