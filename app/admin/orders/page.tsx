@@ -133,6 +133,18 @@ export default function AdminOrdersPage() {
                     cpf: order.user.cpf,
                   }
                 : undefined,
+              coupon: order.coupon
+                ? {
+                    id: order.coupon.id,
+                    code: order.coupon.code,
+                    discount: order.coupon.discount,
+                    type: order.coupon.type,
+                  }
+                : undefined,
+              cashbackAmount:
+                typeof order.cashbackAmount === "number"
+                  ? order.cashbackAmount
+                  : undefined,
             };
           });
           console.log("Transformed Orders:", transformedOrders);
@@ -288,13 +300,18 @@ export default function AdminOrdersPage() {
 
   const sendWhatsAppMessage = (order: Order, estimatedTime: string) => {
     // Format the order message
-    const orderItems = order.items.map(item => 
-      `• ${item.quantity}x ${item.productName} - ${formatCurrency(item.price)}`
-    ).join('\n');
-    
+    const orderItems = order.items
+      .map(
+        (item) =>
+          `• ${item.quantity}x ${item.productName} - ${formatCurrency(
+            item.price
+          )}`
+      )
+      .join("\n");
+
     // Parse the estimated time and add 10 minutes for the range
     let formattedEstimatedTime = estimatedTime;
-    let deliveryTimeText = '';
+    let deliveryTimeText = "";
     const timeMatch = estimatedTime.match(/(\d+)/);
     if (timeMatch) {
       const baseMinutes = parseInt(timeMatch[1]);
@@ -302,27 +319,27 @@ export default function AdminOrdersPage() {
         const minTime = baseMinutes;
         const maxTime = baseMinutes + 10;
         formattedEstimatedTime = `${minTime}-${maxTime} minutos`;
-        
+
         // Calculate the estimated delivery time based on current time
         const now = new Date();
         const minDeliveryTime = new Date(now.getTime() + minTime * 60000); // Add minutes in milliseconds
         const maxDeliveryTime = new Date(now.getTime() + maxTime * 60000); // Add minutes in milliseconds
-        
+
         // Format times to HH:MM
         const formatTime = (date: Date) => {
-          const hours = date.getHours().toString().padStart(2, '0');
-          const minutes = date.getMinutes().toString().padStart(2, '0');
+          const hours = date.getHours().toString().padStart(2, "0");
+          const minutes = date.getMinutes().toString().padStart(2, "0");
           return `${hours}:${minutes}`;
         };
-        
+
         const minDeliveryTimeString = formatTime(minDeliveryTime);
         const maxDeliveryTimeString = formatTime(maxDeliveryTime);
-        
+
         deliveryTimeText = `\n\nHorário estimado de entrega: ${minDeliveryTimeString} - ${maxDeliveryTimeString}`;
       }
     }
-    
-    const message = `Olá ${order.user?.name || 'cliente'}!
+
+    const message = `Olá ${order.user?.name || "cliente"}!
     
 Seu pedido #${shortenOrderId(order.id)} foi confirmado!
 
@@ -336,22 +353,25 @@ Total: ${formatCurrency(order.totalAmount)}
 Tempo estimado de entrega: ${formattedEstimatedTime}${deliveryTimeText}
 
 Agradecemos pela sua compra!`;
-    
+
     // Encode the message for WhatsApp URL
     const encodedMessage = encodeURIComponent(message);
-    const phoneNumber = order.user?.phone?.replace(/[^0-9]/g, ''); // Remove non-numeric characters
-    
+    const phoneNumber = order.user?.phone?.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+
     if (phoneNumber) {
       // Open WhatsApp with the message
-      window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+      window.open(
+        `https://wa.me/${phoneNumber}?text=${encodedMessage}`,
+        "_blank"
+      );
     } else {
-      toast.error('Número de telefone do cliente não disponível');
+      toast.error("Número de telefone do cliente não disponível");
     }
   };
 
   const handleSendWhatsAppMessage = () => {
     if (!orderForWhatsapp || !estimatedDeliveryTime) return;
-    
+
     sendWhatsAppMessage(orderForWhatsapp, estimatedDeliveryTime);
     setWhatsappModalOpen(false);
     setEstimatedDeliveryTime("");
@@ -366,15 +386,37 @@ Agradecemos pela sua compra!`;
       // Create jsPDF instance
       const doc = new jsPDF();
 
+      let establishmentName = "";
+      let establishmentAddressLine = "";
+      let establishmentPhone = "";
+      try {
+        const resp = await fetch("/api/admin/establishment", {
+          credentials: "include",
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          const e = data?.establishment;
+          if (e) {
+            establishmentName = e.name || "";
+            establishmentAddressLine = `${e.street}, ${e.number} - ${e.neighborhood}, ${e.city} - ${e.state}, ${e.cep}`;
+            establishmentPhone = e.phone || "";
+          }
+        }
+      } catch {}
+
       // Header with logo (using text as placeholder for logo)
       doc.setFontSize(24);
       doc.setFont("helvetica", "bold");
-      doc.text("MERCADO SÃO JORGE", 105, 20, { align: "center" } as any);
+      doc.text(establishmentName || "Estabelecimento", 105, 20, {
+        align: "center",
+      } as any);
 
       doc.setFontSize(12);
       doc.setFont("helvetica", "normal");
-      doc.text("Av. dos Automóveis, 1696", 105, 30, { align: "center" } as any);
-      doc.text("(11) 3456-7890", 105, 37, { align: "center" } as any);
+      doc.text(establishmentAddressLine || "", 105, 30, {
+        align: "center",
+      } as any);
+      doc.text(establishmentPhone || "", 105, 37, { align: "center" } as any);
 
       // Horizontal line separator
       doc.line(20, 45, 190, 45);
@@ -456,6 +498,23 @@ Agradecemos pela sua compra!`;
       doc.text(`Taxa de entrega:`, 130, yPosition);
       doc.text(formatCurrency(order.deliveryFee), 170, yPosition);
       yPosition += 10;
+
+      if (order.coupon) {
+        const baseTotal = order.subtotal + order.deliveryFee;
+        const discountValue =
+          order.coupon.type === "FIXED"
+            ? order.coupon.discount
+            : (baseTotal * order.coupon.discount) / 100;
+        doc.text(`Desconto (cupom):`, 130, yPosition);
+        doc.text(`-${formatCurrency(discountValue)}`, 170, yPosition);
+        yPosition += 10;
+      }
+
+      if (order.cashbackAmount && order.cashbackAmount > 0) {
+        doc.text(`Cashback:`, 130, yPosition);
+        doc.text(`-${formatCurrency(order.cashbackAmount)}`, 170, yPosition);
+        yPosition += 10;
+      }
 
       doc.setFontSize(14);
       doc.text(`TOTAL:`, 130, yPosition);
@@ -672,7 +731,6 @@ Agradecemos pela sua compra!`;
                               setWhatsappModalOpen(true);
                             }}
                           >
-                            
                             Notificar cliente
                             <Image
                               src="/icon-wpp.svg"
@@ -897,12 +955,16 @@ Agradecemos pela sua compra!`;
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Tempo estimado de entrega</label>
+                <label className="text-sm font-medium">
+                  Tempo estimado de entrega
+                </label>
                 <Input
                   type="text"
                   placeholder="Ex: 30-45 minutos"
                   value={estimatedDeliveryTime}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEstimatedDeliveryTime(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setEstimatedDeliveryTime(e.target.value)
+                  }
                   className="mt-1"
                 />
               </div>
@@ -917,9 +979,7 @@ Agradecemos pela sua compra!`;
                 >
                   Cancelar
                 </Button>
-                <Button
-                  onClick={handleSendWhatsAppMessage}
-                >
+                <Button onClick={handleSendWhatsAppMessage}>
                   Enviar Mensagem
                 </Button>
               </div>

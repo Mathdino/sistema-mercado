@@ -112,11 +112,60 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    // Attach coupon information for each order
+    const ordersWithCouponInfo = await Promise.all(
+      normalizedOrders.map(async (order: any) => {
+        let coupon = null;
+        try {
+          const userCoupons = await prisma.userCoupon.findMany({
+            where: {
+              userId: order.userId,
+              usedAt: {
+                gte: new Date(order.createdAt.getTime() - 60000),
+                lte: new Date(order.createdAt.getTime() + 60000),
+              },
+            },
+            include: {
+              coupon: true,
+            },
+          });
+
+          if (userCoupons.length > 0) {
+            const relevantUserCoupon = userCoupons.reduce(
+              (closest: any, current: any) => {
+                const currentDiff = Math.abs(
+                  new Date(current.usedAt).getTime() -
+                    new Date(order.createdAt).getTime()
+                );
+                const closestDiff = Math.abs(
+                  new Date(closest.usedAt).getTime() -
+                    new Date(order.createdAt).getTime()
+                );
+                return currentDiff < closestDiff ? current : closest;
+              }
+            );
+
+            coupon = {
+              id: relevantUserCoupon.coupon.id,
+              code: relevantUserCoupon.coupon.code,
+              discount: relevantUserCoupon.coupon.discount,
+              type: relevantUserCoupon.coupon.type,
+            };
+          }
+        } catch (e) {}
+
+        return {
+          ...order,
+          coupon,
+        };
+      })
+    );
+
     // Get total count for pagination
     const totalOrders = await prisma.order.count();
 
     return NextResponse.json({
-      orders: normalizedOrders,
+      orders: ordersWithCouponInfo,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalOrders / limit),
