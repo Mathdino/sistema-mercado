@@ -213,37 +213,6 @@ export default function CartPage() {
             <CartItemCard key={`${item.productId}-${index}`} item={item} />
           ))}
         </div>
-
-        <Card>
-          <CardContent className="space-y-3 p-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">{formatCurrency(subtotal)}</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Taxa de entrega</span>
-              <span className="font-medium">
-                {loadingDeliveryFee
-                  ? "Calculando taxa de entrega"
-                  : deliveryFee === 0
-                  ? "Grátis"
-                  : formatCurrency(deliveryFee)}
-              </span>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <span className="font-semibold">Total</span>
-              <span className="text-xl font-bold text-primary">
-                {formatCurrency(total)}
-              </span>
-            </div>
-            {!canCheckout && (
-              <p className="text-xs text-destructive">
-                Pedido mínimo de {formatCurrency(mockMarket.minOrderValue)}
-              </p>
-            )}
-          </CardContent>
-        </Card>
       </main>
 
       <div className="left-0 right-0 border-t bg-background p-4">
@@ -253,7 +222,7 @@ export default function CartPage() {
           disabled={!canCheckout}
           onClick={() => router.push("/client/checkout")}
         >
-          Finalizar pedido · {formatCurrency(total)}
+          Finalizar pedido
         </Button>
       </div>
       <BottomNav />

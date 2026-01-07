@@ -5,18 +5,35 @@ import { OrderStatus } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
-    // Get token from Authorization header
+    // Get token from Authorization header or cookies
+    let token: string | null = null;
     const authHeader = req.headers.get("authorization");
-    
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7);
+    } else {
+      const cookieHeader = req.headers.get("cookie");
+      if (cookieHeader) {
+        const cookies = cookieHeader.split(";").reduce((acc, cookie) => {
+          const [name, value] = cookie.trim().split("=");
+          if (name && value) {
+            acc[name] = value;
+          }
+          return acc;
+        }, {} as Record<string, string>);
+
+        token = cookies.token || null;
+      }
+    }
+
+    if (!token) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
-    const token = authHeader.substring(7);
     let decoded;
 
     try {
-      decoded = await verifyJwt(token);
+      decoded = await verifyJwt(token as string);
     } catch {
       return NextResponse.json({ error: "invalid_token" }, { status: 401 });
     }
@@ -30,42 +47,46 @@ export async function GET(req: NextRequest) {
       LIMIT 1
     `;
 
-    const globalCashback = globalCashbackResult.length > 0 ? globalCashbackResult[0] : null;
+    const globalCashback =
+      globalCashbackResult.length > 0 ? globalCashbackResult[0] : null;
 
     if (!globalCashback) {
-      // Return null if global cashback is not active
-      return NextResponse.json(null);
-    }
-
-    // Get the user's last completed order to calculate cashback
-    const lastOrder = await prisma.order.findFirst({
-      where: {
-        userId: decoded.sub,
-        status: OrderStatus.CONFIRMED // Only confirmed orders
-      },
-      orderBy: { createdAt: 'desc' }
-    });
-
-    if (!lastOrder) {
-      // Return the global cashback percentage even if no previous order exists
       return NextResponse.json({
-        percentage: globalCashback.percentage,
-        isActive: globalCashback.isActive
+        isActive: false,
+        eligible: false,
+        percentage: 0,
+        amount: 0,
       });
     }
 
-    // Calculate the cashback amount based on the last order
-    const cashbackAmount = (lastOrder.totalAmount * globalCashback.percentage) / 100;
+    // Check if the user has any confirmed order
+    const lastOrder = await prisma.order.findFirst({
+      where: {
+        userId: decoded.sub,
+        status: OrderStatus.CONFIRMED,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const eligible = !!lastOrder;
+    const percentage = Number(globalCashback.percentage || 0);
+    const amount = eligible
+      ? ((Number(lastOrder!.totalAmount) || 0) * percentage) / 100
+      : 0;
 
     return NextResponse.json({
-      percentage: globalCashback.percentage,
-      amount: cashbackAmount,
-      isActive: globalCashback.isActive,
-      lastOrderTotal: lastOrder.totalAmount,
-      lastOrderDate: lastOrder.createdAt
+      isActive: !!globalCashback.isActive,
+      eligible,
+      percentage,
+      amount,
+      lastOrderTotal: eligible ? Number(lastOrder!.totalAmount) : 0,
+      lastOrderDate: eligible ? lastOrder!.createdAt : null,
     });
   } catch (error) {
     console.error("Error fetching cashback:", error);
-    return NextResponse.json({ error: "internal_server_error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "internal_server_error" },
+      { status: 500 }
+    );
   }
 }

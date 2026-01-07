@@ -53,7 +53,7 @@ export default function CheckoutPage() {
   const { addOrder } = useOrderStore();
   const [computedDeliveryFee, setComputedDeliveryFee] = useState(0);
   const [loadingDeliveryFee, setLoadingDeliveryFee] = useState(false);
-  
+
   // Added states for coupon and cashback
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
@@ -159,13 +159,19 @@ export default function CheckoutPage() {
       if (isHydrated && isAuthenticated && user) {
         setLoadingCashback(true);
         try {
-          const response = await fetch(`/api/client/cashback`);
+          const token =
+            document.cookie
+              .split("; ")
+              .find((row) => row.startsWith("token="))
+              ?.split("=")[1] || "";
+
+          const response = await fetch(`/api/client/cashback`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          });
           if (response.ok) {
             const data = await response.json();
-            if (data && data.isActive && data.percentage) {
-              // Calculate cashback amount based on subtotal
-              const cashbackValue = (getTotal() * data.percentage) / 100;
-              setCashbackAmount(cashbackValue);
+            if (data && data.isActive && data.eligible && data.amount) {
+              setCashbackAmount(Number(data.amount) || 0);
             } else {
               setCashbackAmount(0);
             }
@@ -180,16 +186,16 @@ export default function CheckoutPage() {
         }
       }
     };
-    
+
     fetchCashback();
   }, [isHydrated, isAuthenticated, user, getTotal]);
 
   const subtotal = getTotal();
   const deliveryFee = computedDeliveryFee;
-  
+
   // Calculate total with coupon discount and cashback
   let total = subtotal + deliveryFee;
-  
+
   // Apply coupon discount if available
   if (appliedCoupon) {
     if (appliedCoupon.type === "FIXED") {
@@ -199,7 +205,7 @@ export default function CheckoutPage() {
       total = total - discountAmount;
     }
   }
-  
+
   // Apply cashback if available
   total = Math.max(0, total - cashbackAmount); // Prevent negative total
 
@@ -262,7 +268,12 @@ export default function CheckoutPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] || ''}`
+          Authorization: `Bearer ${
+            document.cookie
+              .split("; ")
+              .find((row) => row.startsWith("token="))
+              ?.split("=")[1] || ""
+          }`,
         },
         body: JSON.stringify(orderData),
       });
@@ -493,7 +504,9 @@ export default function CheckoutPage() {
               <Textarea
                 placeholder="Alguma observação sobre o pedido?"
                 value={notes}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setNotes(e.target.value)
+                }
               />
             </CardContent>
           </Card>
@@ -511,7 +524,9 @@ export default function CheckoutPage() {
                 <Input
                   placeholder="Código do cupom"
                   value={couponCode}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCouponCode(e.target.value.toUpperCase())}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setCouponCode(e.target.value.toUpperCase())
+                  }
                   disabled={!!appliedCoupon} // Disable if coupon is already applied
                 />
                 {appliedCoupon ? (
@@ -523,10 +538,7 @@ export default function CheckoutPage() {
                     Remover
                   </Button>
                 ) : (
-                  <Button
-                    type="button"
-                    onClick={applyCoupon}
-                  >
+                  <Button type="button" onClick={applyCoupon}>
                     Aplicar
                   </Button>
                 )}
@@ -534,7 +546,9 @@ export default function CheckoutPage() {
               {appliedCoupon && (
                 <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
                   <p className="text-sm text-green-800">
-                    Cupom <span className="font-semibold">{appliedCoupon.code}</span> aplicado:{" "}
+                    Cupom{" "}
+                    <span className="font-semibold">{appliedCoupon.code}</span>{" "}
+                    aplicado:{" "}
                     {appliedCoupon.type === "PERCENTAGE"
                       ? `${appliedCoupon.discount}% de desconto`
                       : `R$ ${appliedCoupon.discount.toFixed(2)} de desconto`}
@@ -560,19 +574,7 @@ export default function CheckoutPage() {
                     : formatCurrency(deliveryFee)}
                 </span>
               </div>
-              
-              {/* Display coupon discount if applied */}
-              {appliedCoupon && (
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Desconto (cupom)</span>
-                  <span className="font-medium text-green-600">
-                    -{appliedCoupon.type === "PERCENTAGE"
-                      ? `${appliedCoupon.discount}%`
-                      : formatCurrency(appliedCoupon.discount)}
-                  </span>
-                </div>
-              )}
-              
+
               {/* Display cashback if available */}
               {cashbackAmount > 0 && (
                 <div className="flex items-center justify-between text-sm">
@@ -582,7 +584,22 @@ export default function CheckoutPage() {
                   </span>
                 </div>
               )}
-              
+
+              {/* Display coupon discount if applied */}
+              {appliedCoupon && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    Desconto (cupom)
+                  </span>
+                  <span className="font-medium text-green-600">
+                    -
+                    {appliedCoupon.type === "PERCENTAGE"
+                      ? `${appliedCoupon.discount}%`
+                      : formatCurrency(appliedCoupon.discount)}
+                  </span>
+                </div>
+              )}
+
               <Separator />
               <div className="flex items-center justify-between">
                 <span className="font-semibold">Total</span>
