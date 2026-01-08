@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useAuthStore } from "@/lib/store"
 import { formatCurrency, formatDate } from "@/lib/currency"
+import LoadingSpinner from "@/components/ui/loading-spinner";
 import { 
   Package, 
   Clock, 
@@ -159,7 +160,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
       <div className="min-h-screen bg-background pb-24">
         <ClientHeader />
         <main className="flex flex-col items-center justify-center px-4 py-16">
-          <p>Carregando pedido...</p>
+          <LoadingSpinner />
         </main>
         <BottomNav />
         <LoginModal 

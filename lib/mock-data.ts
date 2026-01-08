@@ -2,7 +2,7 @@ import type { Category, Product, Market, User, Order } from "./types"
 
 export const mockMarket: Market = {
   id: "1",
-  name: "Mercado São Jorge",
+  name: "Market Delivery",
   address: "Av. dos Automóveis, 1696",
   phone: "(11) 3456-7890",
   openingHours: "Seg - Dom: 7h às 22h",
@@ -10,7 +10,7 @@ export const mockMarket: Market = {
   minOrderValue: 20,
   estimatedDeliveryTime: "30-45 min",
   rating: 4.8,
-  logo: "/generic-supermarket-logo.png",
+  logo: "/logo-sao-jorge.png",
   banner: "/images/pagamentos.png",
 }
 

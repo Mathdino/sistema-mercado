@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { formatCurrency } from "@/lib/currency";
 import { Package, DollarSign, ShoppingBag, TrendingUp } from "lucide-react";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface DashboardStats {
   totalOrders: number;
@@ -84,7 +85,7 @@ export default function AdminPage() {
       <AuthGuard requireRole="admin">
         <AdminLayout>
           <div className="flex items-center justify-center h-64">
-            <p>Carregando dados...</p>
+            <LoadingSpinner />
           </div>
         </AdminLayout>
       </AuthGuard>

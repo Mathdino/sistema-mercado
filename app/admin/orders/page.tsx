@@ -35,6 +35,7 @@ import type { Order } from "@/lib/types";
 import { Eye, Download } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 const getPaymentMethodLabel = (method: string) => {
   switch (method.toLowerCase()) {
@@ -738,7 +739,7 @@ Agradecemos pela sua compra!`;
       <AuthGuard requireRole="admin">
         <AdminLayout>
           <div className="flex items-center justify-center h-64">
-            <p>Carregando pedidos...</p>
+            <LoadingSpinner />
           </div>
         </AdminLayout>
       </AuthGuard>

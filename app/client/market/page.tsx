@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/client/product-card"
 import { CategoryTabs } from "@/components/client/category-tabs"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface Category {
   id: string
@@ -144,7 +145,7 @@ export default function MarketPage() {
           
           {loading ? (
             <div className="flex items-center justify-center h-64">
-              <p>Carregando produtos...</p>
+              <LoadingSpinner />
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 gap-4">

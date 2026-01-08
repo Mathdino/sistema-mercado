@@ -102,7 +102,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <div>
                 <h2 className="text-xl font-bold">Admin</h2>
                 <p className="text-xs text-muted-foreground">
-                  Mercado São Jorge
+                  Market Delivery
                 </p>
               </div>
             )}

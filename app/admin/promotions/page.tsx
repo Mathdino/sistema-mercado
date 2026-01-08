@@ -46,6 +46,7 @@ import Image from "next/image";
 import { PromotionBannerCreator } from "@/components/admin/promotion-banner-creator";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface Category {
   id: string;
@@ -285,7 +286,7 @@ export default function AdminPromotionsPage() {
       <AuthGuard requireRole="admin">
         <AdminLayout>
           <div className="flex items-center justify-center h-64">
-            <p>Carregando...</p>
+            <LoadingSpinner />
           </div>
         </AdminLayout>
       </AuthGuard>

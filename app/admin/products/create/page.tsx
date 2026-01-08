@@ -17,6 +17,7 @@ import {
 import { Upload, ChevronRight, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface Category {
   id: string;
@@ -160,7 +161,7 @@ export default function CreateProductPage() {
       <AuthGuard requireRole="admin">
         <AdminLayout>
           <div className="flex items-center justify-center h-64">
-            <p>Carregando categorias...</p>
+            <LoadingSpinner />
           </div>
         </AdminLayout>
       </AuthGuard>

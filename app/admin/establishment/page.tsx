@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface Establishment {
   id: string;
@@ -261,7 +262,7 @@ export default function AdminEstablishmentPage() {
       <AuthGuard requireRole="admin">
         <AdminLayout>
           <div className="flex items-center justify-center h-64">
-            <p>Carregando...</p>
+            <LoadingSpinner />
           </div>
         </AdminLayout>
       </AuthGuard>

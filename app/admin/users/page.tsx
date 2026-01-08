@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/currency";
 import { Search, Mail, Phone, MapPin } from "lucide-react";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,7 +66,7 @@ export default function AdminUsersPage() {
           <div className="space-y-4">
             {loading && (
               <div className="py-12 text-center text-muted-foreground">
-                Carregando usuários...
+                <LoadingSpinner />
               </div>
             )}
             {filteredUsers.map((user) => (

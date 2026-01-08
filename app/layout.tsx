@@ -9,25 +9,25 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Mercado São Jorge - Delivery de Supermercado",
-  description: "Seu mercado favorito agora com entrega rápida e prática",
+  title: "Market Delivery - Supermarket Delivery",
+  description: "Your favorite market now with fast and practical delivery",
   generator: "v0.app",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
+        url: "/logo-sao-jorge.png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/icon-dark-32x32.png",
+        url: "/logo-sao-jorge.png",
         media: "(prefers-color-scheme: dark)",
       },
       {
-        url: "/icon.svg",
-        type: "image/svg+xml",
+        url: "/logo-sao-jorge.png",
+        type: "image/png",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: "/logo-sao-jorge.png",
   },
 };
 

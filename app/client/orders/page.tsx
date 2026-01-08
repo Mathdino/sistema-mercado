@@ -8,6 +8,7 @@ import { LoginModal } from "@/components/client/login-modal"
 import { OrderCard } from "@/components/client/order-card"
 import { useAuthStore } from "@/lib/store"
 import { Clock } from "lucide-react"
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 export default function OrdersPage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -85,7 +86,7 @@ export default function OrdersPage() {
       <div className="min-h-screen bg-background pb-24">
         <ClientHeader />
         <main className="flex flex-col items-center justify-center px-4 py-16">
-          <p>Carregando pedidos...</p>
+          <LoadingSpinner />
         </main>
         <BottomNav />
         <LoginModal 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { ClientHeader } from "@/components/client/client-header";
 import { BottomNav } from "@/components/client/bottom-nav";
 import { LoginModal } from "@/components/client/login-modal";
@@ -9,6 +10,7 @@ import { PromoBanner } from "@/components/client/promo-banner";
 import { PromotionCarousel } from "@/components/client/promotion-carousel";
 import { FeaturedProducts } from "@/components/client/featured-products";
 import { useAuthStore } from "@/lib/store";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface Category {
   id: string;
@@ -95,7 +97,7 @@ export default function ClientPage() {
       <div className="min-h-screen bg-background pb-24">
         <ClientHeader />
         <main className="flex items-center justify-center h-screen">
-          <p>Carregando...</p>
+          <LoadingSpinner />
         </main>
         <BottomNav />
       </div>
@@ -109,13 +111,18 @@ export default function ClientPage() {
         {/* Market Header */}
         <div className="text-center py-6">
           <div className="flex items-center justify-center mb-2">
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl mr-3">
-              {market?.name?.charAt(0) || 'M'}
+            <div className="relative w-28 h-28 mr-3 border-3 border-red-600 rounded-full">
+              <Image
+                src="/logo-sao-jorge.png"
+                alt={market?.name || "Market Delivery"}
+                fill
+                className="object-contain rounded-lg"
+              />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">{market?.name || "Mercado Delivery"}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{market?.name || "Market Delivery"}</h1>
           </div>
           <p className="text-gray-600 text-sm">
-            {market?.address || "Seu supermercado online de confiança"}
+            {market?.address || "Your trusted online supermarket"}
           </p>
         </div>
         

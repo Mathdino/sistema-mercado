@@ -30,6 +30,7 @@ import {
   ChevronRight,
   Loader2,
 } from "lucide-react";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface Category {
   id: string;
@@ -184,7 +185,7 @@ export default function AdminCategoriesPage() {
       <AuthGuard requireRole="admin">
         <AdminLayout>
           <div className="flex items-center justify-center h-64">
-            <p>Carregando categorias...</p>
+            <LoadingSpinner />
           </div>
         </AdminLayout>
       </AuthGuard>

@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/client/product-card";
 import { Input } from "@/components/ui/input";
 import { Search, Star, Tag, Sparkles } from "lucide-react";
 import { PromotionBanner } from "@/components/promotion-banner";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface Category {
   id: string;
@@ -117,7 +118,7 @@ export default function PromotionsPage() {
 
           {loading ? (
             <div className="flex items-center justify-center h-32">
-              <p>Carregando...</p>
+              <LoadingSpinner />
             </div>
           ) : featuredProducts.length > 0 ? (
             <div className="grid grid-cols-2 gap-4">
@@ -143,7 +144,7 @@ export default function PromotionsPage() {
 
           {loading ? (
             <div className="flex items-center justify-center h-32">
-              <p>Carregando...</p>
+              <LoadingSpinner />
             </div>
           ) : promotionProducts.length > 0 ? (
             <div className="grid grid-cols-2 gap-4">

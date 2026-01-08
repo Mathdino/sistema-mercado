@@ -54,6 +54,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { AuthGuard } from "@/components/auth-guard";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface GlobalCashback {
   id: string;
@@ -466,7 +467,7 @@ export default function AdminCashbackPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Carregando...</p>
+        <LoadingSpinner />
       </div>
     );
   }
@@ -492,7 +493,7 @@ export default function AdminCashbackPage() {
                 <div>
                   <h2 className="text-xl font-bold">Admin</h2>
                   <p className="text-xs text-muted-foreground">
-                    Mercado São Jorge
+                    Market Delivery
                   </p>
                 </div>
               )}

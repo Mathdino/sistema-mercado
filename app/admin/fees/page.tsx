@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/currency";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface DeliveryFee {
   id: string;
@@ -209,7 +210,7 @@ export default function AdminFeesPage() {
       <AuthGuard requireRole="admin">
         <AdminLayout>
           <div className="flex items-center justify-center h-64">
-            <p>Carregando...</p>
+            <LoadingSpinner />
           </div>
         </AdminLayout>
       </AuthGuard>
