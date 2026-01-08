@@ -26,6 +26,14 @@ export function ClientHeader({ showBack = false }: ClientHeaderProps) {
     return `${nameParts[0]} ${nameParts[nameParts.length - 1]}`;
   };
 
+  // Function to truncate address if too long
+  const truncateAddress = (street: string, number: string, city: string, maxLength: number = 30) => {
+    const fullAddress = `${street}, ${number} - ${city}`;
+    return fullAddress.length > maxLength 
+      ? `${fullAddress.substring(0, maxLength)}...`
+      : fullAddress;
+  };
+
   return (
     <header className="sticky top-0 z-30 border-b bg-background">
       <div className="flex items-center justify-between px-4 py-3">
@@ -45,8 +53,7 @@ export function ClientHeader({ showBack = false }: ClientHeaderProps) {
                   <div className="flex items-center gap-1">
                     <MapPin className="h-3 w-3 text-primary" />
                     <span className="text-sm font-medium">
-                      {defaultAddress.street}, {defaultAddress.number} -{" "}
-                      {defaultAddress.city}
+                      {truncateAddress(defaultAddress.street, defaultAddress.number, defaultAddress.city)}
                     </span>
                   </div>
                 )}

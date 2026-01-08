@@ -11,6 +11,7 @@ import { PromotionCarousel } from "@/components/client/promotion-carousel";
 import { FeaturedProducts } from "@/components/client/featured-products";
 import { useAuthStore } from "@/lib/store";
 import LoadingSpinner from "@/components/ui/loading-spinner";
+import { useCashbackNotification } from "@/lib/cashback-notification";
 
 interface Category {
   id: string;
@@ -56,6 +57,9 @@ export default function ClientPage() {
   const [promotionBanners, setPromotionBanners] = useState<any[]>([]);
   const [market, setMarket] = useState<Market | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Hook para verificar cashback e mostrar notificação
+  useCashbackNotification();
 
   useEffect(() => {
     const fetchHomepageData = async () => {
