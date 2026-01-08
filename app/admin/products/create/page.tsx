@@ -44,6 +44,7 @@ export default function CreateProductPage() {
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Fetch categories
   useEffect(() => {
@@ -85,10 +86,32 @@ export default function CreateProductPage() {
 
   const handleAddProduct = async () => {
     try {
+      const validationErrors: Record<string, string> = {};
+      if (!newProduct.name.trim()) validationErrors.name = "Campo obrigatório";
+      if (!imagePreview) validationErrors.image = "Campo obrigatório";
+      const parsedPrice = parseFloat(newProduct.price);
+      if (!newProduct.price || isNaN(parsedPrice) || parsedPrice <= 0) {
+        validationErrors.price = "Informe um preço válido";
+      }
+      const parsedStock = parseInt(newProduct.stock);
+      if (
+        !newProduct.stock ||
+        isNaN(parsedStock) ||
+        parsedStock < 0 ||
+        !Number.isInteger(parsedStock)
+      ) {
+        validationErrors.stock = "Informe um estoque válido";
+      }
+      if (!newProduct.unit.trim()) validationErrors.unit = "Campo obrigatório";
+      if (!newProduct.categoryId)
+        validationErrors.categoryId = "Selecione uma categoria";
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+      setErrors({});
       setIsCreatingProduct(true);
-      // In a real implementation, you would upload the image file to a storage service
-      // and get a URL back. For now, we'll just use a placeholder.
-      const imageUrl = imagePreview || "/placeholder.svg";
+      const imageUrl = imagePreview || "";
 
       const productData = {
         ...newProduct,
@@ -186,7 +209,7 @@ export default function CreateProductPage() {
           <div className="max-w-2xl">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Nome do Produto</Label>
+                <Label htmlFor="name">Nome do Produto *</Label>
                 <Input
                   id="name"
                   value={newProduct.name}
@@ -194,14 +217,24 @@ export default function CreateProductPage() {
                     setNewProduct({ ...newProduct, name: e.target.value })
                   }
                   placeholder="Ex: Pão Francês"
+                  className={
+                    errors.name
+                      ? "border-red-500 focus-visible:ring-red-500"
+                      : ""
+                  }
                 />
+                {errors.name && (
+                  <p className="text-destructive text-sm">{errors.name}</p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label>Foto do Produto</Label>
+                <Label>Foto do Produto *</Label>
                 <div className="flex items-center gap-4">
                   <div
-                    className="relative h-24 w-24 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center"
+                    className={`relative h-24 w-24 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed bg-gray-50 flex items-center justify-center ${
+                      errors.image ? "border-red-500" : "border-gray-300"
+                    }`}
                     onClick={triggerFileInput}
                   >
                     {imagePreview ? (
@@ -230,6 +263,9 @@ export default function CreateProductPage() {
                     onChange={handleImageUpload}
                   />
                 </div>
+                {errors.image && (
+                  <p className="text-destructive text-sm">{errors.image}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -248,7 +284,7 @@ export default function CreateProductPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Preço (R$)</Label>
+                  <Label htmlFor="price">Preço (R$) *</Label>
                   <Input
                     id="price"
                     type="number"
@@ -258,10 +294,18 @@ export default function CreateProductPage() {
                       setNewProduct({ ...newProduct, price: e.target.value })
                     }
                     placeholder="0.00"
+                    className={
+                      errors.price
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }
                   />
+                  {errors.price && (
+                    <p className="text-destructive text-sm">{errors.price}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="stock">Estoque</Label>
+                  <Label htmlFor="stock">Estoque *</Label>
                   <Input
                     id="stock"
                     type="number"
@@ -270,12 +314,20 @@ export default function CreateProductPage() {
                       setNewProduct({ ...newProduct, stock: e.target.value })
                     }
                     placeholder="0"
+                    className={
+                      errors.stock
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }
                   />
+                  {errors.stock && (
+                    <p className="text-destructive text-sm">{errors.stock}</p>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="unit">Unidade</Label>
+                  <Label htmlFor="unit">Unidade *</Label>
                   <Input
                     id="unit"
                     value={newProduct.unit}
@@ -283,10 +335,18 @@ export default function CreateProductPage() {
                       setNewProduct({ ...newProduct, unit: e.target.value })
                     }
                     placeholder="Ex: kg, un, L"
+                    className={
+                      errors.unit
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }
                   />
+                  {errors.unit && (
+                    <p className="text-destructive text-sm">{errors.unit}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="categoryId">Categoria</Label>
+                  <Label htmlFor="categoryId">Categoria *</Label>
                   <Select
                     value={newProduct.categoryId}
                     onValueChange={(value) =>
@@ -304,6 +364,11 @@ export default function CreateProductPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.categoryId && (
+                    <p className="text-destructive text-sm">
+                      {errors.categoryId}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex items-center space-x-2">
