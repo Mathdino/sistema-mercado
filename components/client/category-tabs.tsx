@@ -33,7 +33,7 @@ export function CategoryTabs({ categories, selectedCategory, onSelectCategory }:
           </Button>
         ))}
       </div>
-      <ScrollBar orientation="horizontal" />
+      <ScrollBar orientation="horizontal" className="opacity-0" />
     </ScrollArea>
   )
 }

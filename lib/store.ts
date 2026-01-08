@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import { create } from "zustand"
-import { persist } from "zustand/middleware"
-import type { CartItem, User, Address, Order } from "./types"
-import { mockUser, mockProducts } from "./mock-data"
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { CartItem, User, Address, Order } from "./types";
+import { mockUser, mockProducts } from "./mock-data";
 
 interface CartStore {
-  items: CartItem[]
-  addItem: (productId: string, quantity?: number) => Promise<void>
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
-  clearCart: () => void
-  getTotal: () => number
-  getItemCount: () => number
+  items: CartItem[];
+  addItem: (productId: string, quantity?: number) => Promise<void>;
+  removeItem: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  getTotal: () => number;
+  getItemCount: () => number;
   // New method to clean up invalid items
-  cleanupInvalidItems: () => void
+  cleanupInvalidItems: () => void;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -27,46 +27,67 @@ export const useCartStore = create<CartStore>()(
         console.log("Product ID type:", typeof productId);
         console.log("Product ID value:", `"${productId}"`);
         console.log("Product ID truthy:", !!productId);
-        console.log("Product ID strict equals 'undefined':", productId === "undefined");
+        console.log(
+          "Product ID strict equals 'undefined':",
+          productId === "undefined"
+        );
         console.log("Product ID strict equals 'null':", productId === "null");
         console.log("========================");
-        
+
         // Comprehensive validation of product ID
-        if (!productId || 
-            productId === "undefined" || 
-            productId === "null" || 
-            productId === "" || 
-            typeof productId !== "string") {
-          console.error("Invalid product ID provided:", productId, typeof productId);
-          
+        if (
+          !productId ||
+          productId === "undefined" ||
+          productId === "null" ||
+          productId === "" ||
+          typeof productId !== "string"
+        ) {
+          console.error(
+            "Invalid product ID provided:",
+            productId,
+            typeof productId
+          );
+
           // Try to find any valid mock product as fallback
-          const defaultProduct = mockProducts.find(p => p.id && p.id !== "undefined" && p.id !== "null");
+          const defaultProduct = mockProducts.find(
+            (p) => p.id && p.id !== "undefined" && p.id !== "null"
+          );
           if (defaultProduct) {
             console.log("Using default mock product:", defaultProduct);
             set((state) => ({
-              items: [...state.items, { 
-                productId: defaultProduct.id, 
-                quantity, 
-                price: defaultProduct.price 
-              }],
+              items: [
+                ...state.items,
+                {
+                  productId: defaultProduct.id,
+                  quantity,
+                  price: defaultProduct.price,
+                },
+              ],
             }));
           } else {
             console.log("No valid mock products found, using unknown product");
             set((state) => ({
-              items: [...state.items, { productId: "unknown", quantity, price: 0 }],
+              items: [
+                ...state.items,
+                { productId: "unknown", quantity, price: 0 },
+              ],
             }));
           }
           return;
         }
-        
+
         // First check if we already have the product in state
-        const existingItemIndex = get().items.findIndex((item) => item.productId === productId);
-        
+        const existingItemIndex = get().items.findIndex(
+          (item) => item.productId === productId
+        );
+
         if (existingItemIndex !== -1) {
           // If item exists, update quantity
           set((state) => ({
             items: state.items.map((item, index) =>
-              index === existingItemIndex ? { ...item, quantity: item.quantity + quantity } : item,
+              index === existingItemIndex
+                ? { ...item, quantity: item.quantity + quantity }
+                : item
             ),
           }));
           return;
@@ -76,45 +97,59 @@ export const useCartStore = create<CartStore>()(
         try {
           // Additional validation before making the API call
           if (!productId || productId.trim() === "") {
-            console.error("Cannot fetch product: Product ID is empty or invalid", productId);
+            console.error(
+              "Cannot fetch product: Product ID is empty or invalid",
+              productId
+            );
             set((state) => ({
-              items: [...state.items, { productId: "unknown", quantity, price: 0 }],
+              items: [
+                ...state.items,
+                { productId: "unknown", quantity, price: 0 },
+              ],
             }));
             return;
           }
-          
+
           // Log the URL we're about to call
           const apiUrl = `/api/products/${encodeURIComponent(productId)}`;
           console.log("Fetching product from URL:", apiUrl);
-          
+
           const response = await fetch(apiUrl);
           console.log("Product fetch response status:", response.status);
-          
+
           if (response.ok) {
             const product = await response.json();
             console.log("Fetched product:", product);
-            
+
             // Ensure we have a valid price - only use 0 as fallback if product.price is truly invalid
             let price = 0;
-            if (typeof product.price === 'number') {
+            if (typeof product.price === "number") {
               price = product.price;
             }
             console.log("Using price:", price);
-            
+
             set((state) => ({
               items: [...state.items, { productId, quantity, price }],
             }));
             return;
           } else {
             const errorText = await response.text();
-            console.error("Failed to fetch product:", response.status, response.statusText, "Body:", errorText);
-            
+            console.error(
+              "Failed to fetch product:",
+              response.status,
+              response.statusText,
+              "Body:",
+              errorText
+            );
+
             // If product not found (404), we should not add it to cart
             if (response.status === 404) {
-              console.error("Product not found in database, not adding to cart");
+              console.error(
+                "Product not found in database, not adding to cart"
+              );
               return;
             }
-            
+
             // For other errors, add item with default price
             set((state) => ({
               items: [...state.items, { productId, quantity, price: 0 }],
@@ -123,7 +158,7 @@ export const useCartStore = create<CartStore>()(
           }
         } catch (error) {
           console.error("Error fetching product price:", error);
-          
+
           // Add item with default price if fetch fails
           set((state) => ({
             items: [...state.items, { productId, quantity, price: 0 }],
@@ -134,50 +169,56 @@ export const useCartStore = create<CartStore>()(
       removeItem: (productId) => {
         set((state) => ({
           items: state.items.filter((item) => item.productId !== productId),
-        }))
+        }));
       },
       updateQuantity: (productId, quantity) => {
         if (quantity <= 0) {
-          get().removeItem(productId)
-          return
+          get().removeItem(productId);
+          return;
         }
         set((state) => ({
-          items: state.items.map((item) => (item.productId === productId ? { ...item, quantity } : item)),
-        }))
+          items: state.items.map((item) =>
+            item.productId === productId ? { ...item, quantity } : item
+          ),
+        }));
       },
       clearCart: () => set({ items: [] }),
       getTotal: () => {
-        return get().items.reduce((total, item) => total + item.price * item.quantity, 0)
+        return get().items.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        );
       },
       getItemCount: () => {
-        return get().items.reduce((count, item) => count + item.quantity, 0)
+        return get().items.reduce((count, item) => count + item.quantity, 0);
       },
       // New method to clean up invalid items
       cleanupInvalidItems: () => {
         set((state) => ({
-          items: state.items.filter((item) => 
-            item.productId && 
-            item.productId !== "undefined" && 
-            item.productId !== "null" && 
-            item.productId !== ""
+          items: state.items.filter(
+            (item) =>
+              item.productId &&
+              item.productId !== "undefined" &&
+              item.productId !== "null" &&
+              item.productId !== ""
           ),
-        }))
+        }));
       },
     }),
     {
       name: "cart-storage",
-    },
-  ),
-)
+    }
+  )
+);
 
 interface AuthStore {
-  user: User | null
-  isAuthenticated: boolean
-  login: (identifier: string, password: string) => Promise<boolean>
-  loginWithOAuth: (user: User) => void
-  logout: () => void
-  updateUser: (user: Partial<User>) => void
-  addAddress: (address: Omit<Address, "id">) => void
+  user: User | null;
+  isAuthenticated: boolean;
+  login: (identifier: string, password: string) => Promise<boolean>;
+  loginWithOAuth: (user: User) => void;
+  logout: () => void;
+  updateUser: (user: Partial<User>) => void;
+  addAddress: (address: Omit<Address, "id">) => void;
 }
 
 export const useAuthStore = create<AuthStore>()(
@@ -191,64 +232,65 @@ export const useAuthStore = create<AuthStore>()(
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ identifier, password }),
-          })
-          const data = await res.json()
+          });
+          const data = await res.json();
           if (res.ok && data.user) {
-            set({ user: data.user, isAuthenticated: true })
-            return true
+            set({ user: data.user, isAuthenticated: true });
+            return true;
           }
-          return false
+          return false;
         } catch {
-          return false
+          return false;
         }
       },
       loginWithOAuth: (oauthUser) => {
-        set({ user: oauthUser, isAuthenticated: true })
+        set({ user: oauthUser, isAuthenticated: true });
       },
       logout: () => {
-        set({ user: null, isAuthenticated: false })
+        set({ user: null, isAuthenticated: false });
       },
       updateUser: (userData) => {
         set((state) => ({
           user: state.user ? { ...state.user, ...userData } : null,
-        }))
+        }));
       },
       addAddress: (address) => {
         set((state) => {
-          if (!state.user) return state
-          const newAddress = { ...address, id: String(Date.now()) }
+          if (!state.user) return state;
+          const newAddress = { ...address, id: String(Date.now()) };
           return {
             user: {
               ...state.user,
               addresses: [...state.user.addresses, newAddress],
             },
-          }
-        })
+          };
+        });
       },
     }),
     {
       name: "auth-storage",
-    },
-  ),
-)
+    }
+  )
+);
 
 interface OrderStore {
-  orders: Order[]
-  addOrder: (order: Omit<Order, "id" | "createdAt">) => void
-  updateOrderStatus: (orderId: string, status: Order["status"]) => void
+  orders: Order[];
+  addOrder: (order: Omit<Order, "id" | "createdAt">) => void;
+  updateOrderStatus: (orderId: string, status: Order["status"]) => void;
 }
 
 // Clear corrupted localStorage on initialization
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   try {
-    const corruptedData = localStorage.getItem('order-storage');
-    if (corruptedData && corruptedData.length > 5 * 1024 * 1024) { // 5MB limit
-      console.warn('Clearing large order storage data');
-      localStorage.removeItem('order-storage');
+    const corruptedData = localStorage.getItem("order-storage");
+    if (corruptedData && corruptedData.length > 5 * 1024 * 1024) {
+      // 5MB limit
+      console.warn("Clearing large order storage data");
+      localStorage.removeItem("order-storage");
     }
   } catch (e) {
     // Clear localStorage if there are any errors
-    localStorage.removeItem('order-storage');
+    localStorage.removeItem("order-storage");
   }
 }
 
@@ -261,8 +303,8 @@ export const useOrderStore = create<OrderStore>()(
           ...order,
           id: String(Date.now()),
           createdAt: new Date().toISOString(),
-        }
-        
+        };
+
         set((state) => {
           // Limit to last 10 orders to prevent localStorage overflow
           const updatedOrders = [newOrder, ...state.orders].slice(0, 10);
@@ -273,7 +315,9 @@ export const useOrderStore = create<OrderStore>()(
       },
       updateOrderStatus: (orderId, status) => {
         set((state) => ({
-          orders: state.orders.map((order) => (order.id === orderId ? { ...order, status } : order)),
+          orders: state.orders.map((order) =>
+            order.id === orderId ? { ...order, status } : order
+          ),
         }));
       },
       // Add method to clear old orders
@@ -292,7 +336,7 @@ export const useOrderStore = create<OrderStore>()(
       // Serialize only essential order data to save space
       partialize: (state) => {
         // Only store essential fields to reduce storage size
-        const serializedOrders = state.orders.map(order => ({
+        const serializedOrders = state.orders.map((order) => ({
           id: order.id,
           userId: order.userId,
           totalAmount: order.totalAmount,
@@ -302,25 +346,28 @@ export const useOrderStore = create<OrderStore>()(
           paymentMethod: order.paymentMethod,
           createdAt: order.createdAt,
           // Store only order item summaries instead of full items
-          itemsSummary: order.items?.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            subtotal: item.subtotal,
-          })) || [],
+          itemsSummary:
+            order.items?.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              subtotal: item.subtotal,
+            })) || [],
           // Store minimal delivery address info
-          deliveryAddress: order.deliveryAddress ? {
-            id: order.deliveryAddress.id,
-            street: order.deliveryAddress.street,
-            number: order.deliveryAddress.number,
-            neighborhood: order.deliveryAddress.neighborhood,
-            city: order.deliveryAddress.city,
-          } : null,
+          deliveryAddress: order.deliveryAddress
+            ? {
+                id: order.deliveryAddress.id,
+                street: order.deliveryAddress.street,
+                number: order.deliveryAddress.number,
+                neighborhood: order.deliveryAddress.neighborhood,
+                city: order.deliveryAddress.city,
+              }
+            : null,
         }));
-        
+
         return {
           orders: serializedOrders,
         };
       },
-    },
-  ),
-)
+    }
+  )
+);

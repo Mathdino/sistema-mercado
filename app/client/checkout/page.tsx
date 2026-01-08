@@ -318,14 +318,8 @@ export default function CheckoutPage() {
       // Clear cart
       clearCart();
 
-      // Show success message
-      toast({
-        title: "Pedido realizado!",
-        description: "Seu pedido foi enviado com sucesso.",
-      });
-
-      // Navigate to orders page
-      router.push("/client/orders");
+      // Navigate to success page
+      router.push("/client/order-success");
     } catch (error) {
       console.error("Error creating order:", error);
       toast({
