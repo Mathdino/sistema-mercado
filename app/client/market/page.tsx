@@ -45,10 +45,12 @@ export default function MarketPage() {
         const response = await fetch(`/api/products?search=${encodeURIComponent(searchQuery)}&category=${selectedCategory || ''}`)
         if (response.ok) {
           const data = await response.json()
+          
+          // When searching or filtering by category, show all matching products together
+          // Featured products that match will naturally appear first due to API sorting
           setProducts(data.products)
-          setFeaturedProducts(data.featuredProducts || [])
+          setFeaturedProducts([]) // Clear separate featured section when searching/filtering
           setCategories(data.categories)
-
         }
       } catch (error) {
         console.error("Error fetching products:", error)
@@ -57,7 +59,9 @@ export default function MarketPage() {
       }
     }
 
-    fetchProducts()
+    // Debounce search to avoid too many API calls
+    const timeoutId = setTimeout(fetchProducts, 300)
+    return () => clearTimeout(timeoutId)
   }, [searchQuery, selectedCategory])
 
   // Initial load - fetch all data
@@ -111,15 +115,13 @@ export default function MarketPage() {
           />
         </div>
         
-        {/* Featured Products */}
-        {featuredProducts.length > 0 && (
+        {/* Featured Products - only show when not searching */}
+        {!searchQuery && !selectedCategory && featuredProducts.length > 0 && (
           <div className="px-4">
             <div className="flex items-center gap-2 mb-4">
               <span className="text-xl font-bold">⭐ Destaques</span>
               <span className="text-sm text-muted-foreground">
-                ({selectedCategory 
-                  ? categories.find(c => c.id === selectedCategory)?.name 
-                  : "Todos"})
+                ({categories.find(c => c.id === selectedCategory)?.name || "Todos"})
               </span>
             </div>
             <div className="grid grid-cols-2 gap-4 mb-8">
@@ -133,9 +135,11 @@ export default function MarketPage() {
         {/* All Products */}
         <div className="px-4">
           <h2 className="text-xl font-bold mb-4">
-            {selectedCategory 
-              ? categories.find(c => c.id === selectedCategory)?.name || "Produtos" 
-              : "Todos os Produtos"}
+            {searchQuery 
+              ? `Resultados para "${searchQuery}"` 
+              : selectedCategory 
+                ? categories.find(c => c.id === selectedCategory)?.name || "Produtos" 
+                : "Todos os Produtos"}
           </h2>
           
           {loading ? (
@@ -144,11 +148,9 @@ export default function MarketPage() {
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-2 gap-4">
-              {products
-                .filter(product => !featuredProducts.some(fp => fp.id === product.id))
-                .map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
           ) : (
             <div className="text-center py-8">

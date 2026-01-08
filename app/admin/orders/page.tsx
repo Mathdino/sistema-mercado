@@ -63,6 +63,132 @@ export default function AdminOrdersPage() {
   const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
   const [estimatedDeliveryTime, setEstimatedDeliveryTime] = useState("");
   const [orderForWhatsapp, setOrderForWhatsapp] = useState<Order | null>(null);
+  const [lastOrderCount, setLastOrderCount] = useState(0);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+
+  // Initialize audio
+  useEffect(() => {
+    const audioElement = new Audio("/audio/notification.mp3");
+    setAudio(audioElement);
+    
+    return () => {
+      audioElement.remove();
+    };
+  }, []);
+
+  // Real-time order monitoring
+  useEffect(() => {
+    const monitorNewOrders = async () => {
+      try {
+        const response = await fetch(`/api/orders?page=1&limit=1`, { credentials: "include" });
+        if (response.ok) {
+          const data = await response.json();
+          const currentOrderCount = data.pagination.totalOrders;
+          
+          // If this is not the first check and we have more orders than before
+          if (lastOrderCount > 0 && currentOrderCount > lastOrderCount) {
+            // Play notification sound
+            if (audio) {
+              audio.play().catch(error => {
+                console.log("Audio play failed:", error);
+              });
+            }
+            
+            // Show notification
+            toast.success(`Novo pedido recebido! Total: ${currentOrderCount}`);
+            
+            // Refresh the current page to show new orders
+            const refreshResponse = await fetch(
+              `/api/orders?page=${currentPage}&limit=${ordersPerPage}`,
+              { credentials: "include" }
+            );
+            
+            if (refreshResponse.ok) {
+              const refreshData = await refreshResponse.json();
+              const transformedOrders: Order[] = refreshData.orders.map((order: any) => {
+                // Normalize the status to one of our valid statuses
+                let normalizedStatus: Order["status"] = "pending";
+                
+                switch (order.status.toLowerCase()) {
+                  case "pending":
+                    normalizedStatus = "pending";
+                    break;
+                  case "confirmed":
+                  case "preparing":
+                  case "delivering":
+                  case "delivered":
+                    normalizedStatus = "confirmed";
+                    break;
+                  case "cancelled":
+                  case "canceled":
+                    normalizedStatus = "cancelled";
+                    break;
+                  default:
+                    normalizedStatus = "pending";
+                }
+                
+                return {
+                  id: order.id,
+                  userId: order.userId,
+                  items: order.items,
+                  totalAmount: order.totalAmount,
+                  deliveryFee: order.deliveryFee,
+                  subtotal: order.subtotal,
+                  status: normalizedStatus,
+                  paymentMethod: order.paymentMethod.toLowerCase() as Order["paymentMethod"],
+                  deliveryAddress: {
+                    id: order.deliveryAddress.id,
+                    street: order.deliveryAddress.street,
+                    number: order.deliveryAddress.number,
+                    complement: order.deliveryAddress.complement || undefined,
+                    neighborhood: order.deliveryAddress.neighborhood,
+                    city: order.deliveryAddress.city,
+                    state: order.deliveryAddress.state,
+                    zipCode: order.deliveryAddress.zipCode,
+                    isDefault: order.deliveryAddress.isDefault,
+                  },
+                  createdAt: order.createdAt,
+                  estimatedDelivery: order.estimatedDelivery,
+                  notes: order.notes,
+                  user: order.user ? {
+                    id: order.user.id,
+                    name: order.user.name,
+                    phone: order.user.phone,
+                    email: order.user.email,
+                    cpf: order.user.cpf,
+                  } : undefined,
+                  coupon: order.coupon ? {
+                    id: order.coupon.id,
+                    code: order.coupon.code,
+                    discount: order.coupon.discount,
+                    type: order.coupon.type,
+                  } : undefined,
+                  cashbackAmount: typeof order.cashbackAmount === "number" ? order.cashbackAmount : undefined,
+                };
+              });
+              
+              setOrders(transformedOrders);
+              setTotalPages(refreshData.pagination.totalPages);
+              setTotalOrders(refreshData.pagination.totalOrders);
+            }
+          }
+          
+          setLastOrderCount(currentOrderCount);
+        }
+      } catch (error) {
+        console.error("Error monitoring orders:", error);
+      }
+    };
+
+    // Check immediately on mount
+    monitorNewOrders();
+    
+    // Set up interval to check every 2 minutes (120000 ms)
+    const intervalId = setInterval(monitorNewOrders, 120000);
+    
+    // Clean up interval on unmount
+    return () => clearInterval(intervalId);
+  }, [currentPage, lastOrderCount, audio]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -151,6 +277,7 @@ export default function AdminOrdersPage() {
           setOrders(transformedOrders);
           setTotalPages(data.pagination.totalPages);
           setTotalOrders(data.pagination.totalOrders);
+          setLastOrderCount(data.pagination.totalOrders); // Set initial count
         } else {
           const errorText = await response.text();
           console.error("API Error Response:", errorText);

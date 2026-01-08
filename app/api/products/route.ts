@@ -46,10 +46,26 @@ export async function GET(req: NextRequest) {
     
     // Filter by search term if provided
     if (search) {
-      whereClause.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } }
-      ]
+      // First, check if search term matches any category name
+      const matchingCategories = await prisma.category.findMany({
+        where: {
+          name: { contains: search, mode: 'insensitive' }
+        }
+      });
+      
+      const categoryIds = matchingCategories.map(cat => cat.id);
+      
+      // Only include products that match the search term directly
+      // or belong to matching categories
+      whereClause.AND = [
+        {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+            ...(categoryIds.length > 0 ? [{ categoryId: { in: categoryIds } }] : [])
+          ]
+        }
+      ];
     }
     
     // Filter by featured products if requested
@@ -88,6 +104,29 @@ export async function GET(req: NextRequest) {
     // Apply category filter to featured products if category is specified
     if (categoryId) {
       featuredWhereClause.categoryId = categoryId
+    }
+    
+    // Apply search filter to featured products if search term is provided
+    if (search) {
+      // First, check if search term matches any category name for featured products
+      const matchingCategories = await prisma.category.findMany({
+        where: {
+          name: { contains: search, mode: 'insensitive' }
+        }
+      });
+      
+      const categoryIds = matchingCategories.map(cat => cat.id);
+      
+      // Only include featured products that match search criteria
+      featuredWhereClause.AND = [
+        {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+            ...(categoryIds.length > 0 ? [{ categoryId: { in: categoryIds } }] : [])
+          ]
+        }
+      ];
     }
     
     const featuredProducts = await prisma.product.findMany({
