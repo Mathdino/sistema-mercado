@@ -492,8 +492,7 @@ ${orderItems}
 ${order.coupon ? `*Desconto* (${order.coupon.code}): -${formatCurrency(getCouponDiscountValue(order))}\n` : ''}${order.cashbackAmount && order.cashbackAmount > 0 ? `*Cashback:* -${formatCurrency(order.cashbackAmount)}\n` : ''}
 *Total: ${formatCurrency(order.totalAmount)}*
 
-
-Tempo estimado de entrega: ${formattedEstimatedTime}${deliveryTimeText}
+${deliveryTimeText}
 
 Agradecemos pela sua compra!`;
 
