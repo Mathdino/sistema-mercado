@@ -484,16 +484,27 @@ Agradecemos pela sua compra!`;
 
     // Encode the message for WhatsApp URL
     const encodedMessage = encodeURIComponent(message);
-    const phoneNumber = order.user?.phone?.replace(/[^0-9]/g, ""); // Remove non-numeric characters
-
-    if (phoneNumber) {
+    
+    // Format phone number for WhatsApp (keep DDD + number together)
+    let phoneNumber = order.user?.phone || "";
+    
+    // Remove spaces, parentheses, and hyphens but keep digits in order
+    phoneNumber = phoneNumber.replace(/[\s\(\)\-]/g, "");
+    
+    // Ensure it's a valid Brazilian phone number (10 or 11 digits)
+    if (phoneNumber.length >= 10) {
+      // Add country code if not present
+      if (!phoneNumber.startsWith('55')) {
+        phoneNumber = '55' + phoneNumber;
+      }
+      
       // Open WhatsApp with the message
       window.open(
         `https://wa.me/${phoneNumber}?text=${encodedMessage}`,
         "_blank"
       );
     } else {
-      toast.error("Número de telefone do cliente não disponível");
+      toast.error("Número de telefone do cliente inválido");
     }
   };
 
