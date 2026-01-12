@@ -13,6 +13,7 @@ import { useCartStore, useAuthStore } from "@/lib/store";
 import { mockProducts, mockMarket } from "@/lib/mock-data";
 import { formatCurrency } from "@/lib/currency";
 import { ShoppingBag } from "lucide-react";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 import type { CartItem, Product } from "@/lib/types";
 
 export default function CartPage() {
@@ -21,6 +22,7 @@ export default function CartPage() {
   const [cartProducts, setCartProducts] = useState<
     Array<CartItem & { product: Product }>
   >([]);
+  const [loadingCartProducts, setLoadingCartProducts] = useState(true);
   const [activeFee, setActiveFee] = useState<{
     type: "FIXED" | "PER_KM";
     fixedValue: number | null;
@@ -50,9 +52,12 @@ export default function CartPage() {
     const fetchCartProducts = async () => {
       if (items.length === 0) {
         setCartProducts([]);
+        setLoadingCartProducts(false);
         return;
       }
 
+      setLoadingCartProducts(true);
+      
       try {
         // First try to find in mock data
         const mockCartProducts = items
@@ -68,6 +73,7 @@ export default function CartPage() {
         // If all items are found in mock data, use them
         if (mockCartProducts.length === items.length) {
           setCartProducts(mockCartProducts);
+          setLoadingCartProducts(false);
           return;
         }
 
@@ -107,6 +113,8 @@ export default function CartPage() {
           .filter(Boolean) as Array<CartItem & { product: Product }>;
 
         setCartProducts(mockCartProducts);
+      } finally {
+        setLoadingCartProducts(false);
       }
     };
 
@@ -114,6 +122,7 @@ export default function CartPage() {
       fetchCartProducts();
     } else if (items.length === 0) {
       setCartProducts([]);
+      setLoadingCartProducts(false);
     }
   }, [items, isHydrated, isAuthenticated]);
 
@@ -208,23 +217,31 @@ export default function CartPage() {
       <main className="space-y-4 px-4 py-6">
         <h1 className="text-2xl font-bold">Carrinho</h1>
 
-        <div className="space-y-3">
-          {cartProducts.map((item, index) => (
-            <CartItemCard key={`${item.productId}-${index}`} item={item} />
-          ))}
-        </div>
+        {loadingCartProducts ? (
+          <div className="flex h-64 items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {cartProducts.map((item, index) => (
+              <CartItemCard key={`${item.productId}-${index}`} item={item} />
+            ))}
+          </div>
+        )}
       </main>
 
-      <div className="left-0 right-0 border-t bg-background p-4">
-        <Button
-          className="w-full"
-          size="lg"
-          disabled={!canCheckout}
-          onClick={() => router.push("/client/checkout")}
-        >
-          Finalizar pedido
-        </Button>
-      </div>
+      {!loadingCartProducts && cartProducts.length > 0 && (
+        <div className="left-0 right-0 border-t bg-background p-4">
+          <Button
+            className="w-full"
+            size="lg"
+            disabled={!canCheckout}
+            onClick={() => router.push("/client/checkout")}
+          >
+            Finalizar pedido
+          </Button>
+        </div>
+      )}
       <BottomNav />
       <LoginModal
         isOpen={isLoginModalOpen}

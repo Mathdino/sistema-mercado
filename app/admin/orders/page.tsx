@@ -673,8 +673,8 @@ Agradecemos pela sua compra!`;
       doc.text(`TOTAL:`, 130, yPosition);
       doc.text(formatCurrency(order.totalAmount), 170, yPosition);
 
-      // Thank you message
-      yPosition += 90;
+      // Thank you message - moved closer to totals
+      yPosition += 40;
       doc.setFontSize(12);
       doc.setFont("helvetica", "normal");
       doc.text("Obrigado pela sua compra!", 105, yPosition, {
