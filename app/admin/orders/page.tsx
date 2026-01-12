@@ -490,8 +490,8 @@ ${orderItems}
 *Subtotal:* ${formatCurrency(order.subtotal)}
 *Taxa de entrega:* ${formatCurrency(order.deliveryFee)}
 ${order.coupon ? `*Desconto* (${order.coupon.code}): -${formatCurrency(getCouponDiscountValue(order))}\n` : ''}${order.cashbackAmount && order.cashbackAmount > 0 ? `*Cashback:* -${formatCurrency(order.cashbackAmount)}\n` : ''}
-
 *Total: ${formatCurrency(order.totalAmount)}*
+
 
 Tempo estimado de entrega: ${formattedEstimatedTime}${deliveryTimeText}
 
