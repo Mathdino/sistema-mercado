@@ -467,6 +467,19 @@ export default function AdminOrdersPage() {
       }
     }
 
+    // Calculate coupon discount value
+    const getCouponDiscountValue = (order: Order) => {
+      if (!order.coupon) return 0;
+      
+      if (order.coupon.type === "FIXED") {
+        return order.coupon.discount;
+      } else {
+        // PERCENTAGE type
+        const baseTotal = order.subtotal + order.deliveryFee;
+        return (baseTotal * order.coupon.discount) / 100;
+      }
+    };
+
     const message = `Olá ${order.user?.name || "cliente"}!
     
 Seu pedido #${shortenOrderId(order.id)} foi confirmado!
@@ -476,7 +489,7 @@ ${orderItems}
 
 Subtotal: ${formatCurrency(order.subtotal)}
 Taxa de entrega: ${formatCurrency(order.deliveryFee)}
-Total: ${formatCurrency(order.totalAmount)}
+${order.coupon ? `Desconto (cupom ${order.coupon.code}): -${formatCurrency(getCouponDiscountValue(order))}\n` : ''}${order.cashbackAmount && order.cashbackAmount > 0 ? `Cashback utilizado: -${formatCurrency(order.cashbackAmount)}\n` : ''}Total: ${formatCurrency(order.totalAmount)}
 
 Tempo estimado de entrega: ${formattedEstimatedTime}${deliveryTimeText}
 
