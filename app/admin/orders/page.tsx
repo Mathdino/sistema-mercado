@@ -484,14 +484,16 @@ export default function AdminOrdersPage() {
     
 Seu pedido #${shortenOrderId(order.id)} foi confirmado!
 
-Itens:
+*Itens:*
 ${orderItems}
 
-Subtotal: ${formatCurrency(order.subtotal)}
-Taxa de entrega: ${formatCurrency(order.deliveryFee)}
-${order.coupon ? `Desconto (cupom ${order.coupon.code}): -${formatCurrency(getCouponDiscountValue(order))}\n` : ''}${order.cashbackAmount && order.cashbackAmount > 0 ? `Cashback utilizado: -${formatCurrency(order.cashbackAmount)}\n` : ''}*Total: ${formatCurrency(order.totalAmount)}*
+*Subtotal:* ${formatCurrency(order.subtotal)}
+*Taxa de entrega:* ${formatCurrency(order.deliveryFee)}
+${order.coupon ? `*Desconto* (${order.coupon.code}): -${formatCurrency(getCouponDiscountValue(order))}\n` : ''}${order.cashbackAmount && order.cashbackAmount > 0 ? `*Cashback:* -${formatCurrency(order.cashbackAmount)}\n` : ''}
 
-Tempo estimado de entrega: *${formattedEstimatedTime}${deliveryTimeText}*
+*Total: ${formatCurrency(order.totalAmount)}*
+
+Tempo estimado de entrega: ${formattedEstimatedTime}${deliveryTimeText}
 
 Agradecemos pela sua compra!`;
 
